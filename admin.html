@@ -100,7 +100,7 @@
             return hash.toString();
         }
         
-        const ADMIN_HASH = "1754688"; // 9999
+        const ADMIN_HASH = "1754688"; // 正确的 9999 Hash
 
         function verifyAdmin() {
             let input = document.getElementById('adminPin').value;
@@ -229,6 +229,7 @@
                         poh: poh, workers: workers,
                         actualOutput: actualOutput, expectedOutput: expectedOutput,
                         achievementRate: achievementRate, status: status,
+                        lastUpdateMs: Date.now(), // 更新心跳时间，防止 Boss 端误判离线
                         lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (后台大修)"
                     };
                 });
