@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚡ 智能生产线实时看板</title>
     <style>
-        * { box-sizing: border-box; } /* 确保边距不会撑破排版 */
+        * { box-sizing: border-box; } 
         
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
@@ -13,10 +13,9 @@
             color: #e2e8f0; 
             margin: 0; 
             padding: 15px 20px; 
-            height: 100vh; /* 锁定屏幕高度 */
+            height: 100vh; /* 桌面端默认锁定一屏高度 */
             display: flex;
             flex-direction: column;
-            overflow: auto; /* 防止极端小屏幕下被裁切，正常情况无滚动条 */
         }
         
         h1 { 
@@ -24,7 +23,7 @@
             color: #00e5ff; 
             text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
             letter-spacing: 3px;
-            margin: 5px 0 15px 0; /* 缩小上下边距 */
+            margin: 0 0 15px 0; 
             font-size: 30px;
             flex-shrink: 0;
         }
@@ -54,13 +53,12 @@
             border-radius: 12px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.5); 
             margin-bottom: 15px; 
-            flex-shrink: 0; /* 保持面板大小不变 */
+            flex-shrink: 0; 
         }
         .input-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px; }
         .input-row:last-child { margin-bottom: 0; }
         .input-row label { font-weight: bold; color: #94a3b8; font-size: 16px; } 
         
-        /* 输入框适度调整大小以适应一屏 */
         input[type="number"], input[type="time"], input[type="text"], input[type="date"], select { 
             background-color: #0f172a;
             color: #00e5ff;
@@ -90,40 +88,41 @@
         .btn-stop { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
         
+        /* 独立的大按钮样式 */
         .btn-add { 
             background: linear-gradient(135deg, #8b5cf6, #6d28d9); 
-            font-size: 28px; width: 80px; height: 80px; border-radius: 50%; margin: 5px; 
+            font-size: 40px; width: 120px; height: 120px; border-radius: 50%; margin: 10px; 
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
-            border: 2px solid #a78bfa;
+            border: 3px solid #a78bfa;
         }
         .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(139, 92, 246, 0.9); }
         
-        .btn-small { padding: 8px 12px; font-size: 14px; margin-left: 5px; }
+        .btn-small { padding: 8px 12px; font-size: 16px; margin-left: 5px; }
         .btn-bulk { background: #3b82f6; }
 
         .status-text { font-size: 16px; color: #94a3b8; font-weight: bold; margin-top: 10px; display: inline-block; margin-left: 15px;}
 
-        /* 数据显示区 - 弹性布局 */
+        /* 数据显示区 */
         .top-dashboard { margin-bottom: 15px; flex-shrink: 0; }
         .dashboard { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
             gap: 20px; 
             flex-grow: 1; /* 占据剩余全部高度 */
-            min-height: 0; /* 防止内容撑破 grid */
+            min-height: 0; 
         }
         
         .card { 
             background: rgba(30, 41, 59, 0.6); 
             border: 1px solid #334155;
-            padding: 15px; 
+            padding: 20px; 
             border-radius: 12px; 
             position: relative;
             overflow: hidden;
             text-align: center;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* 内部元素垂直居中 */
+            justify-content: center; 
             align-items: center;
         }
         
@@ -132,22 +131,53 @@
         .dashboard .card:nth-child(2)::before { background: #f472b6; box-shadow: 0 0 15px #f472b6; }
         .dashboard .card:nth-child(3)::before { background: #8b5cf6; box-shadow: 0 0 15px #8b5cf6; }
         
-        /* 独立顶部达标率卡片特效 (强制绿色) */
         .card.top-card::before { background: #10b981 !important; box-shadow: 0 0 15px #10b981 !important; }
 
-        .card h2 { margin-top: 0; font-size: 18px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 5px;}
+        /* 字体尺寸大幅放大，填满空白 */
+        .card h2 { margin-top: 0; font-size: 26px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 15px;}
         
-        .value { font-size: 60px; font-weight: bold; margin: 5px 0; font-family: 'Courier New', Courier, monospace; }
-        .rate-value { font-size: 80px; } 
+        .value { font-size: 90px; font-weight: bold; margin: 10px 0; font-family: 'Courier New', Courier, monospace; }
+        .rate-value { font-size: 120px; } 
+        
+        /* 运行时间专用字体样式 */
+        .time-value { color: #38bdf8; line-height: 1.1; font-size: 70px; }
+        .time-unit { font-size: 28px; }
+        .time-sub { font-size: 22px; color: #94a3b8; }
         
         .good { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
         .warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.8); }
         .danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
         
-        .manual-entry { margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 5px; width: 100%; }
+        .manual-entry { margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 5px; width: 100%; }
         
         .editable-number { cursor: pointer; border-bottom: 2px dashed #8b5cf6; display: inline-block; padding: 0 10px; transition: 0.3s; }
         .editable-number:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
+
+        /* ====================================================
+           手机及小屏幕适配 (Mobile Responsive)
+           当屏幕宽度小于 900px 时，自动切换为可滚动直排模式
+           ==================================================== */
+        @media (max-width: 900px) {
+            body {
+                height: auto; /* 解除高度限制，允许上下滚动 */
+                min-height: 100vh;
+            }
+            .dashboard {
+                grid-template-columns: 1fr; /* 底部三格由横排变直排 */
+            }
+            .input-row {
+                justify-content: flex-start;
+            }
+            .card {
+                padding: 30px 15px; /* 增加手机端卡片的内边距 */
+            }
+            /* 手机端稍微缩减超大字体，避免撑破屏幕 */
+            .card h2 { font-size: 22px; }
+            .value { font-size: 70px; }
+            .rate-value { font-size: 90px; }
+            .btn-add { width: 100px; height: 100px; font-size: 32px; }
+            .time-value { font-size: 60px; }
+        }
     </style>
 </head>
 <body>
@@ -243,9 +273,9 @@
     <div class="dashboard">
         <div class="card">
             <h2>⏱️ 累计运行时间</h2>
-            <div class="value" id="elapsedTimeDisplay" style="color: #38bdf8; font-size: 45px; line-height: 1.1;">
-                0.00 <span style="font-size: 20px;">小时</span><br>
-                <span style="font-size: 18px; color: #94a3b8;">(0.0 分钟)</span>
+            <div class="value time-value" id="elapsedTimeDisplay">
+                0.00 <span class="time-unit">小时</span><br>
+                <span class="time-sub">(0.0 分钟)</span>
             </div>
         </div>
         
@@ -302,7 +332,7 @@
             targetPoh = parseFloat(document.getElementById('poh').value);
             targetWorkers = parseInt(document.getElementById('workers').value);
             
-            // 验证是否所有栏位（包括下拉菜单）都已填写
+            // 验证是否所有栏位都已填写
             if (!dateInput || !timeInput || isNaN(targetPoh) || isNaN(targetWorkers) || !factory || !line) {
                 alert("请填写所有生产资料（请确保已选择工厂与线别）！"); return;
             }
@@ -402,9 +432,10 @@
             if(elapsedMins < 0) elapsedMins = 0;
             let elapsedHours = elapsedMins / 60;
             
+            // 使用 CSS class 替代写死的 inline style
             document.getElementById('elapsedTimeDisplay').innerHTML = `
-                ${elapsedHours.toFixed(2)} <span style="font-size: 20px;">小时</span><br>
-                <span style="font-size: 18px; color: #94a3b8;">(${elapsedMins.toFixed(1)} 分钟)</span>
+                ${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br>
+                <span class="time-sub">(${elapsedMins.toFixed(1)} 分钟)</span>
             `;
 
             let expectedOutput = (targetPoh * targetWorkers / 60) * elapsedMins;
@@ -462,7 +493,7 @@
                 
                 document.getElementById('statusText').innerHTML = "系统状态：STANDBY (未开始)";
                 
-                document.getElementById('elapsedTimeDisplay').innerHTML = `0.00 <span style="font-size: 20px;">小时</span><br><span style="font-size: 18px; color: #94a3b8;">(0.0 分钟)</span>`;
+                document.getElementById('elapsedTimeDisplay').innerHTML = `0.00 <span class="time-unit">小时</span><br><span class="time-sub">(0.0 分钟)</span>`;
                 document.getElementById('expectedOutput').innerText = "0";
                 document.getElementById('actualOutput').innerText = "0";
                 
