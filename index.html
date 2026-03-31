@@ -23,10 +23,13 @@
         select option { background-color: #0f172a; color: #e2e8f0; } select optgroup { color: #38bdf8; }
         .action-buttons { display: flex; align-items: center; gap: 10px; flex-grow: 1; justify-content: flex-end; flex-wrap: wrap; }
         button { padding: 6px 15px; font-size: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; transition: all 0.3s ease; letter-spacing: 1px; }
+        
         .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
         .btn-start:hover { transform: translateY(-2px); box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
         .btn-stop { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .btn-end { background: linear-gradient(135deg, #ef4444, #dc2626); } /* 红色结束按钮 */
+        .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
+        
         .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
         .top-dashboard { margin-bottom: 10px; flex-shrink: 0; }
         .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex-grow: 1; min-height: 0; }
@@ -50,17 +53,22 @@
         .warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.8); }
         .danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
         .editable-number { cursor: pointer; border-bottom: 2px dashed #8b5cf6; display: inline-block; padding: 0 10px; transition: 0.3s; }
+        .editable-number:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
         
         @media (max-width: 900px) {
             body { height: auto; min-height: 100vh; overflow: auto; padding: 10px; }
+            .mega-order-display { font-size: 16px; line-height: 1.4; padding: 12px;}
             .input-row { flex-direction: column; align-items: stretch; gap: 12px; }
             .form-group { flex-direction: row; align-items: center; gap: 10px; width: 100%; justify-content: space-between; }
             .form-group label { margin-bottom: 0; white-space: normal; max-width: 45%; flex-shrink: 0; text-align: left; }
             .form-group input, .form-group select { flex: 1; width: 10% !important; }
             .action-buttons { flex-direction: column; align-items: stretch; margin-top: 10px; }
             .action-buttons button { width: 100%; padding: 12px; margin-bottom: 5px; font-size: 18px;}
+            .status-text { text-align: center; margin-left: 0; margin-top: 5px; display: block; }
             .dashboard { grid-template-columns: 1fr; }
             .card { padding: 25px 15px; }
+            .card h2 { font-size: 22px; } .value { font-size: 75px; } .rate-value { font-size: 95px; } .time-value { font-size: 65px; }
+            .btn-add { width: 100px; height: 100px; font-size: 40px; }
         }
 
         #authOverlay {
@@ -73,7 +81,7 @@
             border-radius: 15px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); text-align: center;
         }
         .auth-box h2 { color: #00e5ff; margin-top: 0; font-size: 28px; letter-spacing: 2px; }
-        .auth-box input { font-size: 30px; letter-spacing: 10px; width: 200px; text-align: center; margin: 20px 0; }
+        .auth-box input { font-size: 30px; letter-spacing: 10px; width: 150px; text-align: center; margin: 20px 0; }
         .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; }
     </style>
 </head>
@@ -82,11 +90,11 @@
     <div id="authOverlay">
         <div class="auth-box">
             <h2>🔒 产线系统授权</h2>
-            <p style="color: #94a3b8;">请输入车间专用操作密码 (预设 8888)</p>
-            <input type="password" id="pinInput" placeholder="****" maxlength="4">
+            <p style="color: #94a3b8;">请输入车间专用操作密码</p>
+            <input type="password" id="pinInput" placeholder="***" maxlength="3">
             <br>
             <button class="btn-bulk" onclick="verifyPIN()">进入系统</button>
-            <p id="pinError" style="color: #ef4444; display: none; margin-top: 15px; font-weight: bold;">❌ 密码错误</p>
+            <p id="pinError" style="color: #ef4444; display: none; margin-top: 15px; font-weight: bold;">❌ 密码错误，请重试</p>
         </div>
     </div>
 
@@ -124,7 +132,8 @@
             <div class="form-group"><label>👥 生产/配备员工+班组课:</label><input type="number" id="workers" class="short-input" min="1"></div>
             <div class="action-buttons">
                 <button class="btn-start" id="startBtn" onclick="startProduction()">▶️ 锁定并开始</button>
-                <button class="btn-stop" id="stopBtn" onclick="toggleStopResume()" disabled style="opacity: 0.5;">⏸️ 暂停</button>
+                <button class="btn-stop" id="pauseBtn" onclick="togglePause()" disabled style="opacity: 0.5;">⏸️ 暂停</button>
+                <button class="btn-end" id="endBtn" onclick="endProduction()" disabled style="opacity: 0.5;">⏹️ 结束</button>
                 <button class="btn-reset" onclick="resetProduction()">🗑️ 重设</button>
                 <span class="status-text" id="statusText">系统状态：STANDBY (未开始)</span>
             </div>
@@ -145,8 +154,8 @@
     </div>
 
     <script>
-        // 🔐 设定进入密码
-        const ACCESS_PIN = "8888";
+        // 🔐 设定进入密码 (已更改为 888)
+        const ACCESS_PIN = "888";
         function verifyPIN() {
             let input = document.getElementById('pinInput').value;
             if (input === ACCESS_PIN) document.getElementById('authOverlay').style.display = 'none';
@@ -154,9 +163,6 @@
         }
         document.getElementById('pinInput').addEventListener("keypress", function(e) { if (e.key === "Enter") verifyPIN(); });
 
-        // ==========================================
-        // 1. FIREBASE 设定区 (已填入你的金钥)
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
@@ -170,8 +176,10 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let actualCount = 0; let timerInterval = null; let isRunning = false; let isStopped = false;
-        let customStartDate = null; let stopDate = null; let targetPoh = 0; let targetWorkers = 0;
+        let actualCount = 0; let timerInterval = null; 
+        let isRunning = false; let isPaused = false; let isEnded = false;
+        let customStartDate = null; let pauseDate = null; 
+        let targetPoh = 0; let targetWorkers = 0;
 
         window.onload = function() { setTodayDate(); };
         function setTodayDate() {
@@ -179,11 +187,16 @@
             document.getElementById('dateInput').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         }
 
+        // 推送数据 (加入三态 Status)
         function pushDataToCloud(elapsedMins, expectedOutput, rate) {
-            if(!isRunning && !isStopped) return;
+            if(!isRunning && !isPaused && !isEnded) return;
             let dateVal = document.getElementById('dateInput').value; 
             let factoryVal = document.getElementById('factoryInput').value;
             let lineVal = document.getElementById('lineInput').value;
+            
+            let statusStr = "RUNNING";
+            if (isEnded) statusStr = "STOPPED";
+            else if (isPaused) statusStr = "PAUSED";
             
             db.ref(`production_data/${dateVal}/${factoryVal}_${lineVal}`).set({
                 factory: factoryVal, line: lineVal,
@@ -193,13 +206,13 @@
                 startTime: document.getElementById('startTimeInput').value, 
                 actualOutput: actualCount, expectedOutput: expectedOutput,
                 achievementRate: rate, elapsedMins: elapsedMins,
-                status: isStopped ? "PAUSED" : "RUNNING",
+                status: statusStr,
                 lastUpdate: new Date().toLocaleTimeString('zh-CN')
             });
         }
 
         function startProduction() {
-            if (isRunning || isStopped) return; // 已启动或暂停中不重复执行
+            if (isRunning || isPaused || isEnded) return; 
             
             let dateVal = document.getElementById('dateInput').value;
             let factoryVal = document.getElementById('factoryInput').value;
@@ -213,7 +226,7 @@
             db.ref(`production_data/${dateVal}/${factoryVal}_${lineVal}`).once('value').then((snapshot) => {
                 if (snapshot.exists()) {
                     let savedData = snapshot.val();
-                    if (confirm(`📡 寻找到今日进度！\n品牌: ${savedData.brand}\n目前产量: ${savedData.actualOutput}\n\n是否直接恢复此进度？\n(按确定恢复，按取消将重新开始)`)) {
+                    if (confirm(`📡 寻找到今日进度！\n品牌: ${savedData.brand}\n目前产量: ${savedData.actualOutput}\n\n是否恢复此进度？\n(按确定恢复，按取消将重新开始)`)) {
                         restoreSession(savedData); return;
                     }
                 }
@@ -231,7 +244,21 @@
             
             targetPoh = data.poh; targetWorkers = data.workers; actualCount = data.actualOutput;
             document.getElementById('actualOutput').innerText = actualCount;
+            
+            if (data.status === "STOPPED") {
+                alert("⚠️ 注意：该产线已【结束】生产，数据已冻结不可修改。");
+                isEnded = true;
+                disableAllInputs();
+                document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#ef4444;">🔴 已结束 (读取历史记录)</span>`;
+                updateDashboard();
+                return;
+            }
             beginRun(document.getElementById('dateInput').value, data.startTime, data.factory, data.line);
+            
+            if (data.status === "PAUSED") {
+                alert("⚠️ 该产线之前处于『暂停』状态。系统自动进入暂停模式。");
+                togglePause(); // 触发暂停逻辑
+            }
         }
 
         function beginRun(dateVal, timeVal, factoryVal, lineVal) {
@@ -239,14 +266,12 @@
             customStartDate = new Date(year, month - 1, day, hours, minutes, 0);
             if (customStartDate > new Date()) { alert("开工时间不能晚于现在！"); return; }
 
-            document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true;
-            document.getElementById('lineInput').disabled = true; document.getElementById('brandInput').disabled = true;
-            document.getElementById('orderInput').disabled = true; document.getElementById('startTimeInput').disabled = true;
-            document.getElementById('poh').disabled = true; document.getElementById('workers').disabled = true;
-
-            isRunning = true; isStopped = false; stopDate = null;
+            disableAllInputs();
+            isRunning = true; isPaused = false; isEnded = false; pauseDate = null;
+            
             document.getElementById('startBtn').disabled = true; document.getElementById('startBtn').style.opacity = "0.5";
-            document.getElementById('stopBtn').disabled = false; document.getElementById('stopBtn').style.opacity = "1";
+            document.getElementById('pauseBtn').disabled = false; document.getElementById('pauseBtn').style.opacity = "1";
+            document.getElementById('endBtn').disabled = false; document.getElementById('endBtn').style.opacity = "1";
             
             let megaBanner = document.getElementById('megaOrderDisplay');
             megaBanner.style.display = 'block';
@@ -256,43 +281,52 @@
             updateDashboard(); timerInterval = setInterval(updateDashboard, 1000);
         }
 
-        // 🔄 核心更新：暂停与继续功能切换
-        function toggleStopResume() {
-            if (!isRunning && !isStopped) return;
+        function disableAllInputs() {
+            document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true;
+            document.getElementById('lineInput').disabled = true; document.getElementById('brandInput').disabled = true;
+            document.getElementById('orderInput').disabled = true; document.getElementById('startTimeInput').disabled = true;
+            document.getElementById('poh').disabled = true; document.getElementById('workers').disabled = true;
+        }
 
-            let stopBtn = document.getElementById('stopBtn');
+        // 🟡 暂停/继续
+        function togglePause() {
+            if (isEnded) return;
+            let pauseBtn = document.getElementById('pauseBtn');
             if (isRunning) {
-                // 执行暂停
-                if (confirm("确定要暂停记录吗？预期产量将会冻结。")) {
-                    clearInterval(timerInterval);
-                    isRunning = false; isStopped = true; stopDate = new Date();
-                    
-                    stopBtn.innerHTML = "▶️ 继续";
-                    stopBtn.style.background = "linear-gradient(135deg, #3b82f6, #2563eb)"; // 蓝色继续按钮
-                    
-                    document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#f59e0b;">🟡 已暂停</span>`;
-                    updateDashboard();
-                }
-            } else if (isStopped) {
-                // 执行继续
-                if (confirm("确定要继续生产吗？")) {
-                    let pauseDuration = new Date() - stopDate; // 计算暂停了多久(毫秒)
-                    customStartDate = new Date(customStartDate.getTime() + pauseDuration); // 将开始时间往后推，抵消暂停时间
-                    
-                    isRunning = true; isStopped = false; stopDate = null;
-                    
-                    stopBtn.innerHTML = "⏸️ 暂停";
-                    stopBtn.style.background = ""; // 恢复预设 CSS (橙色)
-                    
-                    document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中 (已恢复)</span>`;
-                    timerInterval = setInterval(updateDashboard, 1000);
-                    updateDashboard();
-                }
+                clearInterval(timerInterval);
+                isRunning = false; isPaused = true; pauseDate = new Date();
+                pauseBtn.innerHTML = "▶️ 继续"; pauseBtn.style.background = "linear-gradient(135deg, #3b82f6, #2563eb)"; 
+                document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#facc15;">🟡 已暂停</span>`;
+                updateDashboard();
+            } else if (isPaused) {
+                let pauseDuration = new Date() - pauseDate; 
+                customStartDate = new Date(customStartDate.getTime() + pauseDuration); // 抵消时间
+                isRunning = true; isPaused = false; pauseDate = null;
+                pauseBtn.innerHTML = "⏸️ 暂停"; pauseBtn.style.background = ""; 
+                document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
+                timerInterval = setInterval(updateDashboard, 1000);
+                updateDashboard();
+            }
+        }
+
+        // 🔴 结束生产
+        function endProduction() {
+            if (isEnded) return;
+            if (confirm("确定要【结束】今日此线生产吗？\n结束后状态将变红，且不可再修改产量。")) {
+                clearInterval(timerInterval);
+                isRunning = false; isPaused = false; isEnded = true;
+                
+                document.getElementById('pauseBtn').disabled = true; document.getElementById('pauseBtn').style.opacity = "0.5";
+                document.getElementById('endBtn').disabled = true; document.getElementById('endBtn').style.opacity = "0.5";
+                
+                document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#ef4444;">🔴 已结束</span>`;
+                updateDashboard();
             }
         }
 
         function addOutput(amount) {
-            if (!isRunning) { alert(isStopped ? "产线暂停中，请先按「继续」" : "请先按「锁定并开始」"); return; }
+            if (isEnded) { alert("此线已结束生产，不可再更改！"); return; }
+            if (!isRunning) { alert(isPaused ? "产线暂停中，请先按「继续」" : "请先按「锁定并开始」"); return; }
             actualCount += amount; if (actualCount < 0) actualCount = 0; 
             document.getElementById('actualOutput').innerText = actualCount; updateDashboard();
         }
@@ -300,7 +334,8 @@
         function addBulkOutput() { let val = parseInt(document.getElementById('manualValue').value); if (!isNaN(val)) addOutput(val); }
 
         function editActualOutput() {
-            if (!isRunning && !isStopped) { alert("请先按「锁定并开始」！"); return; }
+            if (isEnded) { alert("此线已结束生产，不可再更改！"); return; }
+            if (!isRunning && !isPaused) { alert("请先按「锁定并开始」！"); return; }
             let newVal = prompt("请输入当前的实际达成产量 (必须为纯数字):", actualCount);
             if (newVal !== null && !isNaN(parseInt(newVal)) && parseInt(newVal) >= 0) {
                 actualCount = parseInt(newVal); document.getElementById('actualOutput').innerText = actualCount; updateDashboard();
@@ -309,7 +344,9 @@
 
         function updateDashboard() {
             if (!customStartDate) return;
-            let calculateTime = isStopped ? stopDate : new Date();
+            let calculateTime = (isPaused || isEnded) ? (pauseDate || new Date()) : new Date();
+            if (isEnded && !pauseDate) calculateTime = new Date(); // 若直接从运行按结束
+
             let elapsedMins = (calculateTime - customStartDate) / 60000;
             if(elapsedMins < 0) elapsedMins = 0;
             let elapsedHours = elapsedMins / 60;
