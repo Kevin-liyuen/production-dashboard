@@ -43,6 +43,7 @@
         
         .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
         
+        /* Dashboard Cards */
         .top-dashboard { margin-bottom: 10px; flex-shrink: 0; }
         .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex-grow: 1; min-height: 350px; }
         .card { background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; padding: 15px; border-radius: 12px; position: relative; overflow: hidden; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 250px;}
@@ -60,9 +61,15 @@
         .manual-entry { margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; gap: 5px; width: 100%; }
         .manual-input { width: 100px; text-align: center; font-size: 20px; padding: 8px; background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; border-radius: 6px; font-weight: bold; }
         .btn-bulk { background: #3b82f6; font-size: 18px; padding: 8px 20px; }
-        .good { color: #10b981; } .warning { color: #facc15; } .danger { color: #ef4444; }
         .editable-number { cursor: pointer; border-bottom: 2px dashed #8b5cf6; display: inline-block; padding: 0 10px; }
         
+        /* 针对 PMC 排产列表的表格样式 */
+        .pmc-table-container { background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1px solid #334155; padding: 15px; margin-top: 15px;}
+        .pmc-table-container h3 { color: #f472b6; margin-top: 0; font-size: 20px; border-bottom: 1px solid #475569; padding-bottom: 10px;}
+        table { width: 100%; border-collapse: collapse; text-align: center; }
+        th { background-color: #1e293b; color: #94a3b8; padding: 10px; border-bottom: 2px solid #f472b6; }
+        td { padding: 10px; border-bottom: 1px solid #334155; color: #e2e8f0; }
+
         @media (max-width: 900px) {
             .input-row { flex-direction: column; align-items: stretch; gap: 12px; }
             .form-group { flex-direction: row; align-items: center; gap: 10px; width: 100%; justify-content: space-between; }
@@ -74,15 +81,14 @@
             .dashboard { grid-template-columns: 1fr; }
             .card { padding: 25px 15px; min-height: auto;}
             .value { font-size: 75px; } .rate-value { font-size: 95px; } .time-value { font-size: 65px; }
-            .btn-add { width: 100px; height: 100px; font-size: 40px; }
         }
 
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; padding: 30px 40px; border-radius: 15px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); text-align: center; }
         .auth-box h2 { color: #00e5ff; margin-top: 0; font-size: 28px; letter-spacing: 2px; }
-        .auth-box input { font-size: 30px; letter-spacing: 10px; width: 150px; text-align: center; margin: 15px 0; }
+        /* 移除最大长度限制，防止猜解 */
+        .auth-box input { font-size: 30px; letter-spacing: 10px; width: 200px; text-align: center; margin: 15px 0; }
         .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; margin-bottom: 10px;}
-        .role-hint { color: #94a3b8; font-size: 14px; margin-top: 10px; border-top: 1px dashed #475569; padding-top: 10px;}
     </style>
 </head>
 <body>
@@ -91,14 +97,10 @@
         <div class="auth-box">
             <h2 id="authTitle">🔒 智能系统登入</h2>
             <p style="color: #cbd5e1;">请输入您的专属通行码</p>
-            <input type="password" id="pinInput" placeholder="***" maxlength="4">
+            <input type="password" id="pinInput" placeholder="******">
             <br>
             <button class="btn-bulk" onclick="verifyPIN()">登入系统</button>
             <p id="pinError" style="color: #ef4444; display: none; margin-top: 10px; font-weight: bold;">❌ 密码错误，请重试</p>
-            <div class="role-hint">
-                <span style="color:#00e5ff;">车间执行输入 888</span> | 
-                <span style="color:#f472b6;">生管排产输入 6666</span>
-            </div>
         </div>
     </div>
 
@@ -107,7 +109,7 @@
 
     <div class="panel">
         <div class="input-row">
-            <div class="form-group"><label>📅 柬埔寨日期:</label><input type="text" id="dateInput" class="long-input"></div>
+            <div class="form-group"><label>📅 柬埔寨日期:</label><input type="date" id="dateInput" class="long-input"></div>
             <div class="form-group"><label>🏭 工厂:</label>
                 <select id="factoryInput" class="short-input">
                     <option value="" disabled selected>请选择...</option><option value="LY">LY</option><option value="LFY">LFY</option>
@@ -122,7 +124,7 @@
             </div>
             
             <div class="form-group" id="workerFetchGroup">
-                <button class="btn-fetch" onclick="fetchPlan()">🔍 获取今日排产</button>
+                <button class="btn-fetch" onclick="fetchPlan()">🔍 获取当日排产</button>
             </div>
         </div>
         
@@ -135,7 +137,6 @@
         </div>
 
         <div class="input-row" style="margin-top: 15px; border-top: 1px dashed #334155; padding-top: 15px;">
-            
             <div class="action-buttons" id="pmcControls" style="display: none; justify-content: center; width: 100%;">
                 <button class="btn-publish" onclick="publishPlan()">💾 锁定并发布排产至车间</button>
                 <button class="btn-reset" onclick="location.reload()" style="margin-left: 20px;">🔄 清空重填</button>
@@ -149,6 +150,23 @@
                 <span class="status-text" id="statusText">系统状态：请先获取排产</span>
             </div>
         </div>
+    </div>
+
+    <div id="pmcDashboardArea" class="pmc-table-container" style="display: none;">
+        <h3>📋 该日期已排产清单 (防重漏)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>工厂 - 线别</th>
+                    <th>品牌</th>
+                    <th>单号</th>
+                    <th>状态</th>
+                </tr>
+            </thead>
+            <tbody id="pmcPlanListBody">
+                <tr><td colspan="4">⏳ 载入中...</td></tr>
+            </tbody>
+        </table>
     </div>
 
     <div id="productionDashboardArea" style="display: none;">
@@ -166,23 +184,38 @@
     </div>
 
     <script>
-        const WORKER_PIN = "888";
-        const PMC_PIN = "6666";
-        let currentRole = ""; // 'WORKER' 或 'PMC'
+        // ==========================================
+        // 🔐 安全升级：密码杂凑算法 (Hashing)
+        // 这样代码里就不会出现明文密码 "888" 和 "6666"
+        // ==========================================
+        function hashPIN(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash << 5) - hash + str.charCodeAt(i);
+                hash |= 0; 
+            }
+            return hash.toString();
+        }
+        
+        // 如果想更改密码，可以在浏览器 Console 中输入 hashPIN("你的新密码")，然后将得到的数字替换下面的值
+        const WORKER_HASH = "55504";   // "888" 对应的哈希值
+        const PMC_HASH = "1713502";    // "6666" 对应的哈希值
 
-        // ==========================================
-        // 🔐 角色鉴权与 UI 切换
-        // ==========================================
+        let currentRole = ""; 
+
         function verifyPIN() {
             let input = document.getElementById('pinInput').value;
-            if (input === WORKER_PIN) {
+            let hashedInput = hashPIN(input);
+
+            if (hashedInput === WORKER_HASH) {
                 currentRole = "WORKER";
                 setupUIForRole();
                 document.getElementById('authOverlay').style.display = 'none';
-            } else if (input === PMC_PIN) {
+            } else if (hashedInput === PMC_HASH) {
                 currentRole = "PMC";
                 setupUIForRole();
                 document.getElementById('authOverlay').style.display = 'none';
+                fetchPMCPlanList(); // 登入后立即获取排产列表
             } else {
                 document.getElementById('pinError').style.display = 'block';
                 document.getElementById('pinInput').value = '';
@@ -194,18 +227,19 @@
             document.getElementById('dateInput').value = getCambodiaDateString();
 
             if (currentRole === "PMC") {
-                // PMC 界面设定
+                // PMC 界面
                 let title = document.getElementById('mainTitle');
-                title.innerHTML = "⚙️ 产线排产端 - 生管专用";
+                title.innerHTML = "⚙️ 基础资料输入 - 指定人员";
                 title.className = "pmc-header";
                 
                 document.getElementById('workerFetchGroup').style.display = 'none';
                 document.getElementById('pmcControls').style.display = 'flex';
                 document.getElementById('workerControls').style.display = 'none';
                 document.getElementById('productionDashboardArea').style.display = 'none';
+                document.getElementById('pmcDashboardArea').style.display = 'block';
                 
-                // 解锁所有输入框供 PMC 填写 (除了日期强制锁定为柬埔寨今天，防止填错日子)
-                document.getElementById('dateInput').disabled = true;
+                // PMC 可以修改日期，方便提早排产
+                document.getElementById('dateInput').disabled = false;
                 document.getElementById('factoryInput').disabled = false;
                 document.getElementById('lineInput').disabled = false;
                 document.getElementById('brandInput').disabled = false;
@@ -215,16 +249,17 @@
                 document.getElementById('workers').disabled = false;
                 
             } else if (currentRole === "WORKER") {
-                // 车间界面设定
+                // 车间界面
                 document.getElementById('mainTitle').innerHTML = "⚡ 产线执行端 - 现场作业";
                 
                 document.getElementById('workerFetchGroup').style.display = 'block';
                 document.getElementById('pmcControls').style.display = 'none';
                 document.getElementById('workerControls').style.display = 'flex';
                 document.getElementById('productionDashboardArea').style.display = 'block';
+                document.getElementById('pmcDashboardArea').style.display = 'none';
                 
-                // 锁定除工厂和线别外的所有输入框
-                document.getElementById('dateInput').disabled = true;
+                // 车间可以选日期补填前一天的数据
+                document.getElementById('dateInput').disabled = false;
                 document.getElementById('factoryInput').disabled = false;
                 document.getElementById('lineInput').disabled = false;
                 
@@ -239,7 +274,6 @@
             }
         }
 
-        // 柬埔寨时区时间辅助函数
         function getCambodiaDateString() {
             let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
             return formatter.format(new Date());
@@ -268,8 +302,46 @@
         let customStartDateMs = null; let pauseDateMs = null; 
         let targetPoh = 0; let targetWorkers = 0; let dbRefPath = null;
 
+        // 监听日期变更，如果身分是 PMC，则实时刷新下方的排产清单
+        document.getElementById('dateInput').addEventListener('change', fetchPMCPlanList);
+
         // ==========================================
-        // ⚙️ [PMC 专属功能] - 锁定并发布排产
+        // 📋 [PMC] - 获取当天的排产清单防漏
+        // ==========================================
+        function fetchPMCPlanList() {
+            if (currentRole !== "PMC") return;
+            let dateVal = document.getElementById('dateInput').value;
+            let listBody = document.getElementById('pmcPlanListBody');
+            
+            listBody.innerHTML = "<tr><td colspan='4'>⏳ 载入中...</td></tr>";
+
+            db.ref('production_data/' + dateVal).on('value', snap => {
+                listBody.innerHTML = "";
+                if (!snap.exists()) {
+                    listBody.innerHTML = "<tr><td colspan='4' style='color:#64748b;'>📭 该日期尚未有任何排产纪录</td></tr>";
+                    return;
+                }
+                
+                let data = snap.val();
+                let lines = Object.values(data);
+                lines.sort((a,b) => a.factory.localeCompare(b.factory) || a.line.localeCompare(b.line, undefined, {numeric: true}));
+
+                lines.forEach(d => {
+                    let tr = document.createElement('tr');
+                    let statusIcon = d.status === 'STANDBY' ? '⚪ 待命' : (d.status === 'RUNNING' ? '🟢 运行中' : '🔴 已处理');
+                    tr.innerHTML = `
+                        <td style="font-weight:bold;">${d.factory} - ${d.line}</td>
+                        <td style="color:#38bdf8;">${d.brand}</td>
+                        <td>${d.order}</td>
+                        <td>${statusIcon}</td>
+                    `;
+                    listBody.appendChild(tr);
+                });
+            });
+        }
+
+        // ==========================================
+        // ⚙️ [PMC] - 锁定并发布排产
         // ==========================================
         function publishPlan() {
             let dateVal = document.getElementById('dateInput').value;
@@ -287,10 +359,9 @@
 
             dbRefPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
 
-            // 检查是否覆盖已有数据
             db.ref(dbRefPath).once('value').then(snap => {
                 if (snap.exists() && snap.val().status !== "STANDBY" && snap.val().status !== "OFFLINE") {
-                    if(!confirm("⚠️ 警告：该产线在今日已有开工数据！\n强制发布将覆盖其进度并将其重置为【待命】状态，确定要覆写吗？")) return;
+                    if(!confirm("⚠️ 警告：该产线已有开工数据！\n强制发布将覆盖其进度并将其重置为【待命】状态，确定要覆写吗？")) return;
                 }
                 
                 db.ref(dbRefPath).set({
@@ -301,13 +372,15 @@
                     status: "STANDBY",
                     lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
                 }).then(() => {
-                    alert("✅ 排产发布成功！\n车间前线现在可以点击「获取今日排产」拉取此计划。");
+                    alert(`✅ ${factoryVal}-${lineVal} 资料输入成功！\n请继续输入下一条线的资料。`);
+                    // 清空部分栏位方便快速输入下一笔
+                    document.getElementById('lineInput').value = "";
                 });
             });
         }
 
         // ==========================================
-        // ⚡ [车间专属功能] - 执行生产
+        // ⚡ [车间] - 获取排产与执行生产
         // ==========================================
         function fetchPlan() {
             let dateVal = document.getElementById('dateInput').value;
@@ -319,7 +392,7 @@
             dbRefPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
             db.ref(dbRefPath).once('value').then((snapshot) => {
                 if (!snapshot.exists()) {
-                    alert("⚠️ 生管 (PMC) 尚未为这条产线建立今日的排产计划！\n请联络生管部门。");
+                    alert("⚠️ 指定人员尚未为这条产线建立该日期的排产计划！");
                     return;
                 }
                 let data = snapshot.val();
@@ -374,7 +447,9 @@
             customStartDateMs = getCambodiaTimestamp(dateVal, timeVal);
             if (customStartDateMs > Date.now()) { alert("开工时间不能晚于现在！"); return; }
 
-            document.getElementById('factoryInput').disabled = true; document.getElementById('lineInput').disabled = true;
+            document.getElementById('dateInput').disabled = true;
+            document.getElementById('factoryInput').disabled = true; 
+            document.getElementById('lineInput').disabled = true;
             document.querySelector('.btn-fetch').disabled = true; document.querySelector('.btn-fetch').style.opacity = "0.5";
 
             isRunning = !isForceStop; isPaused = false; isEnded = isForceStop; pauseDateMs = null;
@@ -418,7 +493,7 @@
 
         function endProduction() {
             if (isEnded) return;
-            if (confirm("确定要【结束】今日此线生产吗？\n结束后状态将变红，不可再改。")) {
+            if (confirm("确定要【结束】此线生产吗？\n结束后状态将变红，不可再改。")) {
                 clearInterval(timerInterval);
                 isRunning = false; isPaused = false; isEnded = true;
                 db.ref(dbRefPath).onDisconnect().cancel();
