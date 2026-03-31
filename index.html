@@ -3,314 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ 智能生产线实时看板</title>
+    <title>⚡ 产线输入端 - 智能生产线</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
     <style>
         * { box-sizing: border-box; } 
-        
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: #0b0f19; 
-            color: #e2e8f0; 
-            margin: 0; 
-            padding: 10px 15px; 
-            height: 100vh; /* 桌面端默认锁定一屏高度 */
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; /* 强制不出现滚动条 */
-        }
-        
-        h1 { 
-            text-align: center; 
-            color: #00e5ff; 
-            text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
-            letter-spacing: 3px;
-            margin: 0 0 10px 0; 
-            font-size: 26px; 
-            flex-shrink: 0;
-        }
-
-        /* 顶部超大订单资讯显示区 */
-        .mega-order-display {
-            text-align: center;
-            font-size: 24px; 
-            font-weight: bold;
-            color: #facc15;
-            text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
-            margin-bottom: 10px;
-            letter-spacing: 2px;
-            display: none;
-            background: rgba(250, 204, 21, 0.1);
-            padding: 8px; 
-            border-radius: 8px;
-            border: 2px solid rgba(250, 204, 21, 0.3);
-            flex-shrink: 0;
-        }
-
-        /* 面板设计 */
-        .panel { 
-            background: rgba(30, 41, 59, 0.8); 
-            border: 1px solid #334155;
-            padding: 12px 15px; 
-            border-radius: 10px; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.5); 
-            margin-bottom: 10px; 
-            flex-shrink: 0; 
-        }
-        
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 10px 15px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        h1 { text-align: center; color: #00e5ff; text-shadow: 0 0 15px rgba(0, 229, 255, 0.6); letter-spacing: 3px; margin: 0 0 10px 0; font-size: 26px; flex-shrink: 0; }
+        .mega-order-display { text-align: center; font-size: 24px; font-weight: bold; color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); margin-bottom: 10px; letter-spacing: 2px; display: none; background: rgba(250, 204, 21, 0.1); padding: 8px; border-radius: 8px; border: 2px solid rgba(250, 204, 21, 0.3); flex-shrink: 0; }
+        .panel { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; padding: 12px 15px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 10px; flex-shrink: 0; }
         .input-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px; }
         .input-row:last-child { margin-bottom: 0; }
-        
-        /* 智能表单群组 */
         .form-group { display: flex; align-items: center; gap: 8px; }
         .form-group label { font-weight: bold; color: #94a3b8; font-size: 15px; white-space: nowrap; } 
-        
-        input[type="number"], input[type="time"], input[type="text"], input[type="date"], select { 
-            background-color: #0f172a;
-            color: #00e5ff;
-            border: 2px solid #38bdf8; 
-            padding: 6px 10px; 
-            border-radius: 6px; 
-            font-size: 16px; 
-            font-weight: bold;
-            outline: none;
-            box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.3);
-            text-transform: uppercase;
-        }
+        input[type="number"], input[type="time"], input[type="text"], input[type="date"], select { background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; padding: 6px 10px; border-radius: 6px; font-size: 16px; font-weight: bold; outline: none; box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.3); text-transform: uppercase; }
         input:focus, select:focus { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
-        .short-input { width: 110px; }
-        .long-input { width: 150px; }
-        
-        select option { background-color: #0f172a; color: #e2e8f0; }
-        select optgroup { color: #38bdf8; }
-
+        .short-input { width: 110px; } .long-input { width: 150px; }
+        select option { background-color: #0f172a; color: #e2e8f0; } select optgroup { color: #38bdf8; }
         .action-buttons { display: flex; align-items: center; gap: 10px; flex-grow: 1; justify-content: flex-end; flex-wrap: wrap; }
-
-        button { 
-            padding: 6px 15px; font-size: 15px; border: none; border-radius: 6px; 
-            cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; 
-            transition: all 0.3s ease; letter-spacing: 1px;
-        }
+        button { padding: 6px 15px; font-size: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; transition: all 0.3s ease; letter-spacing: 1px; }
         .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
         .btn-start:hover { transform: translateY(-2px); box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
         .btn-stop { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        
         .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
-
-        /* ====================================================
-           数据显示区 (极致放大，充分利用空间)
-           ==================================================== */
         .top-dashboard { margin-bottom: 10px; flex-shrink: 0; }
-        .dashboard { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; 
-            flex-grow: 1; 
-            min-height: 0; 
-        }
-        
-        .card { 
-            background: rgba(30, 41, 59, 0.6); 
-            border: 1px solid #334155;
-            padding: 10px 20px; 
-            border-radius: 12px; 
-            position: relative;
-            overflow: hidden;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; 
-            align-items: center;
-        }
-        
+        .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex-grow: 1; min-height: 0; }
+        .card { background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; padding: 10px 20px; border-radius: 12px; position: relative; overflow: hidden; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
         .dashboard .card:nth-child(1)::before { background: #38bdf8; box-shadow: 0 0 15px #38bdf8; }
         .dashboard .card:nth-child(2)::before { background: #f472b6; box-shadow: 0 0 15px #f472b6; }
         .dashboard .card:nth-child(3)::before { background: #8b5cf6; box-shadow: 0 0 15px #8b5cf6; }
-        
         .card.top-card::before { background: #10b981 !important; box-shadow: 0 0 15px #10b981 !important; }
-
-        /* 卡片标题放大 */
-        .card h2 { margin-top: 0; font-size: 26px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 5px;}
-        
-        /* 核心大数字放大 */
-        .value { font-size: 100px; font-weight: bold; margin: 0; font-family: 'Courier New', Courier, monospace; line-height: 1.1;}
-        .rate-value { font-size: 130px; line-height: 1;} 
-        
-        /* 运行时间专用字体放大 */
-        .time-value { color: #38bdf8; line-height: 1; font-size: 80px; }
-        .time-unit { font-size: 28px; }
-        .time-sub { font-size: 24px; color: #94a3b8; }
-        
-        /* 大按钮极致放大 */
-        .btn-add { 
-            background: linear-gradient(135deg, #8b5cf6, #6d28d9); 
-            font-size: 50px; width: 120px; height: 120px; border-radius: 50%; margin: 5px; 
-            box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
-            border: 4px solid #a78bfa;
-        }
+        .card h2 { margin-top: 0; font-size: 22px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 5px;}
+        .value { font-size: 75px; font-weight: bold; margin: 5px 0; font-family: 'Courier New', Courier, monospace; }
+        .rate-value { font-size: 95px; } 
+        .time-value { color: #38bdf8; line-height: 1.1; font-size: 60px; }
+        .time-unit { font-size: 24px; } .time-sub { font-size: 20px; color: #94a3b8; }
+        .btn-add { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 36px; width: 90px; height: 90px; border-radius: 50%; margin: 5px; box-shadow: 0 0 15px rgba(139, 92, 246, 0.6); border: 3px solid #a78bfa; }
         .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(139, 92, 246, 0.9); }
-        
-        /* 手动输入区放大 */
-        .manual-entry { margin-top: 5px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; width: 100%; }
-        
-        .manual-input {
-            width: 120px; text-align: center; font-size: 24px; padding: 8px;
-            background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8;
-            border-radius: 6px; font-weight: bold; outline: none;
-        }
-        .manual-input:focus { border-color: #00e5ff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.8); }
-        
-        .btn-bulk { background: #3b82f6; font-size: 20px; padding: 10px 20px; }
-
+        .manual-entry { margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 5px; width: 100%; }
+        .manual-input { width: 100px; text-align: center; font-size: 20px; padding: 8px; background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; border-radius: 6px; font-weight: bold; outline: none; }
+        .btn-bulk { background: #3b82f6; font-size: 18px; padding: 8px 20px; }
         .good { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
         .warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.8); }
         .danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
-        
         .editable-number { cursor: pointer; border-bottom: 2px dashed #8b5cf6; display: inline-block; padding: 0 10px; transition: 0.3s; }
         .editable-number:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
-
-        /* ====================================================
-           📱 手机及小屏幕适配 (Mobile Responsive)
-           ==================================================== */
         @media (max-width: 900px) {
             body { height: auto; min-height: 100vh; overflow: auto; padding: 10px; }
             .mega-order-display { font-size: 16px; line-height: 1.4; padding: 12px;}
-            
-            /* 每组栏位独立成行，往下排列 */
             .input-row { flex-direction: column; align-items: stretch; gap: 12px; }
-            
-            /* 手机版：左边标签，右边输入框同一行 */
-            .form-group { 
-                flex-direction: row; 
-                align-items: center; 
-                gap: 10px; 
-                width: 100%; 
-                justify-content: space-between; 
-            }
-            
-            .form-group label { 
-                margin-bottom: 0; 
-                white-space: normal; 
-                max-width: 45%;      
-                flex-shrink: 0; 
-                text-align: left;
-            }
-            
-            /* 输入框撑满右边剩余的空间 */
-            .form-group input, .form-group select { 
-                flex: 1; 
-                width: 10% !important; 
-            }
-            
-            /* 动作按钮占满屏幕宽度 */
+            .form-group { flex-direction: row; align-items: center; gap: 10px; width: 100%; justify-content: space-between; }
+            .form-group label { margin-bottom: 0; white-space: normal; max-width: 45%; flex-shrink: 0; text-align: left; }
+            .form-group input, .form-group select { flex: 1; width: 10% !important; }
             .action-buttons { flex-direction: column; align-items: stretch; margin-top: 10px; }
             .action-buttons button { width: 100%; padding: 12px; margin-bottom: 5px; font-size: 18px;}
             .status-text { text-align: center; margin-left: 0; margin-top: 5px; display: block; }
-            
-            /* 底部仪表板直排 */
             .dashboard { grid-template-columns: 1fr; }
             .card { padding: 25px 15px; }
-            .card h2 { font-size: 22px; }
-            .value { font-size: 75px; }
-            .rate-value { font-size: 95px; }
-            .time-value { font-size: 65px; }
+            .card h2 { font-size: 22px; } .value { font-size: 75px; } .rate-value { font-size: 95px; } .time-value { font-size: 65px; }
             .btn-add { width: 100px; height: 100px; font-size: 40px; }
-            .manual-input { width: 100px; font-size: 20px; }
-            .btn-bulk { font-size: 18px; }
         }
     </style>
 </head>
 <body>
-
-    <h1>⚡ 智能生产线实时看板 ⚡</h1>
-
+    <h1>⚡ 产线输入端 - 智能生产线 ⚡</h1>
     <div id="megaOrderDisplay" class="mega-order-display"></div>
 
     <div class="panel">
         <div class="input-row">
-            <div class="form-group">
-                <label>📅 日期:</label>
-                <input type="date" id="dateInput" class="long-input">
-            </div>
-
-            <div class="form-group">
-                <label>🏭 工厂:</label>
+            <div class="form-group"><label>📅 日期:</label><input type="date" id="dateInput" class="long-input"></div>
+            <div class="form-group"><label>🏭 工厂:</label>
                 <select id="factoryInput" class="short-input">
-                    <option value="" disabled selected>请选择...</option>
-                    <option value="LY">LY</option>
-                    <option value="LFY">LFY</option>
+                    <option value="" disabled selected>请选择...</option><option value="LY">LY</option><option value="LFY">LFY</option>
                 </select>
             </div>
-
-            <div class="form-group">
-                <label>🏭 线别:</label>
+            <div class="form-group"><label>🏭 线别:</label>
                 <select id="lineInput" class="short-input" style="width: 140px;">
                     <option value="" disabled selected>请选择...</option>
                     <optgroup label="成型">
-                        <option value="成型A">成型A</option>
-                        <option value="成型B">成型B</option>
-                        <option value="成型C">成型C</option>
-                        <option value="成型D">成型D</option>
-                        <option value="成型E">成型E</option>
-                        <option value="成型F">成型F</option>
+                        <option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option>
+                        <option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option>
                     </optgroup>
                     <optgroup label="针车">
-                        <option value="针车1">针车1</option>
-                        <option value="针车2">针车2</option>
-                        <option value="针车3">针车3</option>
-                        <option value="针车4">针车4</option>
-                        <option value="针车5">针车5</option>
-                        <option value="针车6">针车6</option>
-                        <option value="针车7">针车7</option>
-                        <option value="针车8">针车8</option>
-                        <option value="针车9">针车9</option>
-                        <option value="针车10">针车10</option>
-                        <option value="针车11">针车11</option>
-                        <option value="针车12">针车12</option>
-                        <option value="针车13">针车13</option>
-                        <option value="针车14">针车14</option>
-                        <option value="针车15">针车15</option>
-                        <option value="针车16">针车16</option>
-                        <option value="针车17">针车17</option>
-                        <option value="针车18">针车18</option>
-                        <option value="针车19">针车19</option>
-                        <option value="针车20">针车20</option>
-                        <option value="针车21">针车21</option>
-                        <option value="针车22">针车22</option>
-                        <option value="针车23">针车23</option>
-                        <option value="针车24">针车24</option>
+                        <option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option>
+                        <option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option>
                     </optgroup>
                 </select>
             </div>
-            
-            <div class="form-group">
-                <label>🏷️ 品牌:</label>
-                <input type="text" id="brandInput" class="long-input">
-            </div>
-            
-            <div class="form-group">
-                <label>📄 单号:</label>
-                <input type="text" id="orderInput" class="long-input">
-            </div>
+            <div class="form-group"><label>🏷️ 品牌:</label><input type="text" id="brandInput" class="long-input"></div>
+            <div class="form-group"><label>📄 单号:</label><input type="text" id="orderInput" class="long-input"></div>
         </div>
         
         <div class="input-row">
-            <div class="form-group">
-                <label>⏱️ 开工时间:</label>
-                <input type="time" id="startTimeInput" class="short-input">
-            </div>
-
-            <div class="form-group">
-                <label>📈 本日100%POH:</label>
-                <input type="number" id="poh" class="short-input" step="0.01" min="0">
-            </div>
-            
-            <div class="form-group">
-                <label>👥 本日上班人数(生产/配备员工+班组课):</label>
-                <input type="number" id="workers" class="short-input" min="1">
-            </div>
-            
+            <div class="form-group"><label>⏱️ 开工时间:</label><input type="time" id="startTimeInput" class="short-input"></div>
+            <div class="form-group"><label>📈 本日100%POH:</label><input type="number" id="poh" class="short-input" step="0.01" min="0"></div>
+            <div class="form-group"><label>👥 基准人数:</label><input type="number" id="workers" class="short-input" min="1"></div>
             <div class="action-buttons">
                 <button class="btn-start" id="startBtn" onclick="startProduction()">▶️ 锁定并开始</button>
                 <button class="btn-stop" id="stopBtn" onclick="stopProduction()" disabled style="opacity: 0.5;">⏸️ 停止</button>
@@ -320,57 +110,46 @@
         </div>
     </div>
 
-    <div class="top-dashboard">
-        <div class="card top-card">
-            <h2>📈 实时达标率</h2>
-            <div class="value rate-value" id="achievementRate">0%</div>
-        </div>
-    </div>
+    <div class="top-dashboard"><div class="card top-card"><h2>📈 实时达标率</h2><div class="value rate-value" id="achievementRate">0%</div></div></div>
 
     <div class="dashboard">
-        <div class="card">
-            <h2>⏱️ 累计运行时间</h2>
-            <div class="value time-value" id="elapsedTimeDisplay">
-                0.00 <span class="time-unit">小时</span><br>
-                <span class="time-sub">(0.0 分钟)</span>
-            </div>
-        </div>
-        
-        <div class="card">
-            <h2>🎯 严格预期产量</h2>
-            <div class="value" id="expectedOutput" style="color: #f472b6;">0</div>
-        </div>
-        
+        <div class="card"><h2>⏱️ 累计运行时间</h2><div class="value time-value" id="elapsedTimeDisplay">0.00 <span class="time-unit">小时</span><br><span class="time-sub">(0.0 分钟)</span></div></div>
+        <div class="card"><h2>🎯 严格预期产量</h2><div class="value" id="expectedOutput" style="color: #f472b6;">0</div></div>
         <div class="card">
             <h2>📦 实际达成产量 (点击数字修改)</h2>
             <div class="value editable-number" id="actualOutput" style="color: #8b5cf6;" onclick="editActualOutput()" title="点击直接修改数字">0</div>
-            
-            <div>
-                <button class="btn-add" onclick="addOutput(1)">+1</button>
-            </div>
-            
-            <div class="manual-entry">
-                <input type="number" id="manualValue" class="manual-input" value="10">
-                <button class="btn-bulk" onclick="addBulkOutput()">➕ 增加</button>
-            </div>
+            <div><button class="btn-add" onclick="addOutput(1)">+1</button></div>
+            <div class="manual-entry"><input type="number" id="manualValue" class="manual-input" value="10"><button class="btn-bulk" onclick="addBulkOutput()">➕ 增加</button></div>
         </div>
     </div>
 
     <script>
-        let actualCount = 0;
-        let timerInterval = null;
-        let isRunning = false;
-        let isStopped = false;
-        let customStartDate = null;
-        let stopDate = null;
-        
-        let targetPoh = 0;
-        let targetWorkers = 0;
-
-        window.onload = function() {
-            setTodayDate();
+        // ==========================================
+        // 1. FIREBASE 设定区 (已嵌入你的专属金钥)
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
+            authDomain: "factory-mes-2026.firebaseapp.com",
+            databaseURL: "https://factory-mes-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "factory-mes-2026",
+            storageBucket: "factory-mes-2026.firebasestorage.app",
+            messagingSenderId: "710873291817",
+            appId: "1:710873291817:web:92ea2aadc4dd895fb19038"
         };
+        
+        // 初始化 Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.database();
 
+        // ==========================================
+        // 2. 核心系统逻辑 (加入云端同步)
+        // ==========================================
+        let actualCount = 0; let timerInterval = null; let isRunning = false; let isStopped = false;
+        let customStartDate = null; let stopDate = null; let targetPoh = 0; let targetWorkers = 0;
+
+        window.onload = function() { setTodayDate(); };
         function setTodayDate() {
             let today = new Date();
             let yyyy = today.getFullYear();
@@ -379,9 +158,37 @@
             document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
         }
 
+        // 推送数据到 Firebase 的核心函数
+        function pushDataToCloud(elapsedMins, expectedOutput, rate) {
+            if(!isRunning && !isStopped) return;
+            
+            let dateVal = document.getElementById('dateInput').value; 
+            let factoryVal = document.getElementById('factoryInput').value;
+            let lineVal = document.getElementById('lineInput').value;
+            let brandVal = document.getElementById('brandInput').value || '未输入';
+            let orderVal = document.getElementById('orderInput').value || '未输入';
+
+            // Firebase 资料库存放路径： production_data/日期/工厂_线别
+            let dbPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
+            
+            db.ref(dbPath).set({
+                factory: factoryVal,
+                line: lineVal,
+                brand: brandVal,
+                order: orderVal,
+                poh: targetPoh,
+                workers: targetWorkers,
+                actualOutput: actualCount,
+                expectedOutput: expectedOutput,
+                achievementRate: rate,
+                elapsedMins: elapsedMins,
+                status: isStopped ? "STOPPED" : "RUNNING",
+                lastUpdate: new Date().toLocaleTimeString('zh-CN')
+            }).catch(error => console.error("Firebase Sync Error:", error));
+        }
+
         function startProduction() {
             if (isRunning) return;
-            
             let dateInput = document.getElementById('dateInput').value;
             let timeInput = document.getElementById('startTimeInput').value;
             let factory = document.getElementById('factoryInput').value;
@@ -397,36 +204,21 @@
             let [hours, minutes] = timeInput.split(':');
             customStartDate = new Date(year, month - 1, day, hours, minutes, 0);
 
-            let now = new Date();
-            if (customStartDate > now) {
-                alert("开工时间不能晚于现在！"); return;
-            }
+            if (customStartDate > new Date()) { alert("开工时间不能晚于现在！"); return; }
 
-            document.getElementById('dateInput').disabled = true;
-            document.getElementById('factoryInput').disabled = true;
-            document.getElementById('lineInput').disabled = true;
-            document.getElementById('brandInput').disabled = true;
-            document.getElementById('orderInput').disabled = true;
-            document.getElementById('startTimeInput').disabled = true;
-            document.getElementById('poh').disabled = true;
-            document.getElementById('workers').disabled = true;
+            document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true;
+            document.getElementById('lineInput').disabled = true; document.getElementById('brandInput').disabled = true;
+            document.getElementById('orderInput').disabled = true; document.getElementById('startTimeInput').disabled = true;
+            document.getElementById('poh').disabled = true; document.getElementById('workers').disabled = true;
 
-            isRunning = true;
-            isStopped = false;
-            stopDate = null;
+            isRunning = true; isStopped = false; stopDate = null;
+            document.getElementById('startBtn').disabled = true; document.getElementById('startBtn').style.opacity = "0.5";
+            document.getElementById('stopBtn').disabled = false; document.getElementById('stopBtn').style.opacity = "1";
             
-            document.getElementById('startBtn').disabled = true;
-            document.getElementById('startBtn').style.opacity = "0.5";
-            document.getElementById('stopBtn').disabled = false;
-            document.getElementById('stopBtn').style.opacity = "1";
-            
-            let brand = document.getElementById('brandInput').value || '未输入';
-            let order = document.getElementById('orderInput').value || '未输入';
-            
+            let brand = document.getElementById('brandInput').value || '未输入'; let order = document.getElementById('orderInput').value || '未输入';
             let megaBanner = document.getElementById('megaOrderDisplay');
             megaBanner.style.display = 'block';
             megaBanner.innerHTML = `📅 ${year}年${month}月${day}日 &nbsp;|&nbsp; 🏭 ${factory} - ${line} &nbsp;|&nbsp; ⭐ 品牌: ${brand} &nbsp;|&nbsp; 📄 单号: ${order} ⭐`;
-            
             document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
 
             updateDashboard();
@@ -435,26 +227,19 @@
 
         function stopProduction() {
             if (!isRunning) return;
-            if (confirm("确定要停止记录吗？时间与预期产量将会冻结。")) {
+            if (confirm("确定要停止记录吗？")) {
                 clearInterval(timerInterval);
-                isRunning = false;
-                isStopped = true;
-                stopDate = new Date();
-                
-                document.getElementById('stopBtn').disabled = true;
-                document.getElementById('stopBtn').style.opacity = "0.5";
-                
+                isRunning = false; isStopped = true; stopDate = new Date();
+                document.getElementById('stopBtn').disabled = true; document.getElementById('stopBtn').style.opacity = "0.5";
                 let stopTimeString = stopDate.toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'});
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#ef4444;">🔴 已停止</span> (截数时间: ${stopTimeString})`;
-                
                 updateDashboard();
             }
         }
 
         function addOutput(amount) {
             if (!isRunning && !isStopped) { alert("请先按「锁定并开始」！"); return; }
-            actualCount += amount;
-            if (actualCount < 0) actualCount = 0; 
+            actualCount += amount; if (actualCount < 0) actualCount = 0; 
             document.getElementById('actualOutput').innerText = actualCount;
             updateDashboard();
         }
@@ -473,87 +258,41 @@
                     actualCount = parsedVal;
                     document.getElementById('actualOutput').innerText = actualCount;
                     updateDashboard();
-                } else {
-                    alert("输入无效！请确保输入的是正整数。");
-                }
+                } else { alert("输入无效！请确保输入的是正整数。"); }
             }
         }
 
         function updateDashboard() {
             if (!customStartDate) return;
-
             let calculateTime = isStopped ? stopDate : new Date();
-
             let elapsedMins = (calculateTime - customStartDate) / 60000;
             if(elapsedMins < 0) elapsedMins = 0;
             let elapsedHours = elapsedMins / 60;
             
-            document.getElementById('elapsedTimeDisplay').innerHTML = `
-                ${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br>
-                <span class="time-sub">(${elapsedMins.toFixed(1)} 分钟)</span>
-            `;
+            document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br><span class="time-sub">(${elapsedMins.toFixed(1)} 分钟)</span>`;
 
-            let expectedOutput = (targetPoh * targetWorkers / 60) * elapsedMins;
-            document.getElementById('expectedOutput').innerText = Math.floor(expectedOutput);
+            let expectedOutput = Math.floor((targetPoh * targetWorkers / 60) * elapsedMins);
+            document.getElementById('expectedOutput').innerText = expectedOutput;
 
             let rate = 0;
-            if (expectedOutput > 0) {
-                rate = (actualCount / expectedOutput) * 100;
-            }
+            if (expectedOutput > 0) { rate = (actualCount / expectedOutput) * 100; }
             
             let rateElement = document.getElementById('achievementRate');
             rateElement.innerText = rate.toFixed(1) + "%";
-
             rateElement.className = "value rate-value"; 
             if (elapsedMins > 1) { 
                 if (rate >= 100) rateElement.classList.add("good");
                 else if (rate >= 90) rateElement.classList.add("warning");
                 else rateElement.classList.add("danger");
             }
+
+            // 同步最新数据到 Firebase
+            pushDataToCloud(elapsedMins, expectedOutput, rate);
         }
 
         function resetProduction() {
-            if(confirm("确定要清除所有数据重新开始吗？")) {
-                clearInterval(timerInterval);
-                isRunning = false;
-                isStopped = false;
-                customStartDate = null;
-                stopDate = null;
-                actualCount = 0;
-                
-                document.getElementById('megaOrderDisplay').style.display = 'none';
-                
-                document.getElementById('dateInput').disabled = false;
-                document.getElementById('factoryInput').disabled = false;
-                document.getElementById('lineInput').disabled = false;
-                document.getElementById('brandInput').disabled = false;
-                document.getElementById('orderInput').disabled = false;
-                document.getElementById('startTimeInput').disabled = false;
-                document.getElementById('poh').disabled = false;
-                document.getElementById('workers').disabled = false;
-                
-                document.getElementById('factoryInput').value = "";
-                document.getElementById('lineInput').value = "";
-                document.getElementById('brandInput').value = "";
-                document.getElementById('orderInput').value = "";
-                document.getElementById('startTimeInput').value = "";
-                document.getElementById('poh').value = "";
-                document.getElementById('workers').value = "";
-                document.getElementById('manualValue').value = "10";
-                
-                document.getElementById('startBtn').disabled = false;
-                document.getElementById('startBtn').style.opacity = "1";
-                document.getElementById('stopBtn').disabled = true;
-                document.getElementById('stopBtn').style.opacity = "0.5";
-                
-                document.getElementById('statusText').innerHTML = "系统状态：STANDBY (未开始)";
-                
-                document.getElementById('elapsedTimeDisplay').innerHTML = `0.00 <span class="time-unit">小时</span><br><span class="time-sub">(0.0 分钟)</span>`;
-                document.getElementById('expectedOutput').innerText = "0";
-                document.getElementById('actualOutput').innerText = "0";
-                
-                document.getElementById('achievementRate').innerText = "0%";
-                document.getElementById('achievementRate').className = "value rate-value";
+            if(confirm("确定清除重新开始？(注意：这不会删除云端历史数据，仅重置本页)")) {
+                location.reload(); 
             }
         }
     </script>
