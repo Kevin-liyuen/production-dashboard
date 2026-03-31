@@ -8,51 +8,35 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
-        
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #334155; padding-bottom: 15px;}
         h1 { color: #f472b6; text-shadow: 0 0 15px rgba(244, 114, 182, 0.6); letter-spacing: 2px; font-size: 28px; margin: 0;}
-        
         .control-panel { display: flex; gap: 15px; align-items: center; background: rgba(30, 41, 59, 0.8); padding: 10px 20px; border-radius: 10px; border: 1px solid #334155;}
         .control-panel label { font-size: 16px; font-weight: bold; color: #38bdf8; }
         .control-panel input[type="date"] { background-color: #0f172a; color: #fff; border: 2px solid #38bdf8; padding: 8px 15px; border-radius: 6px; font-size: 16px; font-weight: bold; outline: none; }
-        
         button { cursor: pointer; font-weight: bold; color: #fff; border: none; border-radius: 6px; transition: 0.3s; padding: 10px 20px; font-size: 16px;}
         .btn-refresh { background: linear-gradient(135deg, #3b82f6, #2563eb); }
         .btn-add { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
         .btn-save-all { background: linear-gradient(135deg, #10b981, #059669); font-size: 18px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); border: 2px solid #34d399;}
         .btn-save-all:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
         
-        /* Excel 风格数据表 */
         .table-container { overflow-x: auto; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1px solid #334155; padding: 10px; margin-bottom: 30px;}
         table { width: 100%; border-collapse: collapse; text-align: center; white-space: nowrap;}
         th { background-color: #1e293b; color: #94a3b8; padding: 12px 8px; border-bottom: 2px solid #f472b6; font-size: 15px;}
         td { padding: 8px; border-bottom: 1px solid #334155; vertical-align: middle;}
         tr:hover { background-color: rgba(244, 114, 182, 0.05); }
 
-        /* 表格内的所有输入框 */
-        .grid-input, .grid-select { 
-            width: 100%; background-color: #0f172a; color: #fff; 
-            border: 1px solid #64748b; padding: 6px; border-radius: 4px; 
-            font-size: 15px; font-weight: bold; outline: none; text-align: center;
-        }
+        .grid-input, .grid-select { width: 100%; background-color: #0f172a; color: #fff; border: 1px solid #64748b; padding: 6px; border-radius: 4px; font-size: 15px; font-weight: bold; outline: none; text-align: center;}
         .grid-input:focus, .grid-select:focus { border-color: #f472b6; box-shadow: 0 0 8px rgba(244, 114, 182, 0.6); color: #f472b6;}
-        
-        .col-sm { width: 80px; }
-        .col-md { width: 120px; }
-        .col-lg { width: 150px; }
-        
+        .col-sm { width: 80px; } .col-md { width: 120px; } .col-lg { width: 150px; }
         .btn-delete { background: #ef4444; padding: 6px 12px; font-size: 14px; }
-        .btn-delete:hover { opacity: 0.8; }
 
-        /* 授权画面 */
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #f472b6; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(244, 114, 182, 0.3);}
         .auth-box h2 { color: #f472b6; margin-top: 0; }
-        .auth-box input { font-size: 30px; letter-spacing: 10px; width: 150px; text-align: center; margin: 20px 0; background: #0f172a; color: #fff; border: 2px solid #f472b6; border-radius: 8px;}
+        .auth-box input { font-size: 30px; letter-spacing: 10px; width: 200px; text-align: center; margin: 20px 0; background: #0f172a; color: #fff; border: 2px solid #f472b6; border-radius: 8px;}
         .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; background: #f472b6;}
 
         #noDataMsg { text-align: center; font-size: 20px; color: #64748b; margin-top: 50px; }
-        
         .warning-text { background: rgba(239, 68, 68, 0.1); border-left: 4px solid #ef4444; padding: 10px; margin-bottom: 20px; color: #cbd5e1; font-size: 14px;}
     </style>
 </head>
@@ -62,7 +46,7 @@
         <div class="auth-box">
             <h2>⚙️ 后台超级管理</h2>
             <p style="color: #94a3b8;">请输入管理者密码</p>
-            <input type="password" id="adminPin" placeholder="****" maxlength="4">
+            <input type="password" id="adminPin" placeholder="******">
             <br>
             <button onclick="verifyAdmin()">进入系统</button>
             <p id="pinError" style="color: #ef4444; display: none; margin-top: 15px; font-weight: bold;">❌ 密码错误</p>
@@ -72,7 +56,7 @@
     <div class="top-bar">
         <h1>⚙️ 全局数据修正 (Excel 模式)</h1>
         <div class="control-panel">
-            <label>日期：</label>
+            <label>柬埔寨日期：</label>
             <input type="date" id="adminDate">
             <button class="btn-refresh" onclick="loadData()">🔄 读取云端数据</button>
         </div>
@@ -80,8 +64,8 @@
     </div>
     
     <div class="warning-text">
-        ⚠️ <b>注意：</b> 如果车间前线的 iPad 仍在「🟢 运行中」，前线每秒钟都会把数据上存，这会覆盖你的修改。<b>建议大改前先确认产线已暂停或结束！</b><br>
-        💡 预期产量和达标率会在你点击「保存」时，系统自动按照你输入的 POH、人数、运作时间重新计算。
+        ⚠️ <b>注意：</b> 如果车间前线仍在「🟢 运行中」，每秒都会上存数据覆盖你的修改。<b>大改前请确认产线已暂停或结束！</b><br>
+        💡 预期产量和达标率会在点击「保存」时，系统自动按 POH、人数、运作时间重新计算。
     </div>
 
     <div class="table-container">
@@ -93,16 +77,15 @@
                     <th>品牌</th>
                     <th>单号</th>
                     <th>开工时间</th>
-                    <th style="color:#facc15;" title="可直接手动扣减时间">运作时间(分钟)</th>
-                    <th>100% POH</th>
-                    <th>基准人数</th>
+                    <th style="color:#facc15;">运作(分钟)</th>
+                    <th>本日100% POH</th>
+                    <th>生产/配备员工+班组课</th>
                     <th style="color:#8b5cf6; font-size: 18px;">实际产量</th>
                     <th>生产状态</th>
                     <th>操作</th>
                 </tr>
             </thead>
-            <tbody id="tableBody">
-                </tbody>
+            <tbody id="tableBody"></tbody>
         </table>
         <div style="margin-top: 15px; text-align: left;">
             <button class="btn-add" onclick="addNewRow()">➕ 往下新增空白行</button>
@@ -111,10 +94,17 @@
     </div>
 
     <script>
-        // 🔐 密码验证
-        const ADMIN_PIN = "9999";
+        function hashPIN(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
+            return hash.toString();
+        }
+        
+        const ADMIN_HASH = "1754688"; // 9999
+
         function verifyAdmin() {
-            if (document.getElementById('adminPin').value === ADMIN_PIN) {
+            let input = document.getElementById('adminPin').value;
+            if (hashPIN(input) === ADMIN_HASH) {
                 document.getElementById('authOverlay').style.display = 'none';
             } else {
                 document.getElementById('pinError').style.display = 'block';
@@ -123,7 +113,6 @@
         }
         document.getElementById('adminPin').addEventListener("keypress", (e) => { if (e.key === "Enter") verifyAdmin(); });
 
-        // 1. Firebase 设定 (⚠️ 请填入你的 Key)
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
@@ -136,74 +125,51 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 常用选项 HTML 字符创
         const factoryOptions = `<option value="LY">LY</option><option value="LFY">LFY</option>`;
-        const statusOptions = `<option value="RUNNING">🟢 运行中</option><option value="PAUSED">🟡 已暂停</option><option value="STOPPED">🔴 已结束</option>`;
+        const statusOptions = `
+            <option value="STANDBY">⚪ 待命 (未开工)</option>
+            <option value="RUNNING">🟢 运行中</option>
+            <option value="PAUSED">🟡 已暂停</option>
+            <option value="STOPPED">🔴 已结束</option>
+            <option value="OFFLINE">⚫ 离线</option>
+        `;
         const lineOptions = `
-            <optgroup label="成型">
-                <option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option>
-                <option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option>
-            </optgroup>
-            <optgroup label="针车">
-                <option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option>
-                <option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option>
-                <option value="针车7">针车7</option><option value="针车8">针车8</option><option value="针车9">针车9</option>
-                <option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option>
-                <option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option>
-                <option value="针车16">针车16</option><option value="针车17">针车17</option><option value="针车18">针车18</option>
-                <option value="针车19">针车19</option><option value="针车20">针车20</option><option value="针车21">针车21</option>
-                <option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option>
-            </optgroup>
+            <optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup>
+            <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option></optgroup>
         `;
 
-        window.onload = () => {
-            let today = new Date();
-            document.getElementById('adminDate').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        };
+        function getCambodiaDateString() {
+            let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
+            return formatter.format(new Date());
+        }
 
-        // 📥 载入数据
+        window.onload = () => { document.getElementById('adminDate').value = getCambodiaDateString(); };
+
         function loadData() {
             let targetDate = document.getElementById('adminDate').value;
             const tbody = document.getElementById('tableBody');
             const noDataMsg = document.getElementById('noDataMsg');
-            
-            tbody.innerHTML = '';
-            noDataMsg.style.display = 'block';
-            noDataMsg.innerHTML = "⏳ 正在读取数据...";
+            tbody.innerHTML = ''; noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "⏳ 正在读取数据...";
 
             db.ref('production_data/' + targetDate).once('value').then((snapshot) => {
                 noDataMsg.style.display = 'none';
-                if (!snapshot.exists()) {
-                    noDataMsg.style.display = 'block';
-                    noDataMsg.innerHTML = "📭 此日期目前没有数据，你可以直接「新增空白行」建立。";
-                    return;
-                }
+                if (!snapshot.exists()) { noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "📭 此日期没有数据，可新增空白行建立。"; return; }
                 
                 let data = snapshot.val();
-                // 排序
                 let linesArray = Object.keys(data).map(key => data[key]);
                 linesArray.sort((a, b) => {
                     if(a.factory === b.factory) return a.line.localeCompare(b.line, undefined, {numeric: true});
                     return a.factory.localeCompare(b.factory);
                 });
-
                 linesArray.forEach(line => appendRow(line));
-            }).catch(err => {
-                noDataMsg.innerHTML = "❌ 读取失败：" + err.message;
-            });
+            }).catch(err => { noDataMsg.innerHTML = "❌ 读取失败：" + err.message; });
         }
 
-        // 添加一行到表格中
         function appendRow(d = {}) {
             const tbody = document.getElementById('tableBody');
             let tr = document.createElement('tr');
-            
-            // 如果 d 是空的，代表是手动的「新增空白行」
-            let f = d.factory || 'LY';
-            let l = d.line || '成型A';
-            let s = d.status || 'STOPPED';
+            let f = d.factory || 'LY'; let l = d.line || '成型A'; let s = d.status || 'STOPPED';
 
-            // 动态设置选中项
             let fHTML = factoryOptions.replace(`value="${f}"`, `value="${f}" selected`);
             let lHTML = lineOptions.replace(`value="${l}"`, `value="${l}" selected`);
             let sHTML = statusOptions.replace(`value="${s}"`, `value="${s}" selected`);
@@ -224,74 +190,54 @@
             tbody.appendChild(tr);
         }
 
-        // ➕ 新增空白行
-        function addNewRow() {
-            document.getElementById('noDataMsg').style.display = 'none';
-            appendRow();
-        }
+        function addNewRow() { document.getElementById('noDataMsg').style.display = 'none'; appendRow(); }
 
-        // 💾 批量保存整个页面 (核心逻辑：覆盖该日期的所有数据)
         function saveAllData() {
             let targetDate = document.getElementById('adminDate').value;
             let rows = document.querySelectorAll('#tableBody tr');
             
             if (!targetDate) { alert("日期不正确！"); return; }
-            if (confirm(`⚠️ 确定要保存吗？\n这将会把画面上的所有数据【覆盖】云端 ${targetDate} 的记录。`)) {
-                
-                let updatePayload = {};
-                let errorFound = false;
+            if (confirm(`⚠️ 确定要保存吗？\n将会把画面上的数据【覆盖】云端 ${targetDate} 的记录。`)) {
+                let updatePayload = {}; let errorFound = false;
 
                 rows.forEach(tr => {
                     let factory = tr.querySelector('.f-factory').value;
                     let line = tr.querySelector('.f-line').value;
-                    let key = `${factory}_${line}`; // 组合主键
+                    let key = `${factory}_${line}`; 
 
                     if (updatePayload[key]) {
-                        alert(`❌ 错误：发现重复的生产线！\n【${factory} - ${line}】存在多行，请删除重复行再保存。`);
-                        errorFound = true;
-                        return;
+                        alert(`❌ 错误：发现重复！\n【${factory} - ${line}】存在多行，请删除重复行。`);
+                        errorFound = true; return;
                     }
 
-                    // 抓取所有栏位数值
                     let elapsedMins = parseFloat(tr.querySelector('.f-elapsed').value) || 0;
                     let poh = parseFloat(tr.querySelector('.f-poh').value) || 0;
                     let workers = parseInt(tr.querySelector('.f-workers').value) || 0;
                     let actualOutput = parseInt(tr.querySelector('.f-actual').value) || 0;
+                    let status = tr.querySelector('.f-status').value;
 
-                    // 自动重新计算预期与达标率
-                    let expectedOutput = Math.floor((poh * workers / 60) * elapsedMins);
-                    let achievementRate = 0;
-                    if (expectedOutput > 0) {
-                        achievementRate = (actualOutput / expectedOutput) * 100;
+                    let expectedOutput = 0; let achievementRate = 0;
+                    if (status !== "STANDBY") {
+                        expectedOutput = Math.floor((poh * workers / 60) * elapsedMins);
+                        if (expectedOutput > 0) achievementRate = (actualOutput / expectedOutput) * 100;
                     }
 
-                    // 组合成完整 Firebase 格式
                     updatePayload[key] = {
-                        factory: factory,
-                        line: line,
-                        brand: tr.querySelector('.f-brand').value || '未输入',
-                        order: tr.querySelector('.f-order').value || '未输入',
-                        startTime: tr.querySelector('.f-start').value,
-                        elapsedMins: elapsedMins,
-                        poh: poh,
-                        workers: workers,
-                        actualOutput: actualOutput,
-                        expectedOutput: expectedOutput,
-                        achievementRate: achievementRate,
-                        status: tr.querySelector('.f-status').value,
-                        lastUpdate: new Date().toLocaleTimeString('zh-CN') + " (后台大修)"
+                        factory: factory, line: line,
+                        brand: tr.querySelector('.f-brand').value || '', order: tr.querySelector('.f-order').value || '',
+                        startTime: tr.querySelector('.f-start').value, elapsedMins: elapsedMins,
+                        poh: poh, workers: workers,
+                        actualOutput: actualOutput, expectedOutput: expectedOutput,
+                        achievementRate: achievementRate, status: status,
+                        lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (后台大修)"
                     };
                 });
 
-                if (errorFound) return; // 有重覆线别，阻止上传
+                if (errorFound) return; 
 
-                // 使用 set() 直接覆写当天的所有纪录 (完美处理新增、修改、与删除)
                 db.ref('production_data/' + targetDate).set(updatePayload).then(() => {
-                    alert('✅ 页面数据已全部保存至云端！');
-                    loadData(); // 重新整理画面确保资料一致
-                }).catch(err => {
-                    alert('❌ 保存失败：' + err.message);
-                });
+                    alert('✅ 页面数据已全部保存至云端！'); loadData(); 
+                }).catch(err => { alert('❌ 保存失败：' + err.message); });
             }
         }
     </script>
