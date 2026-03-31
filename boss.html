@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌐 工厂全局实时监控看板</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
+        h1 { text-align: center; color: #00e5ff; text-shadow: 0 0 20px rgba(0, 229, 255, 0.8); letter-spacing: 4px; font-size: 36px; margin-bottom: 30px;}
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .line-card {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid #334155;
+            border-radius: 15px;
+            padding: 20px;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            transition: 0.3s;
+        }
+        
+        .line-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.6); }
+
+        .line-header {
+            font-size: 26px;
+            font-weight: bold;
+            color: #fff;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-dot { height: 16px; width: 16px; background-color: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981; animation: blink 1.5s infinite;}
+        .status-dot.stopped { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; animation: none;}
+        @keyframes blink { 50% { opacity: 0.4; } }
+
+        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 18px; color: #94a3b8; }
+        .data-value { font-size: 30px; font-weight: bold; color: #fff; font-family: 'Courier New', Courier, monospace;}
+        
+        .rate-container { text-align: center; margin-top: 20px; padding-top: 15px; border-top: 1px dashed #334155; }
+        .rate-title { font-size: 16px; color: #94a3b8; }
+        .rate-big-value { font-size: 65px; font-weight: bold; line-height: 1.1; margin-top: 10px; font-family: 'Courier New', Courier, monospace; }
+
+        .good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
+        .warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
+        .danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+
+        #noDataMsg { text-align: center; font-size: 24px; color: #64748b; margin-top: 100px; display: none; }
+    </style>
+</head>
+<body>
+
+    <h1>🌐 工厂全局实时监控看板</h1>
+    <div id="noDataMsg">📡 正在搜寻今日的产线数据... (若无显示，代表今日尚未有任何产线开工)</div>
+    <div class="grid-container" id="cardsContainer">
+        </div>
+
+    <script>
+        // 1. 嵌入专属金钥
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
+            authDomain: "factory-mes-2026.firebaseapp.com",
+            databaseURL: "https://factory-mes-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "factory-mes-2026",
+            storageBucket: "factory-mes-2026.firebasestorage.app",
+            messagingSenderId: "710873291817",
+            appId: "1:710873291817:web:92ea2aadc4dd895fb19038"
+        };
+        
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
+
+        // 2. 获取今天的日期 (YYYY-MM-DD)
+        let today = new Date();
+        let yyyy = today.getFullYear();
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let dd = String(today.getDate()).padStart(2, '0');
+        let todayStr = `${yyyy}-${mm}-${dd}`;
+
+        // 3. 实时监听 Firebase
+        const dbRef = db.ref('production_data/' + todayStr);
+        const container = document.getElementById('cardsContainer');
+        const noDataMsg = document.getElementById('noDataMsg');
+
+        dbRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            container.innerHTML = ''; // 收到新数据，清空重绘
+
+            if (!data) {
+                noDataMsg.style.display = 'block';
+                return;
+            }
+
+            noDataMsg.style.display = 'none';
+
+            // 遍历所有正在运行的产线
+            for (let lineKey in data) {
+                let lineData = data[lineKey];
+                
+                // 判断颜色
+                let rateColorClass = "good";
+                if (lineData.elapsedMins > 1) {
+                    if (lineData.achievementRate >= 100) rateColorClass = "good";
+                    else if (lineData.achievementRate >= 90) rateColorClass = "warning";
+                    else rateColorClass = "danger";
+                }
+
+                let statusDotClass = lineData.status === "STOPPED" ? "status-dot stopped" : "status-dot";
+
+                // 生成 HTML 卡片
+                let cardHTML = `
+                    <div class="line-card">
+                        <div class="line-header">
+                            <span>🏭 ${lineData.factory} - ${lineData.line}</span>
+                            <span class="${statusDotClass}" title="${lineData.status}"></span>
+                        </div>
+                        <div class="data-row">
+                            <span>品牌/单号:</span>
+                            <span style="color: #38bdf8; font-weight:bold;">${lineData.brand} (${lineData.order})</span>
+                        </div>
+                        <div class="data-row">
+                            <span>运作时间:</span>
+                            <span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span>
+                        </div>
+                        <div class="data-row">
+                            <span>预期产量:</span>
+                            <span class="data-value">${lineData.expectedOutput}</span>
+                        </div>
+                        <div class="data-row">
+                            <span>实际达成:</span>
+                            <span class="data-value" style="color: #8b5cf6;">${lineData.actualOutput}</span>
+                        </div>
+                        <div class="rate-container">
+                            <div class="rate-title">达标率 (最后更新: ${lineData.lastUpdate})</div>
+                            <div class="rate-big-value ${rateColorClass}">${lineData.achievementRate.toFixed(1)}%</div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += cardHTML;
+            }
+        });
+    </script>
+</body>
+</html>
