@@ -60,7 +60,7 @@
         .input-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px; }
         .input-row:last-child { margin-bottom: 0; }
         
-        /* 智能表单群组 - 将 Label 和 Input 绑在一起 */
+        /* 智能表单群组 */
         .form-group { display: flex; align-items: center; gap: 8px; }
         .form-group label { font-weight: bold; color: #94a3b8; font-size: 15px; white-space: nowrap; } 
         
@@ -97,7 +97,9 @@
         
         .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
 
-        /* 数据显示区 */
+        /* ====================================================
+           数据显示区 (极致放大，充分利用空间)
+           ==================================================== */
         .top-dashboard { margin-bottom: 10px; flex-shrink: 0; }
         .dashboard { 
             display: grid; 
@@ -128,33 +130,38 @@
         
         .card.top-card::before { background: #10b981 !important; box-shadow: 0 0 15px #10b981 !important; }
 
-        .card h2 { margin-top: 0; font-size: 22px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 5px;}
+        /* 卡片标题放大 */
+        .card h2 { margin-top: 0; font-size: 26px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 5px;}
         
-        .value { font-size: 75px; font-weight: bold; margin: 5px 0; font-family: 'Courier New', Courier, monospace; }
-        .rate-value { font-size: 95px; } 
+        /* 核心大数字放大 */
+        .value { font-size: 100px; font-weight: bold; margin: 0; font-family: 'Courier New', Courier, monospace; line-height: 1.1;}
+        .rate-value { font-size: 130px; line-height: 1;} 
         
-        .time-value { color: #38bdf8; line-height: 1.1; font-size: 60px; }
-        .time-unit { font-size: 24px; }
-        .time-sub { font-size: 20px; color: #94a3b8; }
+        /* 运行时间专用字体放大 */
+        .time-value { color: #38bdf8; line-height: 1; font-size: 80px; }
+        .time-unit { font-size: 28px; }
+        .time-sub { font-size: 24px; color: #94a3b8; }
         
+        /* 大按钮极致放大 */
         .btn-add { 
             background: linear-gradient(135deg, #8b5cf6, #6d28d9); 
-            font-size: 36px; width: 90px; height: 90px; border-radius: 50%; margin: 5px; 
+            font-size: 50px; width: 120px; height: 120px; border-radius: 50%; margin: 5px; 
             box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
-            border: 3px solid #a78bfa;
+            border: 4px solid #a78bfa;
         }
         .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(139, 92, 246, 0.9); }
         
-        .manual-entry { margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 5px; width: 100%; }
+        /* 手动输入区放大 */
+        .manual-entry { margin-top: 5px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; width: 100%; }
         
         .manual-input {
-            width: 100px; text-align: center; font-size: 20px; padding: 8px;
+            width: 120px; text-align: center; font-size: 24px; padding: 8px;
             background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8;
             border-radius: 6px; font-weight: bold; outline: none;
         }
         .manual-input:focus { border-color: #00e5ff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.8); }
         
-        .btn-bulk { background: #3b82f6; font-size: 18px; padding: 8px 20px; }
+        .btn-bulk { background: #3b82f6; font-size: 20px; padding: 10px 20px; }
 
         .good { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
         .warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.8); }
@@ -165,26 +172,43 @@
 
         /* ====================================================
            📱 手机及小屏幕适配 (Mobile Responsive)
-           将所有输入框改为垂直堆叠，按钮占满宽度
            ==================================================== */
         @media (max-width: 900px) {
             body { height: auto; min-height: 100vh; overflow: auto; padding: 10px; }
             .mega-order-display { font-size: 16px; line-height: 1.4; padding: 12px;}
             
-            /* 输入栏自动向下排列 */
-            .input-row { flex-direction: column; align-items: stretch; gap: 15px; }
-            .form-group { flex-direction: column; align-items: flex-start; gap: 5px; width: 100%; }
-            .form-group label { margin-bottom: 2px; }
+            /* 每组栏位独立成行，往下排列 */
+            .input-row { flex-direction: column; align-items: stretch; gap: 12px; }
             
-            /* 输入框在手机端拉宽到 100% */
-            .form-group input, .form-group select { width: 100% !important; max-width: 100%; }
+            /* 手机版：左边标签，右边输入框同一行 */
+            .form-group { 
+                flex-direction: row; 
+                align-items: center; 
+                gap: 10px; 
+                width: 100%; 
+                justify-content: space-between; 
+            }
+            
+            .form-group label { 
+                margin-bottom: 0; 
+                white-space: normal; 
+                max-width: 45%;      
+                flex-shrink: 0; 
+                text-align: left;
+            }
+            
+            /* 输入框撑满右边剩余的空间 */
+            .form-group input, .form-group select { 
+                flex: 1; 
+                width: 10% !important; 
+            }
             
             /* 动作按钮占满屏幕宽度 */
             .action-buttons { flex-direction: column; align-items: stretch; margin-top: 10px; }
             .action-buttons button { width: 100%; padding: 12px; margin-bottom: 5px; font-size: 18px;}
             .status-text { text-align: center; margin-left: 0; margin-top: 5px; display: block; }
             
-            /* 底部仪表板改为直排 */
+            /* 底部仪表板直排 */
             .dashboard { grid-template-columns: 1fr; }
             .card { padding: 25px 15px; }
             .card h2 { font-size: 22px; }
@@ -192,6 +216,8 @@
             .rate-value { font-size: 95px; }
             .time-value { font-size: 65px; }
             .btn-add { width: 100px; height: 100px; font-size: 40px; }
+            .manual-input { width: 100px; font-size: 20px; }
+            .btn-bulk { font-size: 18px; }
         }
     </style>
 </head>
