@@ -11,37 +11,28 @@
         * { box-sizing: border-box; } 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 10px 15px; min-height: 100vh; display: flex; flex-direction: column; overflow-y: auto; }
         h1 { text-align: center; color: #00e5ff; text-shadow: 0 0 15px rgba(0, 229, 255, 0.6); letter-spacing: 3px; margin: 0 0 10px 0; font-size: 26px; flex-shrink: 0; }
-        
         .pmc-header { color: #f472b6 !important; text-shadow: 0 0 15px rgba(244, 114, 182, 0.6) !important; }
-
         .mega-order-display { text-align: center; font-size: 24px; font-weight: bold; color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); margin-bottom: 10px; letter-spacing: 2px; display: none; background: rgba(250, 204, 21, 0.1); padding: 8px; border-radius: 8px; border: 2px solid rgba(250, 204, 21, 0.3); flex-shrink: 0; }
         .panel { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; padding: 12px 15px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 10px; flex-shrink: 0; }
         .input-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px; }
         .input-row:last-child { margin-bottom: 0; }
         .form-group { display: flex; align-items: center; gap: 8px; }
         .form-group label { font-weight: bold; color: #94a3b8; font-size: 15px; white-space: nowrap; } 
-        
         input[type="number"], input[type="time"], input[type="text"], input[type="date"], input[type="password"], select { background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; padding: 6px 10px; border-radius: 6px; font-size: 16px; font-weight: bold; outline: none; text-transform: uppercase; }
         input:focus, select:focus { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
-        
         input:-webkit-autofill { -webkit-box-shadow: 0 0 0 30px #0f172a inset !important; -webkit-text-fill-color: #00e5ff !important; transition: background-color 5000s ease-in-out 0s; }
         input:disabled, select:disabled { background-color: #1e293b !important; color: #64748b !important; border-color: #475569 !important; cursor: not-allowed; -webkit-text-fill-color: #64748b !important;}
-        
         .short-input { width: 110px; } .long-input { width: 150px; }
         select option { background-color: #0f172a; color: #e2e8f0; } select optgroup { color: #38bdf8; }
-        
         .action-buttons { display: flex; align-items: center; gap: 10px; flex-grow: 1; justify-content: flex-end; flex-wrap: wrap; }
         button { padding: 6px 15px; font-size: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; transition: all 0.3s ease; letter-spacing: 1px; }
-        
         .btn-fetch { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 0 10px rgba(139, 92, 246, 0.5); }
         .btn-publish { background: linear-gradient(135deg, #f472b6, #be185d); box-shadow: 0 0 15px rgba(244, 114, 182, 0.6); font-size: 18px; padding: 10px 20px;}
         .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
         .btn-stop { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .btn-end { background: linear-gradient(135deg, #ef4444, #dc2626); }
         .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
-        
         .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
-        
         .top-dashboard { margin-bottom: 10px; flex-shrink: 0; }
         .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex-grow: 1; min-height: 350px; }
         .card { background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; padding: 15px; border-radius: 12px; position: relative; overflow: hidden; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 250px;}
@@ -60,7 +51,7 @@
         .manual-input { width: 100px; text-align: center; font-size: 20px; padding: 8px; background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; border-radius: 6px; font-weight: bold; }
         .btn-bulk { background: #3b82f6; font-size: 18px; padding: 8px 20px; }
         .editable-number { cursor: pointer; border-bottom: 2px dashed #8b5cf6; display: inline-block; padding: 0 10px; }
-        
+        .good { color: #10b981; } .warning { color: #facc15; } .danger { color: #ef4444; }
         .pmc-table-container { background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1px solid #334155; padding: 15px; margin-top: 15px;}
         .pmc-table-container h3 { color: #f472b6; margin-top: 0; font-size: 20px; border-bottom: 1px solid #475569; padding-bottom: 10px;}
         table { width: 100%; border-collapse: collapse; text-align: center; }
@@ -74,6 +65,7 @@
             .form-group input, .form-group select { flex: 1; width: 10% !important; }
             .action-buttons { flex-direction: column; align-items: stretch; margin-top: 10px; }
             .action-buttons button { width: 100%; padding: 12px; margin-bottom: 5px; font-size: 18px;}
+            .status-text { text-align: center; margin-left: 0; margin-top: 5px; display: block; }
             .dashboard { grid-template-columns: 1fr; }
             .card { padding: 25px 15px; min-height: auto;}
             .value { font-size: 75px; } .rate-value { font-size: 95px; } .time-value { font-size: 65px; }
@@ -117,7 +109,6 @@
                     <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option></optgroup>
                 </select>
             </div>
-            
             <div class="form-group" id="workerFetchGroup">
                 <button class="btn-fetch" onclick="fetchPlan()">🔍 获取当日排产</button>
             </div>
@@ -152,11 +143,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>工厂 - 线别</th>
-                    <th>品牌 (单号)</th>
-                    <th>本日100% POH</th>
-                    <th>生产/配备员工+班组课</th>
-                    <th>状态</th>
+                    <th>工厂 - 线别</th><th>品牌 (单号)</th><th>本日100%POH</th><th>生产/配备员工+班组课</th><th>状态</th>
                 </tr>
             </thead>
             <tbody id="pmcPlanListBody">
@@ -180,13 +167,11 @@
     </div>
 
     <script>
-        // 🔐 密码单向加密 (防检视原始码)
         function hashPIN(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
             return hash.toString();
         }
-        
         const WORKER_HASH = "55608";   // 888
         const PMC_HASH = "1662336";    // 6666
         let currentRole = ""; 
@@ -194,7 +179,6 @@
         function verifyPIN() {
             let input = document.getElementById('pinInput').value;
             let hashedInput = hashPIN(input);
-
             if (hashedInput === WORKER_HASH) {
                 currentRole = "WORKER"; setupUIForRole(); document.getElementById('authOverlay').style.display = 'none';
             } else if (hashedInput === PMC_HASH) {
@@ -207,39 +191,29 @@
 
         function setupUIForRole() {
             document.getElementById('dateInput').value = getCambodiaDateString();
-
             if (currentRole === "PMC") {
                 let title = document.getElementById('mainTitle');
                 title.innerHTML = "⚙️ 基础资料输入 - 指定人员"; title.className = "pmc-header";
-                
                 document.getElementById('workerFetchGroup').style.display = 'none';
                 document.getElementById('pmcControls').style.display = 'flex';
                 document.getElementById('workerControls').style.display = 'none';
                 document.getElementById('productionDashboardArea').style.display = 'none';
                 document.getElementById('pmcDashboardArea').style.display = 'block';
                 
-                document.getElementById('dateInput').disabled = false;
-                document.getElementById('factoryInput').disabled = false; document.getElementById('lineInput').disabled = false;
+                document.getElementById('dateInput').disabled = false; document.getElementById('factoryInput').disabled = false; document.getElementById('lineInput').disabled = false;
                 document.getElementById('brandInput').disabled = false; document.getElementById('orderInput').disabled = false;
-                document.getElementById('startTimeInput').disabled = false; document.getElementById('poh').disabled = false;
-                document.getElementById('workers').disabled = false;
-                
+                document.getElementById('startTimeInput').disabled = false; document.getElementById('poh').disabled = false; document.getElementById('workers').disabled = false;
             } else if (currentRole === "WORKER") {
                 document.getElementById('mainTitle').innerHTML = "⚡ 产线执行端 - 现场作业";
-                
                 document.getElementById('workerFetchGroup').style.display = 'block';
                 document.getElementById('pmcControls').style.display = 'none';
                 document.getElementById('workerControls').style.display = 'flex';
                 document.getElementById('productionDashboardArea').style.display = 'block';
                 document.getElementById('pmcDashboardArea').style.display = 'none';
                 
-                document.getElementById('dateInput').disabled = false;
-                document.getElementById('factoryInput').disabled = false; document.getElementById('lineInput').disabled = false;
-                
+                document.getElementById('dateInput').disabled = false; document.getElementById('factoryInput').disabled = false; document.getElementById('lineInput').disabled = false;
                 document.getElementById('brandInput').disabled = true; document.getElementById('orderInput').disabled = true;
-                document.getElementById('startTimeInput').disabled = true; document.getElementById('poh').disabled = true;
-                document.getElementById('workers').disabled = true;
-                
+                document.getElementById('startTimeInput').disabled = true; document.getElementById('poh').disabled = true; document.getElementById('workers').disabled = true;
                 document.getElementById('brandInput').placeholder = "等待载入"; document.getElementById('orderInput').placeholder = "等待载入";
             }
         }
@@ -250,6 +224,9 @@
         }
         function getCambodiaTimestamp(dateStr, timeStr) { return new Date(`${dateStr}T${timeStr}:00+07:00`).getTime(); }
 
+        // ==========================================
+        // Firebase 设定 (⚠️ 请填入你的 Key)
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
@@ -269,20 +246,15 @@
 
         document.getElementById('dateInput').addEventListener('change', fetchPMCPlanList);
 
-        // 📋 [PMC] - 获取当天的排产清单防漏
         function fetchPMCPlanList() {
             if (currentRole !== "PMC") return;
             let dateVal = document.getElementById('dateInput').value;
             let listBody = document.getElementById('pmcPlanListBody');
-            
             listBody.innerHTML = "<tr><td colspan='5'>⏳ 载入中...</td></tr>";
 
             db.ref('production_data/' + dateVal).on('value', snap => {
                 listBody.innerHTML = "";
-                if (!snap.exists()) {
-                    listBody.innerHTML = "<tr><td colspan='5' style='color:#64748b;'>📭 该日期尚未有任何排产纪录</td></tr>";
-                    return;
-                }
+                if (!snap.exists()) { listBody.innerHTML = "<tr><td colspan='5' style='color:#64748b;'>📭 该日期尚未有任何排产纪录</td></tr>"; return; }
                 
                 let data = snap.val();
                 let lines = Object.values(data);
@@ -290,7 +262,6 @@
 
                 lines.forEach(d => {
                     let tr = document.createElement('tr');
-                    // 完美对应的 5 种状态灯
                     let statusIcon = "";
                     if(d.status === 'STANDBY') statusIcon = '⚪ 待命';
                     else if(d.status === 'RUNNING') statusIcon = '🟢 运行中';
@@ -301,58 +272,50 @@
                     tr.innerHTML = `
                         <td style="font-weight:bold;">${d.factory} - ${d.line}</td>
                         <td style="color:#38bdf8;">${d.brand} <small>(${d.order})</small></td>
-                        <td>${d.poh}</td>
-                        <td>${d.workers}</td>
-                        <td>${statusIcon}</td>
+                        <td>${d.poh}</td><td>${d.workers}</td><td>${statusIcon}</td>
                     `;
                     listBody.appendChild(tr);
                 });
             });
         }
 
-        // ⚙️ [PMC] - 锁定并发布排产 (防重复机制)
         function publishPlan() {
             let dateVal = document.getElementById('dateInput').value;
-            let factoryVal = document.getElementById('factoryInput').value;
-            let lineVal = document.getElementById('lineInput').value;
-            let brandVal = document.getElementById('brandInput').value;
-            let orderVal = document.getElementById('orderInput').value;
+            let factoryVal = document.getElementById('factoryInput').value; let lineVal = document.getElementById('lineInput').value;
+            let brandVal = document.getElementById('brandInput').value; let orderVal = document.getElementById('orderInput').value;
             let timeVal = document.getElementById('startTimeInput').value;
-            let pohVal = parseFloat(document.getElementById('poh').value);
-            let workersVal = parseInt(document.getElementById('workers').value);
+            let pohVal = parseFloat(document.getElementById('poh').value); let workersVal = parseInt(document.getElementById('workers').value);
 
             if (!factoryVal || !lineVal || !brandVal || !orderVal || !timeVal || isNaN(pohVal) || isNaN(workersVal)) {
                 alert("❌ 请填妥所有基础资料，不可留空！"); return;
             }
 
             dbRefPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
-
             db.ref(dbRefPath).once('value').then(snap => {
                 if (snap.exists()) {
                     let currentStatus = snap.val().status;
-                    let msg = currentStatus === "STANDBY" ? "待命" : "开工";
-                    if(!confirm(`⚠️ 警告：【${factoryVal} - ${lineVal}】今日已存在纪录 (状态: ${msg})！\n如果继续发布，将会完全覆盖原有资料并重置为【待命】。\n\n确定要覆盖吗？`)) return;
+                    let msg = currentStatus === "STANDBY" ? "待命" : "已开工";
+                    if(!confirm(`⚠️ 警告：【${factoryVal} - ${lineVal}】今日已存在纪录 (状态: ${msg})！\n强制发布将完全覆盖原有资料并重置为【待命】。\n\n确定要覆盖吗？`)) return;
                 }
                 
+                // 🚀 加入 lastUpdateMs (心跳初始值)
                 db.ref(dbRefPath).set({
-                    factory: factoryVal, line: lineVal,
-                    brand: brandVal, order: orderVal,
+                    factory: factoryVal, line: lineVal, brand: brandVal, order: orderVal,
                     startTime: timeVal, poh: pohVal, workers: workersVal,
                     actualOutput: 0, expectedOutput: 0, achievementRate: 0, elapsedMins: 0,
-                    status: "STANDBY",
+                    status: "STANDBY", 
+                    lastUpdateMs: Date.now(),
                     lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
                 }).then(() => {
-                    alert(`✅ ${factoryVal}-${lineVal} 资料输入成功！\n请继续输入下一条线的资料。`);
-                    document.getElementById('lineInput').value = ""; // 清空方便填下一条
+                    alert(`✅ ${factoryVal}-${lineVal} 资料输入成功！`);
+                    document.getElementById('lineInput').value = ""; 
                 });
             });
         }
 
-        // ⚡ [车间] - 获取与执行
         function fetchPlan() {
             let dateVal = document.getElementById('dateInput').value;
-            let factoryVal = document.getElementById('factoryInput').value;
-            let lineVal = document.getElementById('lineInput').value;
+            let factoryVal = document.getElementById('factoryInput').value; let lineVal = document.getElementById('lineInput').value;
             if (!factoryVal || !lineVal) { alert("请先选择工厂和线别！"); return; }
 
             dbRefPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
@@ -360,14 +323,12 @@
                 if (!snapshot.exists()) { alert("⚠️ 指定人员尚未为这条产线建立该日期的排产计划！"); return; }
                 let data = snapshot.val();
                 
-                document.getElementById('brandInput').value = data.brand || '';
-                document.getElementById('orderInput').value = data.order || '';
-                document.getElementById('startTimeInput').value = data.startTime || '';
-                document.getElementById('poh').value = data.poh || 0;
+                document.getElementById('brandInput').value = data.brand || ''; document.getElementById('orderInput').value = data.order || '';
+                document.getElementById('startTimeInput').value = data.startTime || ''; document.getElementById('poh').value = data.poh || 0;
                 document.getElementById('workers').value = data.workers || 0;
+                
                 targetPoh = parseFloat(data.poh); targetWorkers = parseInt(data.workers);
-                actualCount = parseInt(data.actualOutput) || 0;
-                document.getElementById('actualOutput').innerText = actualCount;
+                actualCount = parseInt(data.actualOutput) || 0; document.getElementById('actualOutput').innerText = actualCount;
 
                 if (data.status === "STANDBY") {
                     document.getElementById('startBtn').disabled = false; document.getElementById('startBtn').style.opacity = "1";
@@ -379,13 +340,36 @@
             });
         }
 
+        // 🚀 核心修复：已结束状态完全锁定数据，不再触发 timer！
         function restoreSession(data, dateVal) {
             if (data.status === "STOPPED") {
-                alert("⚠️ 该产线已【结束】生产，数据已冻结。");
-                isEnded = true; document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#ef4444;">🔴 已结束</span>`;
-                beginRunLogic(dateVal, data.startTime, data.factory, data.line, true);
-                return;
+                alert("⚠️ 该产线已【结束】生产，数据已完全冻结。\n(如需修改异常数据，请联络生管从后台修正)");
+                isEnded = true; isRunning = false; isPaused = false;
+                
+                document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true; document.getElementById('lineInput').disabled = true;
+                document.querySelector('.btn-fetch').disabled = true; document.querySelector('.btn-fetch').style.opacity = "0.5";
+                document.getElementById('startBtn').disabled = true; document.getElementById('startBtn').style.opacity = "0.5";
+                document.getElementById('pauseBtn').disabled = true; document.getElementById('pauseBtn').style.opacity = "0.5";
+                document.getElementById('endBtn').disabled = true; document.getElementById('endBtn').style.opacity = "0.5";
+
+                document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#ef4444;">🔴 已结束 (数据锁定)</span>`;
+                let megaBanner = document.getElementById('megaOrderDisplay'); megaBanner.style.display = 'block';
+                megaBanner.innerHTML = `📅 ${dateVal} &nbsp;|&nbsp; 🏭 ${data.factory} - ${data.line} &nbsp;|&nbsp; ⭐ 品牌: ${data.brand} ⭐`;
+
+                // 直接显示冻结数据，不再计算
+                let elapsedHours = data.elapsedMins / 60;
+                document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br><span class="time-sub">(${data.elapsedMins.toFixed(1)} 分钟)</span>`;
+                document.getElementById('expectedOutput').innerText = data.expectedOutput;
+
+                let rateElement = document.getElementById('achievementRate');
+                rateElement.innerText = data.achievementRate.toFixed(1) + "%";
+                rateElement.className = "value rate-value"; 
+                if (data.elapsedMins > 1) { 
+                    if (data.achievementRate >= 100) rateElement.classList.add("good"); else if (data.achievementRate >= 90) rateElement.classList.add("warning"); else rateElement.classList.add("danger");
+                }
+                return; // 🛑 直接退出，不启动计时器！
             }
+
             if (confirm(`📡 寻找到运行中纪录 (目前产量: ${data.actualOutput})！是否直接恢复？`)) {
                 beginRunLogic(dateVal, data.startTime, data.factory, data.line, false);
                 if (data.status === "PAUSED") togglePause(); 
@@ -404,8 +388,7 @@
             customStartDateMs = getCambodiaTimestamp(dateVal, timeVal);
             if (customStartDateMs > Date.now()) { alert("开工时间不能晚于现在！"); return; }
 
-            document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true; 
-            document.getElementById('lineInput').disabled = true;
+            document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true; document.getElementById('lineInput').disabled = true;
             document.querySelector('.btn-fetch').disabled = true; document.querySelector('.btn-fetch').style.opacity = "0.5";
 
             isRunning = !isForceStop; isPaused = false; isEnded = isForceStop; pauseDateMs = null;
@@ -415,7 +398,9 @@
                 document.getElementById('pauseBtn').disabled = false; document.getElementById('pauseBtn').style.opacity = "1";
                 document.getElementById('endBtn').disabled = false; document.getElementById('endBtn').style.opacity = "1";
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
-                db.ref(dbRefPath).onDisconnect().update({ status: "OFFLINE", lastUpdate: "离线" });
+                
+                // 离线遗言
+                db.ref(dbRefPath).onDisconnect().update({ status: "OFFLINE", lastUpdate: "离线 (网页关闭)" });
                 timerInterval = setInterval(updateDashboard, 1000);
             }
             let megaBanner = document.getElementById('megaOrderDisplay'); megaBanner.style.display = 'block';
@@ -427,14 +412,12 @@
             if (isEnded) return;
             let pauseBtn = document.getElementById('pauseBtn');
             if (isRunning) {
-                clearInterval(timerInterval);
-                isRunning = false; isPaused = true; pauseDateMs = Date.now();
+                clearInterval(timerInterval); isRunning = false; isPaused = true; pauseDateMs = Date.now();
                 pauseBtn.innerHTML = "▶️ 继续"; pauseBtn.style.background = "linear-gradient(135deg, #3b82f6, #2563eb)"; 
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#facc15;">🟡 已暂停</span>`;
                 updateDashboard();
             } else if (isPaused) {
-                let pauseDuration = Date.now() - pauseDateMs; 
-                customStartDateMs += pauseDuration; 
+                let pauseDuration = Date.now() - pauseDateMs; customStartDateMs += pauseDuration; 
                 isRunning = true; isPaused = false; pauseDateMs = null;
                 pauseBtn.innerHTML = "⏸️ 暂停"; pauseBtn.style.background = ""; 
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
@@ -462,6 +445,7 @@
             db.ref(dbRefPath).update({
                 actualOutput: actualCount, expectedOutput: expectedOutput,
                 achievementRate: rate, elapsedMins: elapsedMins, status: statusStr,
+                lastUpdateMs: Date.now(), // 💓 发送心跳
                 lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
             });
         }
@@ -475,7 +459,8 @@
 
         function addBulkOutput() { let val = parseInt(document.getElementById('manualValue').value); if (!isNaN(val)) addOutput(val); }
         function editActualOutput() {
-            if (isEnded || (!isRunning && !isPaused)) return;
+            if (isEnded) { alert("此线已结束生产，如需修改请联络后台！"); return; }
+            if (!isRunning && !isPaused) return;
             let newVal = prompt("输入实际达成产量:", actualCount);
             if (newVal !== null && !isNaN(parseInt(newVal)) && parseInt(newVal) >= 0) {
                 actualCount = parseInt(newVal); document.getElementById('actualOutput').innerText = actualCount; updateDashboard();
