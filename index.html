@@ -29,7 +29,7 @@
             flex-shrink: 0;
         }
 
-        /* 顶部超大订单资讯显示区 (保持紧凑) */
+        /* 顶部超大订单资讯显示区 */
         .mega-order-display {
             text-align: center;
             font-size: 24px; 
@@ -46,19 +46,23 @@
             flex-shrink: 0;
         }
 
-        /* 面板设计 (保持紧凑) */
+        /* 面板设计 */
         .panel { 
             background: rgba(30, 41, 59, 0.8); 
             border: 1px solid #334155;
-            padding: 12px; 
+            padding: 12px 15px; 
             border-radius: 10px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.5); 
             margin-bottom: 10px; 
             flex-shrink: 0; 
         }
-        .input-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 8px; }
+        
+        .input-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px; }
         .input-row:last-child { margin-bottom: 0; }
-        .input-row label { font-weight: bold; color: #94a3b8; font-size: 15px; } 
+        
+        /* 智能表单群组 - 将 Label 和 Input 绑在一起 */
+        .form-group { display: flex; align-items: center; gap: 8px; }
+        .form-group label { font-weight: bold; color: #94a3b8; font-size: 15px; white-space: nowrap; } 
         
         input[type="number"], input[type="time"], input[type="text"], input[type="date"], select { 
             background-color: #0f172a;
@@ -73,28 +77,28 @@
             text-transform: uppercase;
         }
         input:focus, select:focus { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
-        .short-input { width: 100px; }
+        .short-input { width: 110px; }
         .long-input { width: 150px; }
         
         select option { background-color: #0f172a; color: #e2e8f0; }
         select optgroup { color: #38bdf8; }
+
+        .action-buttons { display: flex; align-items: center; gap: 10px; flex-grow: 1; justify-content: flex-end; flex-wrap: wrap; }
 
         button { 
             padding: 6px 15px; font-size: 15px; border: none; border-radius: 6px; 
             cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; 
             transition: all 0.3s ease; letter-spacing: 1px;
         }
-        .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); font-size: 16px; }
+        .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
         .btn-start:hover { transform: translateY(-2px); box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
         .btn-stop { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
         
-        .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-top: 5px; display: inline-block; margin-left: 15px;}
+        .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
 
-        /* ====================================================
-           数据显示区 (底部极致放大)
-           ==================================================== */
-        .top-dashboard { margin-bottom: 15px; flex-shrink: 0; }
+        /* 数据显示区 */
+        .top-dashboard { margin-bottom: 10px; flex-shrink: 0; }
         .dashboard { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
@@ -124,49 +128,34 @@
         
         .card.top-card::before { background: #10b981 !important; box-shadow: 0 0 15px #10b981 !important; }
 
-        /* 卡片标题 */
-        .card h2 { margin-top: 0; font-size: 24px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 5px;}
+        .card h2 { margin-top: 0; font-size: 22px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 5px;}
         
-        /* 核心大数字放大 */
-        .value { font-size: 90px; font-weight: bold; margin: 5px 0; font-family: 'Courier New', Courier, monospace; }
+        .value { font-size: 75px; font-weight: bold; margin: 5px 0; font-family: 'Courier New', Courier, monospace; }
+        .rate-value { font-size: 95px; } 
         
-        /* 达标率超大字体 */
-        .rate-value { font-size: 120px; line-height: 1; } 
+        .time-value { color: #38bdf8; line-height: 1.1; font-size: 60px; }
+        .time-unit { font-size: 24px; }
+        .time-sub { font-size: 20px; color: #94a3b8; }
         
-        /* 运行时间专用字体 */
-        .time-value { color: #38bdf8; line-height: 1.1; font-size: 75px; }
-        .time-unit { font-size: 26px; }
-        .time-sub { font-size: 22px; color: #94a3b8; }
-        
-        /* 大按钮极限放大 */
         .btn-add { 
             background: linear-gradient(135deg, #8b5cf6, #6d28d9); 
-            font-size: 45px; width: 110px; height: 110px; border-radius: 50%; margin: 5px; 
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
-            border: 4px solid #a78bfa;
+            font-size: 36px; width: 90px; height: 90px; border-radius: 50%; margin: 5px; 
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
+            border: 3px solid #a78bfa;
         }
-        .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(139, 92, 246, 0.9); }
+        .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(139, 92, 246, 0.9); }
         
-        /* 手动输入区放大 */
-        .manual-entry { margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; width: 100%; }
+        .manual-entry { margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 5px; width: 100%; }
         
         .manual-input {
-            width: 100px;
-            text-align: center;
-            font-size: 20px;
-            padding: 8px;
-            background-color: #0f172a;
-            color: #00e5ff;
-            border: 2px solid #38bdf8;
-            border-radius: 6px;
-            font-weight: bold;
-            outline: none;
+            width: 100px; text-align: center; font-size: 20px; padding: 8px;
+            background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8;
+            border-radius: 6px; font-weight: bold; outline: none;
         }
         .manual-input:focus { border-color: #00e5ff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.8); }
         
         .btn-bulk { background: #3b82f6; font-size: 18px; padding: 8px 20px; }
 
-        /* 颜色发光特效 */
         .good { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
         .warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.8); }
         .danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
@@ -175,22 +164,34 @@
         .editable-number:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
 
         /* ====================================================
-           手机及小屏幕适配 (Mobile Responsive)
+           📱 手机及小屏幕适配 (Mobile Responsive)
+           将所有输入框改为垂直堆叠，按钮占满宽度
            ==================================================== */
         @media (max-width: 900px) {
-            body {
-                height: auto; 
-                min-height: 100vh;
-                overflow: auto; 
-            }
+            body { height: auto; min-height: 100vh; overflow: auto; padding: 10px; }
+            .mega-order-display { font-size: 16px; line-height: 1.4; padding: 12px;}
+            
+            /* 输入栏自动向下排列 */
+            .input-row { flex-direction: column; align-items: stretch; gap: 15px; }
+            .form-group { flex-direction: column; align-items: flex-start; gap: 5px; width: 100%; }
+            .form-group label { margin-bottom: 2px; }
+            
+            /* 输入框在手机端拉宽到 100% */
+            .form-group input, .form-group select { width: 100% !important; max-width: 100%; }
+            
+            /* 动作按钮占满屏幕宽度 */
+            .action-buttons { flex-direction: column; align-items: stretch; margin-top: 10px; }
+            .action-buttons button { width: 100%; padding: 12px; margin-bottom: 5px; font-size: 18px;}
+            .status-text { text-align: center; margin-left: 0; margin-top: 5px; display: block; }
+            
+            /* 底部仪表板改为直排 */
             .dashboard { grid-template-columns: 1fr; }
-            .input-row { justify-content: flex-start; }
-            .card { padding: 20px 10px; }
+            .card { padding: 25px 15px; }
             .card h2 { font-size: 22px; }
             .value { font-size: 75px; }
             .rate-value { font-size: 95px; }
-            .btn-add { width: 100px; height: 100px; font-size: 40px; }
             .time-value { font-size: 65px; }
+            .btn-add { width: 100px; height: 100px; font-size: 40px; }
         }
     </style>
 </head>
@@ -202,73 +203,89 @@
 
     <div class="panel">
         <div class="input-row">
-            <label>📅 日期:</label>
-            <input type="date" id="dateInput" class="long-input">
+            <div class="form-group">
+                <label>📅 日期:</label>
+                <input type="date" id="dateInput" class="long-input">
+            </div>
 
-            <label>🏭 工厂:</label>
-            <select id="factoryInput" class="short-input">
-                <option value="" disabled selected>请选择...</option>
-                <option value="LY">LY</option>
-                <option value="LFY">LFY</option>
-            </select>
+            <div class="form-group">
+                <label>🏭 工厂:</label>
+                <select id="factoryInput" class="short-input">
+                    <option value="" disabled selected>请选择...</option>
+                    <option value="LY">LY</option>
+                    <option value="LFY">LFY</option>
+                </select>
+            </div>
 
-            <label>🏭 线别:</label>
-            <select id="lineInput" class="short-input" style="width: 140px;">
-                <option value="" disabled selected>请选择...</option>
-                <optgroup label="成型">
-                    <option value="成型A">成型A</option>
-                    <option value="成型B">成型B</option>
-                    <option value="成型C">成型C</option>
-                    <option value="成型D">成型D</option>
-                    <option value="成型E">成型E</option>
-                    <option value="成型F">成型F</option>
-                </optgroup>
-                <optgroup label="针车">
-                    <option value="针车1">针车1</option>
-                    <option value="针车2">针车2</option>
-                    <option value="针车3">针车3</option>
-                    <option value="针车4">针车4</option>
-                    <option value="针车5">针车5</option>
-                    <option value="针车6">针车6</option>
-                    <option value="针车7">针车7</option>
-                    <option value="针车8">针车8</option>
-                    <option value="针车9">针车9</option>
-                    <option value="针车10">针车10</option>
-                    <option value="针车11">针车11</option>
-                    <option value="针车12">针车12</option>
-                    <option value="针车13">针车13</option>
-                    <option value="针车14">针车14</option>
-                    <option value="针车15">针车15</option>
-                    <option value="针车16">针车16</option>
-                    <option value="针车17">针车17</option>
-                    <option value="针车18">针车18</option>
-                    <option value="针车19">针车19</option>
-                    <option value="针车20">针车20</option>
-                    <option value="针车21">针车21</option>
-                    <option value="针车22">针车22</option>
-                    <option value="针车23">针车23</option>
-                    <option value="针车24">针车24</option>
-                </optgroup>
-            </select>
+            <div class="form-group">
+                <label>🏭 线别:</label>
+                <select id="lineInput" class="short-input" style="width: 140px;">
+                    <option value="" disabled selected>请选择...</option>
+                    <optgroup label="成型">
+                        <option value="成型A">成型A</option>
+                        <option value="成型B">成型B</option>
+                        <option value="成型C">成型C</option>
+                        <option value="成型D">成型D</option>
+                        <option value="成型E">成型E</option>
+                        <option value="成型F">成型F</option>
+                    </optgroup>
+                    <optgroup label="针车">
+                        <option value="针车1">针车1</option>
+                        <option value="针车2">针车2</option>
+                        <option value="针车3">针车3</option>
+                        <option value="针车4">针车4</option>
+                        <option value="针车5">针车5</option>
+                        <option value="针车6">针车6</option>
+                        <option value="针车7">针车7</option>
+                        <option value="针车8">针车8</option>
+                        <option value="针车9">针车9</option>
+                        <option value="针车10">针车10</option>
+                        <option value="针车11">针车11</option>
+                        <option value="针车12">针车12</option>
+                        <option value="针车13">针车13</option>
+                        <option value="针车14">针车14</option>
+                        <option value="针车15">针车15</option>
+                        <option value="针车16">针车16</option>
+                        <option value="针车17">针车17</option>
+                        <option value="针车18">针车18</option>
+                        <option value="针车19">针车19</option>
+                        <option value="针车20">针车20</option>
+                        <option value="针车21">针车21</option>
+                        <option value="针车22">针车22</option>
+                        <option value="针车23">针车23</option>
+                        <option value="针车24">针车24</option>
+                    </optgroup>
+                </select>
+            </div>
             
-            <label>🏷️ 品牌:</label>
-            <input type="text" id="brandInput" class="long-input">
+            <div class="form-group">
+                <label>🏷️ 品牌:</label>
+                <input type="text" id="brandInput" class="long-input">
+            </div>
             
-            <label>📄 单号:</label>
-            <input type="text" id="orderInput" class="long-input">
+            <div class="form-group">
+                <label>📄 单号:</label>
+                <input type="text" id="orderInput" class="long-input">
+            </div>
         </div>
         
-        <div class="input-row" style="margin-top: 10px;">
-            <label>⏱️ 开工时间:</label>
-            <input type="time" id="startTimeInput">
+        <div class="input-row">
+            <div class="form-group">
+                <label>⏱️ 开工时间:</label>
+                <input type="time" id="startTimeInput" class="short-input">
+            </div>
 
-            <label>📈 本日100%POH:</label>
-            <input type="number" id="poh" class="short-input" step="0.01" min="0">
+            <div class="form-group">
+                <label>📈 本日100%POH:</label>
+                <input type="number" id="poh" class="short-input" step="0.01" min="0">
+            </div>
             
-            <label>👥 基准人数(含配套与班组):</label>
-            <input type="number" id="workers" class="short-input" min="1">
+            <div class="form-group">
+                <label>👥 基准人数(含配套与班组):</label>
+                <input type="number" id="workers" class="short-input" min="1">
+            </div>
             
-            <div style="flex-grow: 1; text-align: right;">
+            <div class="action-buttons">
                 <button class="btn-start" id="startBtn" onclick="startProduction()">▶️ 锁定并开始</button>
                 <button class="btn-stop" id="stopBtn" onclick="stopProduction()" disabled style="opacity: 0.5;">⏸️ 停止</button>
                 <button class="btn-reset" onclick="resetProduction()">🗑️ 重设</button>
@@ -496,6 +513,7 @@
                 document.getElementById('startTimeInput').value = "";
                 document.getElementById('poh').value = "";
                 document.getElementById('workers').value = "";
+                document.getElementById('manualValue').value = "10";
                 
                 document.getElementById('startBtn').disabled = false;
                 document.getElementById('startBtn').style.opacity = "1";
