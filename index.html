@@ -12,10 +12,11 @@
             background-color: #0b0f19; 
             color: #e2e8f0; 
             margin: 0; 
-            padding: 15px 20px; 
+            padding: 10px 15px; /* 缩小整体内边距 */
             height: 100vh; /* 桌面端默认锁定一屏高度 */
             display: flex;
             flex-direction: column;
+            overflow: hidden; /* 强制不出现滚动条 */
         }
         
         h1 { 
@@ -23,24 +24,24 @@
             color: #00e5ff; 
             text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
             letter-spacing: 3px;
-            margin: 0 0 15px 0; 
-            font-size: 30px;
+            margin: 0 0 10px 0; /* 压缩标题下方空间 */
+            font-size: 26px; /* 略缩标题 */
             flex-shrink: 0;
         }
 
         /* 顶部超大订单资讯显示区 */
         .mega-order-display {
             text-align: center;
-            font-size: 30px;
+            font-size: 24px; /* 缩小横幅字号，防止挤压下方 */
             font-weight: bold;
             color: #facc15;
-            text-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
-            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(250, 204, 21, 0.6);
+            margin-bottom: 10px;
             letter-spacing: 2px;
             display: none;
             background: rgba(250, 204, 21, 0.1);
-            padding: 10px;
-            border-radius: 10px;
+            padding: 8px; /* 压缩横幅高度 */
+            border-radius: 8px;
             border: 2px solid rgba(250, 204, 21, 0.3);
             flex-shrink: 0;
         }
@@ -49,65 +50,65 @@
         .panel { 
             background: rgba(30, 41, 59, 0.8); 
             border: 1px solid #334155;
-            padding: 15px; 
-            border-radius: 12px; 
+            padding: 12px; /* 压缩控制面板内边距 */
+            border-radius: 10px; 
             box-shadow: 0 0 15px rgba(0,0,0,0.5); 
-            margin-bottom: 15px; 
+            margin-bottom: 10px; 
             flex-shrink: 0; 
         }
-        .input-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px; }
+        .input-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 8px; }
         .input-row:last-child { margin-bottom: 0; }
-        .input-row label { font-weight: bold; color: #94a3b8; font-size: 16px; } 
+        .input-row label { font-weight: bold; color: #94a3b8; font-size: 15px; } 
         
         input[type="number"], input[type="time"], input[type="text"], input[type="date"], select { 
             background-color: #0f172a;
             color: #00e5ff;
             border: 2px solid #38bdf8; 
-            padding: 8px 12px; 
+            padding: 6px 10px; 
             border-radius: 6px; 
-            font-size: 18px; 
+            font-size: 16px; 
             font-weight: bold;
             outline: none;
             box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.3);
             text-transform: uppercase;
         }
         input:focus, select:focus { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
-        .short-input { width: 110px; }
-        .long-input { width: 160px; }
+        .short-input { width: 100px; }
+        .long-input { width: 150px; }
         
         select option { background-color: #0f172a; color: #e2e8f0; }
         select optgroup { color: #38bdf8; }
 
         button { 
-            padding: 8px 20px; font-size: 16px; border: none; border-radius: 6px; 
+            padding: 6px 15px; font-size: 15px; border: none; border-radius: 6px; 
             cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; 
             transition: all 0.3s ease; letter-spacing: 1px;
         }
-        .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); font-size: 18px; }
+        .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); font-size: 16px; }
         .btn-start:hover { transform: translateY(-2px); box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
         .btn-stop { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
         
-        /* 独立的大按钮样式 */
+        /* 独立的大按钮样式微调 */
         .btn-add { 
             background: linear-gradient(135deg, #8b5cf6, #6d28d9); 
-            font-size: 40px; width: 120px; height: 120px; border-radius: 50%; margin: 10px; 
-            box-shadow: 0 0 20px rgba(139, 92, 246, 0.6);
+            font-size: 36px; width: 90px; height: 90px; border-radius: 50%; margin: 5px; 
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.6);
             border: 3px solid #a78bfa;
         }
-        .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 30px rgba(139, 92, 246, 0.9); }
+        .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(139, 92, 246, 0.9); }
         
-        .btn-small { padding: 8px 12px; font-size: 16px; margin-left: 5px; }
+        .btn-small { padding: 6px 12px; font-size: 14px; margin-left: 5px; }
         .btn-bulk { background: #3b82f6; }
 
-        .status-text { font-size: 16px; color: #94a3b8; font-weight: bold; margin-top: 10px; display: inline-block; margin-left: 15px;}
+        .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-top: 5px; display: inline-block; margin-left: 15px;}
 
         /* 数据显示区 */
-        .top-dashboard { margin-bottom: 15px; flex-shrink: 0; }
+        .top-dashboard { margin-bottom: 10px; flex-shrink: 0; }
         .dashboard { 
             display: grid; 
             grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; 
+            gap: 15px; 
             flex-grow: 1; /* 占据剩余全部高度 */
             min-height: 0; 
         }
@@ -115,7 +116,7 @@
         .card { 
             background: rgba(30, 41, 59, 0.6); 
             border: 1px solid #334155;
-            padding: 20px; 
+            padding: 10px; /* 压缩卡片内边距 */
             border-radius: 12px; 
             position: relative;
             overflow: hidden;
@@ -133,50 +134,47 @@
         
         .card.top-card::before { background: #10b981 !important; box-shadow: 0 0 15px #10b981 !important; }
 
-        /* 字体尺寸大幅放大，填满空白 */
-        .card h2 { margin-top: 0; font-size: 26px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 15px;}
+        .card h2 { margin-top: 0; font-size: 22px; color: #cbd5e1; letter-spacing: 1px; margin-bottom: 5px;}
         
-        .value { font-size: 90px; font-weight: bold; margin: 10px 0; font-family: 'Courier New', Courier, monospace; }
-        .rate-value { font-size: 120px; } 
+        .value { font-size: 75px; font-weight: bold; margin: 5px 0; font-family: 'Courier New', Courier, monospace; }
+        .rate-value { font-size: 95px; } 
         
-        /* 运行时间专用字体样式 */
-        .time-value { color: #38bdf8; line-height: 1.1; font-size: 70px; }
-        .time-unit { font-size: 28px; }
-        .time-sub { font-size: 22px; color: #94a3b8; }
+        .time-value { color: #38bdf8; line-height: 1.1; font-size: 60px; }
+        .time-unit { font-size: 24px; }
+        .time-sub { font-size: 20px; color: #94a3b8; }
         
         .good { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.8); }
         .warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.8); }
         .danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
         
-        .manual-entry { margin-top: 15px; padding-top: 15px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 5px; width: 100%; }
+        .manual-entry { margin-top: 10px; padding-top: 10px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 5px; width: 100%; }
         
         .editable-number { cursor: pointer; border-bottom: 2px dashed #8b5cf6; display: inline-block; padding: 0 10px; transition: 0.3s; }
         .editable-number:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
 
         /* ====================================================
            手机及小屏幕适配 (Mobile Responsive)
-           当屏幕宽度小于 900px 时，自动切换为可滚动直排模式
            ==================================================== */
         @media (max-width: 900px) {
             body {
-                height: auto; /* 解除高度限制，允许上下滚动 */
+                height: auto; /* 手机端解除高度限制，允许上下滚动 */
                 min-height: 100vh;
+                overflow: auto; /* 手机端恢复滚动条 */
             }
             .dashboard {
-                grid-template-columns: 1fr; /* 底部三格由横排变直排 */
+                grid-template-columns: 1fr; 
             }
             .input-row {
                 justify-content: flex-start;
             }
             .card {
-                padding: 30px 15px; /* 增加手机端卡片的内边距 */
+                padding: 20px 10px; 
             }
-            /* 手机端稍微缩减超大字体，避免撑破屏幕 */
-            .card h2 { font-size: 22px; }
-            .value { font-size: 70px; }
-            .rate-value { font-size: 90px; }
-            .btn-add { width: 100px; height: 100px; font-size: 32px; }
-            .time-value { font-size: 60px; }
+            .card h2 { font-size: 20px; }
+            .value { font-size: 65px; }
+            .rate-value { font-size: 85px; }
+            .btn-add { width: 90px; height: 90px; font-size: 32px; }
+            .time-value { font-size: 55px; }
         }
     </style>
 </head>
@@ -244,7 +242,7 @@
             <input type="text" id="orderInput" class="long-input">
         </div>
         
-        <div class="input-row" style="margin-top: 15px;">
+        <div class="input-row" style="margin-top: 10px;">
             <label>⏱️ 开工时间:</label>
             <input type="time" id="startTimeInput">
 
@@ -293,7 +291,7 @@
             </div>
             
             <div class="manual-entry">
-                <input type="number" id="manualValue" style="width: 80px; text-align: center; font-size: 16px; padding: 6px;">
+                <input type="number" id="manualValue" style="width: 70px; text-align: center; font-size: 15px; padding: 4px;">
                 <button class="btn-small btn-bulk" onclick="addBulkOutput()">➕ 增加</button>
             </div>
         </div>
@@ -332,7 +330,6 @@
             targetPoh = parseFloat(document.getElementById('poh').value);
             targetWorkers = parseInt(document.getElementById('workers').value);
             
-            // 验证是否所有栏位都已填写
             if (!dateInput || !timeInput || isNaN(targetPoh) || isNaN(targetWorkers) || !factory || !line) {
                 alert("请填写所有生产资料（请确保已选择工厂与线别）！"); return;
             }
@@ -432,7 +429,6 @@
             if(elapsedMins < 0) elapsedMins = 0;
             let elapsedHours = elapsedMins / 60;
             
-            // 使用 CSS class 替代写死的 inline style
             document.getElementById('elapsedTimeDisplay').innerHTML = `
                 ${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br>
                 <span class="time-sub">(${elapsedMins.toFixed(1)} 分钟)</span>
