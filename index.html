@@ -12,7 +12,6 @@
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 10px 15px; min-height: 100vh; display: flex; flex-direction: column; overflow-y: auto; }
         h1 { text-align: center; color: #00e5ff; text-shadow: 0 0 15px rgba(0, 229, 255, 0.6); letter-spacing: 3px; margin: 0 0 10px 0; font-size: 26px; flex-shrink: 0; }
         
-        /* 角色头部颜色变化 */
         .pmc-header { color: #f472b6 !important; text-shadow: 0 0 15px rgba(244, 114, 182, 0.6) !important; }
 
         .mega-order-display { text-align: center; font-size: 24px; font-weight: bold; color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); margin-bottom: 10px; letter-spacing: 2px; display: none; background: rgba(250, 204, 21, 0.1); padding: 8px; border-radius: 8px; border: 2px solid rgba(250, 204, 21, 0.3); flex-shrink: 0; }
@@ -43,7 +42,6 @@
         
         .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
         
-        /* Dashboard Cards */
         .top-dashboard { margin-bottom: 10px; flex-shrink: 0; }
         .dashboard { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; flex-grow: 1; min-height: 350px; }
         .card { background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; padding: 15px; border-radius: 12px; position: relative; overflow: hidden; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 250px;}
@@ -63,7 +61,6 @@
         .btn-bulk { background: #3b82f6; font-size: 18px; padding: 8px 20px; }
         .editable-number { cursor: pointer; border-bottom: 2px dashed #8b5cf6; display: inline-block; padding: 0 10px; }
         
-        /* 针对 PMC 排产列表的表格样式 */
         .pmc-table-container { background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1px solid #334155; padding: 15px; margin-top: 15px;}
         .pmc-table-container h3 { color: #f472b6; margin-top: 0; font-size: 20px; border-bottom: 1px solid #475569; padding-bottom: 10px;}
         table { width: 100%; border-collapse: collapse; text-align: center; }
@@ -77,7 +74,6 @@
             .form-group input, .form-group select { flex: 1; width: 10% !important; }
             .action-buttons { flex-direction: column; align-items: stretch; margin-top: 10px; }
             .action-buttons button { width: 100%; padding: 12px; margin-bottom: 5px; font-size: 18px;}
-            .status-text { text-align: center; margin-left: 0; margin-top: 5px; display: block; }
             .dashboard { grid-template-columns: 1fr; }
             .card { padding: 25px 15px; min-height: auto;}
             .value { font-size: 75px; } .rate-value { font-size: 95px; } .time-value { font-size: 65px; }
@@ -86,7 +82,6 @@
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; padding: 30px 40px; border-radius: 15px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); text-align: center; }
         .auth-box h2 { color: #00e5ff; margin-top: 0; font-size: 28px; letter-spacing: 2px; }
-        /* 移除最大长度限制，防止猜解 */
         .auth-box input { font-size: 30px; letter-spacing: 10px; width: 200px; text-align: center; margin: 15px 0; }
         .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; margin-bottom: 10px;}
     </style>
@@ -132,8 +127,8 @@
             <div class="form-group"><label>🏷️ 品牌:</label><input type="text" id="brandInput" class="long-input"></div>
             <div class="form-group"><label>📄 单号:</label><input type="text" id="orderInput" class="long-input"></div>
             <div class="form-group"><label>⏱️ 开工时间:</label><input type="time" id="startTimeInput" class="short-input"></div>
-            <div class="form-group"><label>📈 100%POH:</label><input type="number" id="poh" class="short-input" step="0.01" min="0"></div>
-            <div class="form-group"><label>👥 员工/班组:</label><input type="number" id="workers" class="short-input" min="1"></div>
+            <div class="form-group"><label>📈 本日100%POH:</label><input type="number" id="poh" class="short-input" step="0.01" min="0"></div>
+            <div class="form-group"><label>👥 生产/配备员工+班组课:</label><input type="number" id="workers" class="short-input" min="1"></div>
         </div>
 
         <div class="input-row" style="margin-top: 15px; border-top: 1px dashed #334155; padding-top: 15px;">
@@ -158,13 +153,14 @@
             <thead>
                 <tr>
                     <th>工厂 - 线别</th>
-                    <th>品牌</th>
-                    <th>单号</th>
+                    <th>品牌 (单号)</th>
+                    <th>本日100% POH</th>
+                    <th>生产/配备员工+班组课</th>
                     <th>状态</th>
                 </tr>
             </thead>
             <tbody id="pmcPlanListBody">
-                <tr><td colspan="4">⏳ 载入中...</td></tr>
+                <tr><td colspan="5">⏳ 载入中...</td></tr>
             </tbody>
         </table>
     </div>
@@ -184,23 +180,15 @@
     </div>
 
     <script>
-        // ==========================================
-        // 🔐 安全升级：密码杂凑算法 (Hashing)
-        // 这样代码里就不会出现明文密码 "888" 和 "6666"
-        // ==========================================
+        // 🔐 密码单向加密 (防检视原始码)
         function hashPIN(str) {
             let hash = 0;
-            for (let i = 0; i < str.length; i++) {
-                hash = (hash << 5) - hash + str.charCodeAt(i);
-                hash |= 0; 
-            }
+            for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
             return hash.toString();
         }
         
-        // 如果想更改密码，可以在浏览器 Console 中输入 hashPIN("你的新密码")，然后将得到的数字替换下面的值
-        const WORKER_HASH = "55608";   // ✅ "888" 嘅正確 Hash 值
-        const PMC_HASH = "1662336";    // ✅ "6666" 嘅正確 Hash 值
-
+        const WORKER_HASH = "55608";   // 888
+        const PMC_HASH = "1662336";    // 6666
         let currentRole = ""; 
 
         function verifyPIN() {
@@ -208,17 +196,11 @@
             let hashedInput = hashPIN(input);
 
             if (hashedInput === WORKER_HASH) {
-                currentRole = "WORKER";
-                setupUIForRole();
-                document.getElementById('authOverlay').style.display = 'none';
+                currentRole = "WORKER"; setupUIForRole(); document.getElementById('authOverlay').style.display = 'none';
             } else if (hashedInput === PMC_HASH) {
-                currentRole = "PMC";
-                setupUIForRole();
-                document.getElementById('authOverlay').style.display = 'none';
-                fetchPMCPlanList(); // 登入后立即获取排产列表
+                currentRole = "PMC"; setupUIForRole(); document.getElementById('authOverlay').style.display = 'none'; fetchPMCPlanList(); 
             } else {
-                document.getElementById('pinError').style.display = 'block';
-                document.getElementById('pinInput').value = '';
+                document.getElementById('pinError').style.display = 'block'; document.getElementById('pinInput').value = '';
             }
         }
         document.getElementById('pinInput').addEventListener("keypress", function(e) { if (e.key === "Enter") verifyPIN(); });
@@ -227,10 +209,8 @@
             document.getElementById('dateInput').value = getCambodiaDateString();
 
             if (currentRole === "PMC") {
-                // PMC 界面
                 let title = document.getElementById('mainTitle');
-                title.innerHTML = "⚙️ 基础资料输入 - 指定人员";
-                title.className = "pmc-header";
+                title.innerHTML = "⚙️ 基础资料输入 - 指定人员"; title.className = "pmc-header";
                 
                 document.getElementById('workerFetchGroup').style.display = 'none';
                 document.getElementById('pmcControls').style.display = 'flex';
@@ -238,18 +218,13 @@
                 document.getElementById('productionDashboardArea').style.display = 'none';
                 document.getElementById('pmcDashboardArea').style.display = 'block';
                 
-                // PMC 可以修改日期，方便提早排产
                 document.getElementById('dateInput').disabled = false;
-                document.getElementById('factoryInput').disabled = false;
-                document.getElementById('lineInput').disabled = false;
-                document.getElementById('brandInput').disabled = false;
-                document.getElementById('orderInput').disabled = false;
-                document.getElementById('startTimeInput').disabled = false;
-                document.getElementById('poh').disabled = false;
+                document.getElementById('factoryInput').disabled = false; document.getElementById('lineInput').disabled = false;
+                document.getElementById('brandInput').disabled = false; document.getElementById('orderInput').disabled = false;
+                document.getElementById('startTimeInput').disabled = false; document.getElementById('poh').disabled = false;
                 document.getElementById('workers').disabled = false;
                 
             } else if (currentRole === "WORKER") {
-                // 车间界面
                 document.getElementById('mainTitle').innerHTML = "⚡ 产线执行端 - 现场作业";
                 
                 document.getElementById('workerFetchGroup').style.display = 'block';
@@ -258,19 +233,14 @@
                 document.getElementById('productionDashboardArea').style.display = 'block';
                 document.getElementById('pmcDashboardArea').style.display = 'none';
                 
-                // 车间可以选日期补填前一天的数据
                 document.getElementById('dateInput').disabled = false;
-                document.getElementById('factoryInput').disabled = false;
-                document.getElementById('lineInput').disabled = false;
+                document.getElementById('factoryInput').disabled = false; document.getElementById('lineInput').disabled = false;
                 
-                document.getElementById('brandInput').disabled = true;
-                document.getElementById('orderInput').disabled = true;
-                document.getElementById('startTimeInput').disabled = true;
-                document.getElementById('poh').disabled = true;
+                document.getElementById('brandInput').disabled = true; document.getElementById('orderInput').disabled = true;
+                document.getElementById('startTimeInput').disabled = true; document.getElementById('poh').disabled = true;
                 document.getElementById('workers').disabled = true;
                 
-                document.getElementById('brandInput').placeholder = "等待载入";
-                document.getElementById('orderInput').placeholder = "等待载入";
+                document.getElementById('brandInput').placeholder = "等待载入"; document.getElementById('orderInput').placeholder = "等待载入";
             }
         }
 
@@ -278,13 +248,8 @@
             let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
             return formatter.format(new Date());
         }
-        function getCambodiaTimestamp(dateStr, timeStr) {
-            return new Date(`${dateStr}T${timeStr}:00+07:00`).getTime();
-        }
+        function getCambodiaTimestamp(dateStr, timeStr) { return new Date(`${dateStr}T${timeStr}:00+07:00`).getTime(); }
 
-        // ==========================================
-        // Firebase 设定 (⚠️ 请填入你的 Key)
-        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
@@ -302,23 +267,20 @@
         let customStartDateMs = null; let pauseDateMs = null; 
         let targetPoh = 0; let targetWorkers = 0; let dbRefPath = null;
 
-        // 监听日期变更，如果身分是 PMC，则实时刷新下方的排产清单
         document.getElementById('dateInput').addEventListener('change', fetchPMCPlanList);
 
-        // ==========================================
         // 📋 [PMC] - 获取当天的排产清单防漏
-        // ==========================================
         function fetchPMCPlanList() {
             if (currentRole !== "PMC") return;
             let dateVal = document.getElementById('dateInput').value;
             let listBody = document.getElementById('pmcPlanListBody');
             
-            listBody.innerHTML = "<tr><td colspan='4'>⏳ 载入中...</td></tr>";
+            listBody.innerHTML = "<tr><td colspan='5'>⏳ 载入中...</td></tr>";
 
             db.ref('production_data/' + dateVal).on('value', snap => {
                 listBody.innerHTML = "";
                 if (!snap.exists()) {
-                    listBody.innerHTML = "<tr><td colspan='4' style='color:#64748b;'>📭 该日期尚未有任何排产纪录</td></tr>";
+                    listBody.innerHTML = "<tr><td colspan='5' style='color:#64748b;'>📭 该日期尚未有任何排产纪录</td></tr>";
                     return;
                 }
                 
@@ -328,11 +290,19 @@
 
                 lines.forEach(d => {
                     let tr = document.createElement('tr');
-                    let statusIcon = d.status === 'STANDBY' ? '⚪ 待命' : (d.status === 'RUNNING' ? '🟢 运行中' : '🔴 已处理');
+                    // 完美对应的 5 种状态灯
+                    let statusIcon = "";
+                    if(d.status === 'STANDBY') statusIcon = '⚪ 待命';
+                    else if(d.status === 'RUNNING') statusIcon = '🟢 运行中';
+                    else if(d.status === 'PAUSED') statusIcon = '🟡 已暂停';
+                    else if(d.status === 'STOPPED') statusIcon = '🔴 已结束';
+                    else if(d.status === 'OFFLINE') statusIcon = '⚫ 离线';
+
                     tr.innerHTML = `
                         <td style="font-weight:bold;">${d.factory} - ${d.line}</td>
-                        <td style="color:#38bdf8;">${d.brand}</td>
-                        <td>${d.order}</td>
+                        <td style="color:#38bdf8;">${d.brand} <small>(${d.order})</small></td>
+                        <td>${d.poh}</td>
+                        <td>${d.workers}</td>
                         <td>${statusIcon}</td>
                     `;
                     listBody.appendChild(tr);
@@ -340,9 +310,7 @@
             });
         }
 
-        // ==========================================
-        // ⚙️ [PMC] - 锁定并发布排产
-        // ==========================================
+        // ⚙️ [PMC] - 锁定并发布排产 (防重复机制)
         function publishPlan() {
             let dateVal = document.getElementById('dateInput').value;
             let factoryVal = document.getElementById('factoryInput').value;
@@ -354,14 +322,16 @@
             let workersVal = parseInt(document.getElementById('workers').value);
 
             if (!factoryVal || !lineVal || !brandVal || !orderVal || !timeVal || isNaN(pohVal) || isNaN(workersVal)) {
-                alert("❌ 请填妥所有排产资料，不可留空！"); return;
+                alert("❌ 请填妥所有基础资料，不可留空！"); return;
             }
 
             dbRefPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
 
             db.ref(dbRefPath).once('value').then(snap => {
-                if (snap.exists() && snap.val().status !== "STANDBY" && snap.val().status !== "OFFLINE") {
-                    if(!confirm("⚠️ 警告：该产线已有开工数据！\n强制发布将覆盖其进度并将其重置为【待命】状态，确定要覆写吗？")) return;
+                if (snap.exists()) {
+                    let currentStatus = snap.val().status;
+                    let msg = currentStatus === "STANDBY" ? "待命" : "开工";
+                    if(!confirm(`⚠️ 警告：【${factoryVal} - ${lineVal}】今日已存在纪录 (状态: ${msg})！\n如果继续发布，将会完全覆盖原有资料并重置为【待命】。\n\n确定要覆盖吗？`)) return;
                 }
                 
                 db.ref(dbRefPath).set({
@@ -373,28 +343,21 @@
                     lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
                 }).then(() => {
                     alert(`✅ ${factoryVal}-${lineVal} 资料输入成功！\n请继续输入下一条线的资料。`);
-                    // 清空部分栏位方便快速输入下一笔
-                    document.getElementById('lineInput').value = "";
+                    document.getElementById('lineInput').value = ""; // 清空方便填下一条
                 });
             });
         }
 
-        // ==========================================
-        // ⚡ [车间] - 获取排产与执行生产
-        // ==========================================
+        // ⚡ [车间] - 获取与执行
         function fetchPlan() {
             let dateVal = document.getElementById('dateInput').value;
             let factoryVal = document.getElementById('factoryInput').value;
             let lineVal = document.getElementById('lineInput').value;
-            
             if (!factoryVal || !lineVal) { alert("请先选择工厂和线别！"); return; }
 
             dbRefPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
             db.ref(dbRefPath).once('value').then((snapshot) => {
-                if (!snapshot.exists()) {
-                    alert("⚠️ 指定人员尚未为这条产线建立该日期的排产计划！");
-                    return;
-                }
+                if (!snapshot.exists()) { alert("⚠️ 指定人员尚未为这条产线建立该日期的排产计划！"); return; }
                 let data = snapshot.val();
                 
                 document.getElementById('brandInput').value = data.brand || '';
@@ -402,16 +365,14 @@
                 document.getElementById('startTimeInput').value = data.startTime || '';
                 document.getElementById('poh').value = data.poh || 0;
                 document.getElementById('workers').value = data.workers || 0;
-                
                 targetPoh = parseFloat(data.poh); targetWorkers = parseInt(data.workers);
                 actualCount = parseInt(data.actualOutput) || 0;
                 document.getElementById('actualOutput').innerText = actualCount;
 
                 if (data.status === "STANDBY") {
-                    document.getElementById('startBtn').disabled = false;
-                    document.getElementById('startBtn').style.opacity = "1";
+                    document.getElementById('startBtn').disabled = false; document.getElementById('startBtn').style.opacity = "1";
                     document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#facc15;">⚪ 待命 (已获取排产)</span>`;
-                    alert("✅ 成功获取排产计划！请在准备好时点击「开始生产」。");
+                    alert("✅ 成功获取资料！请在准备好时点击「开始生产」。");
                 } else {
                     restoreSession(data, dateVal);
                 }
@@ -421,8 +382,7 @@
         function restoreSession(data, dateVal) {
             if (data.status === "STOPPED") {
                 alert("⚠️ 该产线已【结束】生产，数据已冻结。");
-                isEnded = true; 
-                document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#ef4444;">🔴 已结束</span>`;
+                isEnded = true; document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#ef4444;">🔴 已结束</span>`;
                 beginRunLogic(dateVal, data.startTime, data.factory, data.line, true);
                 return;
             }
@@ -434,12 +394,9 @@
 
         function startProduction() {
             if (isRunning || isPaused || isEnded) return; 
-            let dateVal = document.getElementById('dateInput').value;
-            let factoryVal = document.getElementById('factoryInput').value;
-            let lineVal = document.getElementById('lineInput').value;
-            let timeVal = document.getElementById('startTimeInput').value;
-            
-            if (!timeVal) { alert("开工时间为空，请重新获取排产！"); return; }
+            let dateVal = document.getElementById('dateInput').value; let timeVal = document.getElementById('startTimeInput').value;
+            let factoryVal = document.getElementById('factoryInput').value; let lineVal = document.getElementById('lineInput').value;
+            if (!timeVal) { alert("开工时间为空，请重新获取！"); return; }
             beginRunLogic(dateVal, timeVal, factoryVal, lineVal, false);
         }
 
@@ -447,8 +404,7 @@
             customStartDateMs = getCambodiaTimestamp(dateVal, timeVal);
             if (customStartDateMs > Date.now()) { alert("开工时间不能晚于现在！"); return; }
 
-            document.getElementById('dateInput').disabled = true;
-            document.getElementById('factoryInput').disabled = true; 
+            document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true; 
             document.getElementById('lineInput').disabled = true;
             document.querySelector('.btn-fetch').disabled = true; document.querySelector('.btn-fetch').style.opacity = "0.5";
 
@@ -459,15 +415,11 @@
                 document.getElementById('pauseBtn').disabled = false; document.getElementById('pauseBtn').style.opacity = "1";
                 document.getElementById('endBtn').disabled = false; document.getElementById('endBtn').style.opacity = "1";
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
-                
                 db.ref(dbRefPath).onDisconnect().update({ status: "OFFLINE", lastUpdate: "离线" });
                 timerInterval = setInterval(updateDashboard, 1000);
             }
-            
-            let megaBanner = document.getElementById('megaOrderDisplay');
-            megaBanner.style.display = 'block';
+            let megaBanner = document.getElementById('megaOrderDisplay'); megaBanner.style.display = 'block';
             megaBanner.innerHTML = `📅 ${dateVal} &nbsp;|&nbsp; 🏭 ${factoryVal} - ${lineVal} &nbsp;|&nbsp; ⭐ 品牌: ${document.getElementById('brandInput').value} ⭐`;
-
             updateDashboard();
         }
 
@@ -486,16 +438,14 @@
                 isRunning = true; isPaused = false; pauseDateMs = null;
                 pauseBtn.innerHTML = "⏸️ 暂停"; pauseBtn.style.background = ""; 
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
-                timerInterval = setInterval(updateDashboard, 1000);
-                updateDashboard();
+                timerInterval = setInterval(updateDashboard, 1000); updateDashboard();
             }
         }
 
         function endProduction() {
             if (isEnded) return;
             if (confirm("确定要【结束】此线生产吗？\n结束后状态将变红，不可再改。")) {
-                clearInterval(timerInterval);
-                isRunning = false; isPaused = false; isEnded = true;
+                clearInterval(timerInterval); isRunning = false; isPaused = false; isEnded = true;
                 db.ref(dbRefPath).onDisconnect().cancel();
                 document.getElementById('pauseBtn').disabled = true; document.getElementById('pauseBtn').style.opacity = "0.5";
                 document.getElementById('endBtn').disabled = true; document.getElementById('endBtn').style.opacity = "0.5";
@@ -511,8 +461,7 @@
             
             db.ref(dbRefPath).update({
                 actualOutput: actualCount, expectedOutput: expectedOutput,
-                achievementRate: rate, elapsedMins: elapsedMins,
-                status: statusStr,
+                achievementRate: rate, elapsedMins: elapsedMins, status: statusStr,
                 lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
             });
         }
@@ -539,22 +488,18 @@
             if (isEnded && !pauseDateMs) calculateTimeMs = Date.now(); 
 
             let elapsedMins = (calculateTimeMs - customStartDateMs) / 60000;
-            if(elapsedMins < 0) elapsedMins = 0;
-            let elapsedHours = elapsedMins / 60;
+            if(elapsedMins < 0) elapsedMins = 0; let elapsedHours = elapsedMins / 60;
             
             document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br><span class="time-sub">(${elapsedMins.toFixed(1)} 分钟)</span>`;
             let expectedOutput = Math.floor((targetPoh * targetWorkers / 60) * elapsedMins);
             document.getElementById('expectedOutput').innerText = expectedOutput;
 
             let rate = 0; if (expectedOutput > 0) rate = (actualCount / expectedOutput) * 100;
-            
+            document.getElementById('achievementRate').innerText = rate.toFixed(1) + "%";
             let rateElement = document.getElementById('achievementRate');
-            rateElement.innerText = rate.toFixed(1) + "%";
             rateElement.className = "value rate-value"; 
             if (elapsedMins > 1) { 
-                if (rate >= 100) rateElement.classList.add("good");
-                else if (rate >= 90) rateElement.classList.add("warning");
-                else rateElement.classList.add("danger");
+                if (rate >= 100) rateElement.classList.add("good"); else if (rate >= 90) rateElement.classList.add("warning"); else rateElement.classList.add("danger");
             }
             pushDataToCloud(elapsedMins, expectedOutput, rate);
         }
