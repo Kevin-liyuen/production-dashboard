@@ -17,7 +17,7 @@
         .input-row:last-child { margin-bottom: 0; }
         .form-group { display: flex; align-items: center; gap: 8px; }
         .form-group label { font-weight: bold; color: #94a3b8; font-size: 15px; white-space: nowrap; } 
-        input[type="number"], input[type="time"], input[type="text"], input[type="date"], select { background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; padding: 6px 10px; border-radius: 6px; font-size: 16px; font-weight: bold; outline: none; box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.3); text-transform: uppercase; }
+        input[type="number"], input[type="time"], input[type="text"], input[type="date"], input[type="password"], select { background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; padding: 6px 10px; border-radius: 6px; font-size: 16px; font-weight: bold; outline: none; box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.3); text-transform: uppercase; }
         input:focus, select:focus { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
         .short-input { width: 110px; } .long-input { width: 150px; }
         select option { background-color: #0f172a; color: #e2e8f0; } select optgroup { color: #38bdf8; }
@@ -50,25 +50,46 @@
         .warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.8); }
         .danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.8); }
         .editable-number { cursor: pointer; border-bottom: 2px dashed #8b5cf6; display: inline-block; padding: 0 10px; transition: 0.3s; }
-        .editable-number:hover { transform: scale(1.05); text-shadow: 0 0 20px rgba(139, 92, 246, 0.8); }
+        
         @media (max-width: 900px) {
             body { height: auto; min-height: 100vh; overflow: auto; padding: 10px; }
-            .mega-order-display { font-size: 16px; line-height: 1.4; padding: 12px;}
             .input-row { flex-direction: column; align-items: stretch; gap: 12px; }
             .form-group { flex-direction: row; align-items: center; gap: 10px; width: 100%; justify-content: space-between; }
             .form-group label { margin-bottom: 0; white-space: normal; max-width: 45%; flex-shrink: 0; text-align: left; }
             .form-group input, .form-group select { flex: 1; width: 10% !important; }
             .action-buttons { flex-direction: column; align-items: stretch; margin-top: 10px; }
             .action-buttons button { width: 100%; padding: 12px; margin-bottom: 5px; font-size: 18px;}
-            .status-text { text-align: center; margin-left: 0; margin-top: 5px; display: block; }
             .dashboard { grid-template-columns: 1fr; }
             .card { padding: 25px 15px; }
-            .card h2 { font-size: 22px; } .value { font-size: 75px; } .rate-value { font-size: 95px; } .time-value { font-size: 65px; }
-            .btn-add { width: 100px; height: 100px; font-size: 40px; }
         }
+
+        #authOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-color: #0b0f19; z-index: 9999; 
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+        }
+        .auth-box {
+            background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; padding: 40px;
+            border-radius: 15px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); text-align: center;
+        }
+        .auth-box h2 { color: #00e5ff; margin-top: 0; font-size: 28px; letter-spacing: 2px; }
+        .auth-box input { font-size: 30px; letter-spacing: 10px; width: 200px; text-align: center; margin: 20px 0; }
+        .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; }
     </style>
 </head>
 <body>
+
+    <div id="authOverlay">
+        <div class="auth-box">
+            <h2>🔒 产线系统授权</h2>
+            <p style="color: #94a3b8;">请输入车间专用操作密码 (预设 8888)</p>
+            <input type="password" id="pinInput" placeholder="****" maxlength="4">
+            <br>
+            <button class="btn-bulk" onclick="verifyPIN()">进入系统</button>
+            <p id="pinError" style="color: #ef4444; display: none; margin-top: 15px; font-weight: bold;">❌ 密码错误</p>
+        </div>
+    </div>
+
     <h1>⚡ 产线输入端 - 智能生产线 ⚡</h1>
     <div id="megaOrderDisplay" class="mega-order-display"></div>
 
@@ -100,10 +121,10 @@
         <div class="input-row">
             <div class="form-group"><label>⏱️ 开工时间:</label><input type="time" id="startTimeInput" class="short-input"></div>
             <div class="form-group"><label>📈 本日100%POH:</label><input type="number" id="poh" class="short-input" step="0.01" min="0"></div>
-            <div class="form-group"><label>👥 基准人数:</label><input type="number" id="workers" class="short-input" min="1"></div>
+            <div class="form-group"><label>👥 生产/配备员工+班组课:</label><input type="number" id="workers" class="short-input" min="1"></div>
             <div class="action-buttons">
                 <button class="btn-start" id="startBtn" onclick="startProduction()">▶️ 锁定并开始</button>
-                <button class="btn-stop" id="stopBtn" onclick="stopProduction()" disabled style="opacity: 0.5;">⏸️ 停止</button>
+                <button class="btn-stop" id="stopBtn" onclick="toggleStopResume()" disabled style="opacity: 0.5;">⏸️ 暂停</button>
                 <button class="btn-reset" onclick="resetProduction()">🗑️ 重设</button>
                 <span class="status-text" id="statusText">系统状态：STANDBY (未开始)</span>
             </div>
@@ -124,8 +145,17 @@
     </div>
 
     <script>
+        // 🔐 设定进入密码
+        const ACCESS_PIN = "8888";
+        function verifyPIN() {
+            let input = document.getElementById('pinInput').value;
+            if (input === ACCESS_PIN) document.getElementById('authOverlay').style.display = 'none';
+            else { document.getElementById('pinError').style.display = 'block'; document.getElementById('pinInput').value = ''; }
+        }
+        document.getElementById('pinInput').addEventListener("keypress", function(e) { if (e.key === "Enter") verifyPIN(); });
+
         // ==========================================
-        // 1. FIREBASE 设定区 (已嵌入你的专属金钥)
+        // 1. FIREBASE 设定区 (已填入你的金钥)
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
@@ -137,73 +167,76 @@
             appId: "1:710873291817:web:92ea2aadc4dd895fb19038"
         };
         
-        // 初始化 Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ==========================================
-        // 2. 核心系统逻辑 (加入云端同步)
-        // ==========================================
         let actualCount = 0; let timerInterval = null; let isRunning = false; let isStopped = false;
         let customStartDate = null; let stopDate = null; let targetPoh = 0; let targetWorkers = 0;
 
         window.onload = function() { setTodayDate(); };
         function setTodayDate() {
             let today = new Date();
-            let yyyy = today.getFullYear();
-            let mm = String(today.getMonth() + 1).padStart(2, '0');
-            let dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
+            document.getElementById('dateInput').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         }
 
-        // 推送数据到 Firebase 的核心函数
         function pushDataToCloud(elapsedMins, expectedOutput, rate) {
             if(!isRunning && !isStopped) return;
-            
             let dateVal = document.getElementById('dateInput').value; 
             let factoryVal = document.getElementById('factoryInput').value;
             let lineVal = document.getElementById('lineInput').value;
-            let brandVal = document.getElementById('brandInput').value || '未输入';
-            let orderVal = document.getElementById('orderInput').value || '未输入';
-
-            // Firebase 资料库存放路径： production_data/日期/工厂_线别
-            let dbPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
             
-            db.ref(dbPath).set({
-                factory: factoryVal,
-                line: lineVal,
-                brand: brandVal,
-                order: orderVal,
-                poh: targetPoh,
-                workers: targetWorkers,
-                actualOutput: actualCount,
-                expectedOutput: expectedOutput,
-                achievementRate: rate,
-                elapsedMins: elapsedMins,
-                status: isStopped ? "STOPPED" : "RUNNING",
+            db.ref(`production_data/${dateVal}/${factoryVal}_${lineVal}`).set({
+                factory: factoryVal, line: lineVal,
+                brand: document.getElementById('brandInput').value || '未输入',
+                order: document.getElementById('orderInput').value || '未输入',
+                poh: targetPoh, workers: targetWorkers,
+                startTime: document.getElementById('startTimeInput').value, 
+                actualOutput: actualCount, expectedOutput: expectedOutput,
+                achievementRate: rate, elapsedMins: elapsedMins,
+                status: isStopped ? "PAUSED" : "RUNNING",
                 lastUpdate: new Date().toLocaleTimeString('zh-CN')
-            }).catch(error => console.error("Firebase Sync Error:", error));
+            });
         }
 
         function startProduction() {
-            if (isRunning) return;
-            let dateInput = document.getElementById('dateInput').value;
-            let timeInput = document.getElementById('startTimeInput').value;
-            let factory = document.getElementById('factoryInput').value;
-            let line = document.getElementById('lineInput').value;
+            if (isRunning || isStopped) return; // 已启动或暂停中不重复执行
+            
+            let dateVal = document.getElementById('dateInput').value;
+            let factoryVal = document.getElementById('factoryInput').value;
+            let lineVal = document.getElementById('lineInput').value;
+            let timeVal = document.getElementById('startTimeInput').value;
             targetPoh = parseFloat(document.getElementById('poh').value);
             targetWorkers = parseInt(document.getElementById('workers').value);
             
-            if (!dateInput || !timeInput || isNaN(targetPoh) || isNaN(targetWorkers) || !factory || !line) {
-                alert("请填写所有生产资料（请确保已选择工厂与线别）！"); return;
-            }
+            if (!dateVal || !factoryVal || !lineVal) { alert("请至少填妥：日期、工厂、线别！"); return; }
 
-            let [year, month, day] = dateInput.split('-');
-            let [hours, minutes] = timeInput.split(':');
+            db.ref(`production_data/${dateVal}/${factoryVal}_${lineVal}`).once('value').then((snapshot) => {
+                if (snapshot.exists()) {
+                    let savedData = snapshot.val();
+                    if (confirm(`📡 寻找到今日进度！\n品牌: ${savedData.brand}\n目前产量: ${savedData.actualOutput}\n\n是否直接恢复此进度？\n(按确定恢复，按取消将重新开始)`)) {
+                        restoreSession(savedData); return;
+                    }
+                }
+                if (!timeVal || isNaN(targetPoh) || isNaN(targetWorkers)) { alert("请填妥所有资料！"); return; }
+                beginRun(dateVal, timeVal, factoryVal, lineVal);
+            });
+        }
+
+        function restoreSession(data) {
+            document.getElementById('brandInput').value = data.brand;
+            document.getElementById('orderInput').value = data.order;
+            document.getElementById('startTimeInput').value = data.startTime;
+            document.getElementById('poh').value = data.poh;
+            document.getElementById('workers').value = data.workers;
+            
+            targetPoh = data.poh; targetWorkers = data.workers; actualCount = data.actualOutput;
+            document.getElementById('actualOutput').innerText = actualCount;
+            beginRun(document.getElementById('dateInput').value, data.startTime, data.factory, data.line);
+        }
+
+        function beginRun(dateVal, timeVal, factoryVal, lineVal) {
+            let [year, month, day] = dateVal.split('-'); let [hours, minutes] = timeVal.split(':');
             customStartDate = new Date(year, month - 1, day, hours, minutes, 0);
-
             if (customStartDate > new Date()) { alert("开工时间不能晚于现在！"); return; }
 
             document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true;
@@ -215,50 +248,62 @@
             document.getElementById('startBtn').disabled = true; document.getElementById('startBtn').style.opacity = "0.5";
             document.getElementById('stopBtn').disabled = false; document.getElementById('stopBtn').style.opacity = "1";
             
-            let brand = document.getElementById('brandInput').value || '未输入'; let order = document.getElementById('orderInput').value || '未输入';
             let megaBanner = document.getElementById('megaOrderDisplay');
             megaBanner.style.display = 'block';
-            megaBanner.innerHTML = `📅 ${year}年${month}月${day}日 &nbsp;|&nbsp; 🏭 ${factory} - ${line} &nbsp;|&nbsp; ⭐ 品牌: ${brand} &nbsp;|&nbsp; 📄 单号: ${order} ⭐`;
+            megaBanner.innerHTML = `📅 ${year}年${month}月${day}日 &nbsp;|&nbsp; 🏭 ${factoryVal} - ${lineVal} &nbsp;|&nbsp; ⭐ 品牌: ${document.getElementById('brandInput').value || '未输入'} ⭐`;
             document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
 
-            updateDashboard();
-            timerInterval = setInterval(updateDashboard, 1000);
+            updateDashboard(); timerInterval = setInterval(updateDashboard, 1000);
         }
 
-        function stopProduction() {
-            if (!isRunning) return;
-            if (confirm("确定要停止记录吗？")) {
-                clearInterval(timerInterval);
-                isRunning = false; isStopped = true; stopDate = new Date();
-                document.getElementById('stopBtn').disabled = true; document.getElementById('stopBtn').style.opacity = "0.5";
-                let stopTimeString = stopDate.toLocaleTimeString('zh-CN', {hour: '2-digit', minute:'2-digit'});
-                document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#ef4444;">🔴 已停止</span> (截数时间: ${stopTimeString})`;
-                updateDashboard();
+        // 🔄 核心更新：暂停与继续功能切换
+        function toggleStopResume() {
+            if (!isRunning && !isStopped) return;
+
+            let stopBtn = document.getElementById('stopBtn');
+            if (isRunning) {
+                // 执行暂停
+                if (confirm("确定要暂停记录吗？预期产量将会冻结。")) {
+                    clearInterval(timerInterval);
+                    isRunning = false; isStopped = true; stopDate = new Date();
+                    
+                    stopBtn.innerHTML = "▶️ 继续";
+                    stopBtn.style.background = "linear-gradient(135deg, #3b82f6, #2563eb)"; // 蓝色继续按钮
+                    
+                    document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#f59e0b;">🟡 已暂停</span>`;
+                    updateDashboard();
+                }
+            } else if (isStopped) {
+                // 执行继续
+                if (confirm("确定要继续生产吗？")) {
+                    let pauseDuration = new Date() - stopDate; // 计算暂停了多久(毫秒)
+                    customStartDate = new Date(customStartDate.getTime() + pauseDuration); // 将开始时间往后推，抵消暂停时间
+                    
+                    isRunning = true; isStopped = false; stopDate = null;
+                    
+                    stopBtn.innerHTML = "⏸️ 暂停";
+                    stopBtn.style.background = ""; // 恢复预设 CSS (橙色)
+                    
+                    document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中 (已恢复)</span>`;
+                    timerInterval = setInterval(updateDashboard, 1000);
+                    updateDashboard();
+                }
             }
         }
 
         function addOutput(amount) {
-            if (!isRunning && !isStopped) { alert("请先按「锁定并开始」！"); return; }
+            if (!isRunning) { alert(isStopped ? "产线暂停中，请先按「继续」" : "请先按「锁定并开始」"); return; }
             actualCount += amount; if (actualCount < 0) actualCount = 0; 
-            document.getElementById('actualOutput').innerText = actualCount;
-            updateDashboard();
+            document.getElementById('actualOutput').innerText = actualCount; updateDashboard();
         }
 
-        function addBulkOutput() {
-            let val = parseInt(document.getElementById('manualValue').value);
-            if (!isNaN(val)) addOutput(val);
-        }
+        function addBulkOutput() { let val = parseInt(document.getElementById('manualValue').value); if (!isNaN(val)) addOutput(val); }
 
         function editActualOutput() {
             if (!isRunning && !isStopped) { alert("请先按「锁定并开始」！"); return; }
             let newVal = prompt("请输入当前的实际达成产量 (必须为纯数字):", actualCount);
-            if (newVal !== null) { 
-                let parsedVal = parseInt(newVal);
-                if (!isNaN(parsedVal) && parsedVal >= 0) {
-                    actualCount = parsedVal;
-                    document.getElementById('actualOutput').innerText = actualCount;
-                    updateDashboard();
-                } else { alert("输入无效！请确保输入的是正整数。"); }
+            if (newVal !== null && !isNaN(parseInt(newVal)) && parseInt(newVal) >= 0) {
+                actualCount = parseInt(newVal); document.getElementById('actualOutput').innerText = actualCount; updateDashboard();
             }
         }
 
@@ -270,12 +315,10 @@
             let elapsedHours = elapsedMins / 60;
             
             document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br><span class="time-sub">(${elapsedMins.toFixed(1)} 分钟)</span>`;
-
             let expectedOutput = Math.floor((targetPoh * targetWorkers / 60) * elapsedMins);
             document.getElementById('expectedOutput').innerText = expectedOutput;
 
-            let rate = 0;
-            if (expectedOutput > 0) { rate = (actualCount / expectedOutput) * 100; }
+            let rate = 0; if (expectedOutput > 0) rate = (actualCount / expectedOutput) * 100;
             
             let rateElement = document.getElementById('achievementRate');
             rateElement.innerText = rate.toFixed(1) + "%";
@@ -285,16 +328,10 @@
                 else if (rate >= 90) rateElement.classList.add("warning");
                 else rateElement.classList.add("danger");
             }
-
-            // 同步最新数据到 Firebase
             pushDataToCloud(elapsedMins, expectedOutput, rate);
         }
 
-        function resetProduction() {
-            if(confirm("确定清除重新开始？(注意：这不会删除云端历史数据，仅重置本页)")) {
-                location.reload(); 
-            }
-        }
+        function resetProduction() { if(confirm("确定重置本页？\n(这只会清空画面，云端进度依然保留。若要换线，请重置后重新选择)")) location.reload(); }
     </script>
 </body>
 </html>
