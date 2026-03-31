@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ 智能生產線實時看板</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #0b0f19; 
+            color: #e2e8f0; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        h1 { 
+            text-align: center; 
+            color: #00e5ff; 
+            text-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            font-size: 36px;
+        }
+
+        /* 頂部超大訂單資訊顯示區 */
+        .mega-order-display {
+            text-align: center;
+            font-size: 38px;
+            font-weight: bold;
+            color: #facc15;
+            text-shadow: 0 0 20px rgba(250, 204, 21, 0.6);
+            margin-bottom: 25px;
+            letter-spacing: 2px;
+            display: none; /* 未開始前隱藏 */
+            background: rgba(250, 204, 21, 0.1);
+            padding: 15px;
+            border-radius: 12px;
+            border: 2px solid rgba(250, 204, 21, 0.3);
+        }
+
+        /* 面板設計 */
+        .panel { 
+            background: rgba(30, 41, 59, 0.8); 
+            border: 1px solid #334155;
+            padding: 25px; 
+            border-radius: 12px; 
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); 
+            margin-bottom: 25px; 
+        }
+        .input-row { display: flex; flex-wrap: wrap; gap: 20px; align-items: center; margin-bottom: 20px; }
+        .input-row label { font-weight: bold; color: #94a3b8; font-size: 20px; } 
+        
+        /* 輸入框全面放大 */
+        input[type="number"], input[type="time"], input[type="text"], input[type="date"] { 
+            background-color: #0f172a;
+            color: #00e5ff;
+            border: 2px solid #38bdf8; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            font-size: 24px; 
+            font-weight: bold;
+            outline: none;
+            box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.3);
+            text-transform: uppercase;
+        }
+        input:focus { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
+        .short-input { width: 110px; }
+        .long-input { width: 220px; }
+
+        button { 
+            padding: 12px 25px; font-size: 18px; border: none; border-radius: 8px; 
+            cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; 
+            transition: all 0.3s ease; letter-spacing: 1px;
+        }
+        .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); font-size: 22px; }
+        .btn-start:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
+        .btn-stop { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        
+        .btn-add { 
+            background: linear-gradient(135deg, #8b5cf6, #6d28d9); 
+            font-size: 32px; width: 110px; height: 110px; border-radius: 50%; margin: 15px; 
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
+            border: 3px solid #a78bfa;
+        }
+        .btn-add:hover { transform: scale(1.08); box-shadow: 0 0 40px rgba(139, 92, 246, 0.9); }
+        
+        .btn-small { padding: 10px 15px; font-size: 16px; margin-left: 5px; }
+        .btn-bulk { background: #3b82f6; }
+        .btn-set { background: #f59e0b; color: #000; }
+
+        .status-text { font-size: 20px; color: #94a3b8; font-weight: bold; border-top: 1px solid #334155; padding-top: 15px; margin-top: 10px; }
+
+        /* 數據顯示區 */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; text-align: center; }
+        .card { 
+            background: rgba(30, 41, 59, 0.6); 
+            border: 1px solid #334155;
+            padding: 30px 20px; 
+            border-radius: 15px; 
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
+        .card:nth-child(1)::before { background: #38bdf8; box-shadow: 0 0 15px #38bdf8; }
+        .card:nth-child(2)::before { background: #f472b6; box-shadow: 0 0 15px #f472b6; }
+        .card:nth-child(3)::before { background: #8b5cf6; box-shadow: 0 0 15px #8b5cf6; }
+        .card:nth-child(4)::before { background: #10b981; box-shadow: 0 0 15px #10b981; }
+
+        .card h2 { margin-top: 0; font-size: 22px; color: #cbd5e1; letter-spacing: 2px; }
+        
+        .value { font-size: 80px; font-weight: bold; margin: 20px 0; font-family: 'Courier New', Courier, monospace; }
+        
+        .good { color: #10b981; text-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
+        .warning { color: #facc15; text-shadow: 0 0 25px rgba(250, 204, 21, 0.8); }
+        .danger { color: #ef4444; text-shadow: 0 0 25px rgba(239, 68, 68, 0.8); }
+        
+        .manual-entry { margin-top: 25px; padding-top: 20px; border-top: 1px solid #334155; display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; }
+    </style>
+</head>
+<body>
+
+    <h1>⚡ 智能生產線實時看板 ⚡</h1>
+
+    <div id="megaOrderDisplay" class="mega-order-display"></div>
+
+    <div class="panel">
+        <div class="input-row">
+            <label>📅 日期:</label>
+            <input type="date" id="dateInput" class="long-input">
+
+            <label>🏷️ 品牌:</label>
+            <input type="text" id="brandInput" class="long-input" placeholder="例如: NIKE">
+            
+            <label>📄 單號:</label>
+            <input type="text" id="orderInput" class="long-input" placeholder="例如: PO-8888">
+        </div>
+        
+        <div class="input-row" style="margin-top: 25px;">
+            <label>⏱️ 開工時間:</label>
+            <input type="time" id="startTimeInput" value="08:00">
+
+            <label>📈 POH:</label>
+            <input type="number" id="poh" class="short-input" value="1" step="0.1" min="0">
+            
+            <label>👥 基準人數:</label>
+            <input type="number" id="workers" class="short-input" value="90" min="1">
+            
+            <button class="btn-start" id="startBtn" onclick="startProduction()">▶️ 鎖定並開始</button>
+            <button class="btn-stop" id="stopBtn" onclick="stopProduction()" disabled style="opacity: 0.5;">⏸️ 停止記錄</button>
+            <button class="btn-reset" onclick="resetProduction()">🗑️ 重設</button>
+        </div>
+        <div class="status-text" id="statusText">系統狀態：STANDBY (尚未開始)</div>
+    </div>
+
+    <div class="dashboard">
+        <div class="card">
+            <h2>⏱️ 累積運行時間</h2>
+            <div class="value" id="elapsedTimeDisplay" style="color: #38bdf8; font-size: 55px; line-height: 1.1;">
+                0.00 <span style="font-size: 24px;">小時</span><br>
+                <span style="font-size: 22px; color: #94a3b8;">(0.0 分鐘)</span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>🎯 嚴格預期產量</h2>
+            <div class="value" id="expectedOutput" style="color: #f472b6;">0</div>
+        </div>
+        
+        <div class="card">
+            <h2>📦 實際達成產量</h2>
+            <div class="value" id="actualOutput" style="color: #8b5cf6;">0</div>
+            
+            <div>
+                <button class="btn-add" onclick="addOutput(1)">+1</button>
+            </div>
+            
+            <div class="manual-entry">
+                <input type="number" id="manualValue" value="0" style="width: 90px; text-align: center;">
+                <button class="btn-small btn-bulk" onclick="addBulkOutput()">➕ 增加</button>
+                <button class="btn-small btn-set" onclick="setExactOutput()">✏️ 直接修改為此數</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>📈 實時達標率</h2>
+            <div class="value" id="achievementRate">0%</div>
+        </div>
+    </div>
+
+    <script>
+        let actualCount = 0;
+        let timerInterval = null;
+        let isRunning = false;
+        let isStopped = false;
+        let customStartDate = null;
+        let stopDate = null;
+        
+        let targetPoh = 0;
+        let targetWorkers = 0;
+
+        // 網頁載入時自動填入今日日期
+        window.onload = function() {
+            setTodayDate();
+        };
+
+        function setTodayDate() {
+            let today = new Date();
+            let yyyy = today.getFullYear();
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            let dd = String(today.getDate()).padStart(2, '0');
+            document.getElementById('dateInput').value = `${yyyy}-${mm}-${dd}`;
+        }
+
+        function startProduction() {
+            if (isRunning) return;
+            
+            let dateInput = document.getElementById('dateInput').value;
+            let timeInput = document.getElementById('startTimeInput').value;
+            targetPoh = parseFloat(document.getElementById('poh').value);
+            targetWorkers = parseInt(document.getElementById('workers').value);
+            
+            if (!dateInput || !timeInput || isNaN(targetPoh) || isNaN(targetWorkers)) {
+                alert("請填寫所有生產資料！"); return;
+            }
+
+            // 結合日期同時間去計
+            let [year, month, day] = dateInput.split('-');
+            let [hours, minutes] = timeInput.split(':');
+            customStartDate = new Date(year, month - 1, day, hours, minutes, 0);
+
+            let now = new Date();
+            if (customStartDate > now) {
+                alert("開工時間唔可以晏過而家！"); return;
+            }
+
+            // 鎖死輸入框
+            document.getElementById('dateInput').disabled = true;
+            document.getElementById('brandInput').disabled = true;
+            document.getElementById('orderInput').disabled = true;
+            document.getElementById('startTimeInput').disabled = true;
+            document.getElementById('poh').disabled = true;
+            document.getElementById('workers').disabled = true;
+
+            isRunning = true;
+            isStopped = false;
+            stopDate = null;
+            
+            // 按鈕狀態切換
+            document.getElementById('startBtn').disabled = true;
+            document.getElementById('startBtn').style.opacity = "0.5";
+            document.getElementById('stopBtn').disabled = false;
+            document.getElementById('stopBtn').style.opacity = "1";
+            
+            // 顯示巨型橫幅
+            let brand = document.getElementById('brandInput').value || '未命名品牌';
+            let order = document.getElementById('orderInput').value || '未輸入單號';
+            let megaBanner = document.getElementById('megaOrderDisplay');
+            megaBanner.style.display = 'block';
+            // 將日期轉做 YYYY年MM月DD日 格式顯示
+            megaBanner.innerHTML = `📅 ${year}年${month}月${day}日 &nbsp;|&nbsp; ⭐ 品牌: ${brand} &nbsp;|&nbsp; 📄 單號: ${order} ⭐`;
+            
+            document.getElementById('statusText').innerHTML = `系統狀態：<span style="color:#10b981;">🟢 運行中</span>`;
+
+            updateDashboard();
+            timerInterval = setInterval(updateDashboard, 1000);
+        }
+
+        function stopProduction() {
+            if (!isRunning) return;
+            if (confirm("確定要停止記錄？時間同預期產量將會凍結。")) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                isStopped = true;
+                stopDate = new Date();
+                
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('stopBtn').style.opacity = "0.5";
+                
+                let stopTimeString = stopDate.toLocaleTimeString('zh-HK', {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('statusText').innerHTML = `系統狀態：<span style="color:#ef4444;">🔴 已停止</span> (截數時間: ${stopTimeString})`;
+                
+                updateDashboard();
+            }
+        }
+
+        function addOutput(amount) {
+            if (!isRunning && !isStopped) { alert("請先撳「鎖定並開始」！"); return; }
+            actualCount += amount;
+            if (actualCount < 0) actualCount = 0; 
+            document.getElementById('actualOutput').innerText = actualCount;
+            updateDashboard();
+        }
+
+        function addBulkOutput() {
+            let val = parseInt(document.getElementById('manualValue').value);
+            if (!isNaN(val)) addOutput(val);
+        }
+
+        function setExactOutput() {
+            if (!isRunning && !isStopped) { alert("請先撳「鎖定並開始」！"); return; }
+            let val = parseInt(document.getElementById('manualValue').value);
+            if (!isNaN(val) && val >= 0) {
+                if(confirm(`確定將實際產量直接修改為 ${val} 嗎？`)) {
+                    actualCount = val;
+                    document.getElementById('actualOutput').innerText = actualCount;
+                    updateDashboard();
+                }
+            } else {
+                alert("請輸入有效嘅正整數！");
+            }
+        }
+
+        function updateDashboard() {
+            if (!customStartDate) return;
+
+            let calculateTime = isStopped ? stopDate : new Date();
+
+            let elapsedMins = (calculateTime - customStartDate) / 60000;
+            if(elapsedMins < 0) elapsedMins = 0;
+            let elapsedHours = elapsedMins / 60;
+            
+            document.getElementById('elapsedTimeDisplay').innerHTML = `
+                ${elapsedHours.toFixed(2)} <span style="font-size: 24px;">小時</span><br>
+                <span style="font-size: 22px; color: #94a3b8;">(${elapsedMins.toFixed(1)} 分鐘)</span>
+            `;
+
+            let expectedOutput = (targetPoh * targetWorkers / 60) * elapsedMins;
+            document.getElementById('expectedOutput').innerText = Math.floor(expectedOutput);
+
+            let rate = 0;
+            if (expectedOutput > 0) {
+                rate = (actualCount / expectedOutput) * 100;
+            }
+            
+            let rateElement = document.getElementById('achievementRate');
+            rateElement.innerText = rate.toFixed(1) + "%";
+
+            rateElement.className = "value"; 
+            if (elapsedMins > 1) { 
+                if (rate >= 100) rateElement.classList.add("good");
+                else if (rate >= 90) rateElement.classList.add("warning");
+                else rateElement.classList.add("danger");
+            }
+        }
+
+        function resetProduction() {
+            if(confirm("確定要清除所有數據重新嚟過？")) {
+                clearInterval(timerInterval);
+                isRunning = false;
+                isStopped = false;
+                customStartDate = null;
+                stopDate = null;
+                actualCount = 0;
+                
+                document.getElementById('megaOrderDisplay').style.display = 'none';
+                
+                // 解鎖輸入框
+                document.getElementById('dateInput').disabled = false;
+                document.getElementById('brandInput').disabled = false;
+                document.getElementById('orderInput').disabled = false;
+                document.getElementById('startTimeInput').disabled = false;
+                document.getElementById('poh').disabled = false;
+                document.getElementById('workers').disabled = false;
+                
+                document.getElementById('startBtn').disabled = false;
+                document.getElementById('startBtn').style.opacity = "1";
+                document.getElementById('stopBtn').disabled = true;
+                document.getElementById('stopBtn').style.opacity = "0.5";
+                
+                document.getElementById('statusText').innerHTML = "系統狀態：STANDBY (尚未開始)";
+                
+                document.getElementById('elapsedTimeDisplay').innerHTML = `0.00 <span style="font-size: 24px;">小時</span><br><span style="font-size: 22px; color: #94a3b8;">(0.0 分鐘)</span>`;
+                document.getElementById('expectedOutput').innerText = "0";
+                document.getElementById('actualOutput').innerText = "0";
+                document.getElementById('manualValue').value = "0";
+                document.getElementById('achievementRate').innerText = "0%";
+                document.getElementById('achievementRate').className = "value";
+            }
+        }
+    </script>
+</body>
+</html>
