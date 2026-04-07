@@ -26,7 +26,7 @@
         tr:hover { background-color: rgba(244, 114, 182, 0.05); }
 
         .grid-input, .grid-select { width: 100%; background-color: #0f172a; color: #fff; border: 1px solid #64748b; padding: 6px; border-radius: 4px; font-size: 15px; font-weight: bold; outline: none; text-align: center;}
-        .grid-input:focus, .grid-select:focus { border-color: #f472b6; box-shadow: 0 0 8px rgba(244, 114, 182, 0.6); color: #f472b6;}
+        .grid-input:focus, .grid-select:focus { border-color: #f472b6; box-shadow: 0 0 8px rgba(244, 114, 182, 0.6); color: #f472b6; background-color: #1e293b;}
         .col-sm { width: 80px; } .col-md { width: 120px; } .col-lg { width: 150px; }
         .btn-delete { background: #ef4444; padding: 6px 12px; font-size: 14px; }
 
@@ -65,7 +65,7 @@
     
     <div class="warning-text">
         ⚠️ <b>注意：</b> 如果车间前线仍在「🟢 运行中」，每秒都会上存数据覆盖你的修改。<b>大改前请确认产线已暂停或结束！</b><br>
-        💡 预期产量和达标率会在点击「保存」时，系统自动按 POH、人数、运作时间重新计算。
+        💡 <b>隐藏神技：</b> 支援键盘 <b>上下左右</b> 快速移动光标！支援从 Excel 复制数据，直接在第一个格子上按 <b>Ctrl+V</b> 批量贴上！
     </div>
 
     <div class="table-container">
@@ -101,7 +101,7 @@
             return hash.toString();
         }
         
-        const ADMIN_HASH = "1754688"; // 正确的 9999 Hash
+        const ADMIN_HASH = "1754688"; // 9999
 
         function verifyAdmin() {
             let input = document.getElementById('adminPin').value;
@@ -118,10 +118,7 @@
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
             databaseURL: "https://factory-mes-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "factory-mes-2026",
-            storageBucket: "factory-mes-2026.firebasestorage.app",
-            messagingSenderId: "710873291817",
-            appId: "1:710873291817:web:92ea2aadc4dd895fb19038"
+            projectId: "factory-mes-2026"
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -187,13 +184,112 @@
                 <td class="col-sm"><input type="number" class="grid-input f-actual" style="color:#f472b6;" value="${d.actualOutput || 0}"></td>
                 <td class="col-sm"><input type="number" class="grid-input f-defect" style="color:#ef4444;" value="${d.defectOutput || 0}"></td>
                 <td class="col-md"><select class="grid-select f-status">${sHTML}</select></td>
-                <td><button class="btn-delete" onclick="this.closest('tr').remove()">🗑️ 删</button></td>
+                <td><button class="btn-delete" tabindex="-1" onclick="this.closest('tr').remove()">🗑️ 删</button></td>
             `;
             tbody.appendChild(tr);
         }
 
         function addNewRow() { document.getElementById('noDataMsg').style.display = 'none'; appendRow(); }
 
+        // =========================================================================
+        // 🚀 神技 1：防呆去零 (将 010 变成 10)
+        // =========================================================================
+        document.getElementById('tableBody').addEventListener('change', function(e) {
+            if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
+                if (e.target.value !== "") {
+                    e.target.value = Number(e.target.value); // 自动解析数字
+                }
+            }
+        });
+
+        // =========================================================================
+        // 🚀 神技 2：键盘上下左右快速导航
+        // =========================================================================
+        document.getElementById('tableBody').addEventListener('keydown', function(e) {
+            const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
+            if (!keys.includes(e.key)) return;
+
+            const currentInput = e.target;
+            if (!currentInput.classList.contains('grid-input') && !currentInput.classList.contains('grid-select')) return;
+
+            const td = currentInput.closest('td');
+            const tr = td.closest('tr');
+            const tbody = tr.closest('tbody');
+
+            const cellIndex = Array.from(tr.children).indexOf(td);
+            const rowIndex = Array.from(tbody.children).indexOf(tr);
+
+            let nextRow = rowIndex; let nextCol = cellIndex;
+
+            if (e.key === 'ArrowUp') nextRow--;
+            if (e.key === 'ArrowDown') nextRow++;
+            if (e.key === 'ArrowLeft') nextCol--;
+            if (e.key === 'ArrowRight') nextCol++;
+
+            if (nextRow >= 0 && nextRow < tbody.children.length && nextCol >= 0 && nextCol < tr.children.length - 1) { // -1 避开操作栏
+                e.preventDefault(); // 阻止光标默认移动
+                const nextCell = tbody.children[nextRow].children[nextCol];
+                const nextInput = nextCell.querySelector('.grid-input, .grid-select');
+                if (nextInput) {
+                    nextInput.focus();
+                    // 如果是输入框，自动全选文字方便直接覆写
+                    if (nextInput.tagName === 'INPUT' && nextInput.type !== 'time') {
+                        setTimeout(() => nextInput.select(), 0);
+                    }
+                }
+            }
+        });
+
+        // =========================================================================
+        // 🚀 神技 3：Excel 批量剪贴拦截器 (Ctrl+V)
+        // =========================================================================
+        document.getElementById('tableBody').addEventListener('paste', function(e) {
+            const currentInput = e.target;
+            if (!currentInput.classList.contains('grid-input') && !currentInput.classList.contains('grid-select')) return;
+
+            const pasteData = (e.clipboardData || window.clipboardData).getData('text');
+            // 如果数据里有 tab 键或者换行，判定为 Excel 复制数据
+            if (pasteData.includes('\t') || pasteData.includes('\n')) {
+                e.preventDefault(); // 拦截默认的一格贴上
+                
+                const rows = pasteData.split('\n').map(row => row.split('\t'));
+                const startTd = currentInput.closest('td');
+                const startTr = startTd.closest('tr');
+                const tbody = startTr.closest('tbody');
+
+                const startRowIdx = Array.from(tbody.children).indexOf(startTr);
+                const startColIdx = Array.from(startTr.children).indexOf(startTd);
+
+                for (let r = 0; r < rows.length; r++) {
+                    if (rows[r].join('').trim() === "") continue; // 跳过空行
+                    const targetRowIdx = startRowIdx + r;
+                    
+                    // 如果贴上时行数不够，自动生成新行
+                    if (targetRowIdx >= tbody.children.length) {
+                        addNewRow();
+                    }
+
+                    const targetRow = tbody.children[targetRowIdx];
+                    for (let c = 0; c < rows[r].length; c++) {
+                        const targetColIdx = startColIdx + c;
+                        if (targetColIdx >= targetRow.children.length - 1) break; // 避开最后一栏(删除键)
+
+                        const targetCell = targetRow.children[targetColIdx];
+                        const targetInput = targetCell.querySelector('.grid-input, .grid-select');
+                        
+                        if (targetInput) {
+                            let val = rows[r][c].trim();
+                            if (val !== "") {
+                                targetInput.value = val;
+                                targetInput.dispatchEvent(new Event('change', { bubbles: true })); // 触发去零等效验
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 保存逻辑保持不变
         function saveAllData() {
             let targetDate = document.getElementById('adminDate').value;
             let rows = document.querySelectorAll('#tableBody tr');
@@ -207,16 +303,13 @@
                     let line = tr.querySelector('.f-line').value;
                     let key = `${factory}_${line}`; 
 
-                    if (updatePayload[key]) {
-                        alert(`❌ 错误：发现重复！\n【${factory} - ${line}】存在多行，请删除重复行。`);
-                        errorFound = true; return;
-                    }
+                    if (updatePayload[key]) { alert(`❌ 错误：发现重复！\n【${factory} - ${line}】存在多行，请删除重复行。`); errorFound = true; return; }
 
                     let elapsedMins = parseFloat(tr.querySelector('.f-elapsed').value) || 0;
                     let poh = parseFloat(tr.querySelector('.f-poh').value) || 0;
                     let workers = parseInt(tr.querySelector('.f-workers').value) || 0;
                     let actualOutput = parseInt(tr.querySelector('.f-actual').value) || 0;
-                    let defectOutput = parseInt(tr.querySelector('.f-defect').value) || 0; // 抓取不良数
+                    let defectOutput = parseInt(tr.querySelector('.f-defect').value) || 0; 
                     let status = tr.querySelector('.f-status').value;
 
                     let expectedOutput = 0; let achievementRate = 0;
@@ -232,7 +325,7 @@
                         poh: poh, workers: workers,
                         actualOutput: actualOutput, defectOutput: defectOutput, expectedOutput: expectedOutput,
                         achievementRate: achievementRate, status: status,
-                        lastUpdateMs: Date.now(), // 更新心跳时间，防止 Boss 端误判离线
+                        lastUpdateMs: Date.now(),
                         lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (后台大修)"
                     };
                 });
