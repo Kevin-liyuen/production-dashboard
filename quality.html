@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛡️ 質量輸入端 - 智能生產線</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    <style>
+        /* 繼承 Cyberpunk 風格 */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .panel { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; padding: 20px; border-radius: 12px; width: 100%; max-width: 600px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        h1 { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.5); text-align: center; }
+        .form-group { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+        input, select, button { background: #0f172a; color: #fff; border: 1px solid #38bdf8; padding: 10px; border-radius: 6px; font-weight: bold; }
+        .info-display { background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #38bdf8; }
+        .defect-value { font-size: 80px; color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); margin: 20px 0; font-family: 'Courier New', monospace; text-align: center; cursor: pointer; border-bottom: 2px dashed #ef4444; }
+        .btn-add { background: linear-gradient(135deg, #ef4444, #b91c1c); font-size: 40px; width: 100px; height: 100px; border-radius: 50%; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); }
+        .btn-add:hover { transform: scale(1.1); box-shadow: 0 0 25px rgba(239, 68, 68, 0.7); }
+        .btn-fetch { background: #3b82f6; width: 100%; margin-top: 10px; }
+        #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; z-index: 999; display: flex; justify-content: center; align-items: center; }
+    </style>
+</head>
+<body>
+    <div id="authOverlay">
+        <div style="text-align: center;">
+            <h2>🔒 質量檢測授權</h2>
+            <input type="password" id="pinInput" placeholder="輸入 QC 密碼" style="font-size: 24px; text-align: center;">
+            <br><br><button onclick="verifyQC()" style="width: 200px; font-size: 20px;">進入系統</button>
+        </div>
+    </div>
+
+    <h1>🛡️ 質量即時回報系統</h1>
+    <div class="panel">
+        <div class="form-group">
+            <label>日期:</label><input type="date" id="dateInput">
+        </div>
+        <div class="form-group">
+            <label>工廠:</label>
+            <select id="factoryInput"><option value="LY">LY</option><option value="LFY">LFY</option></select>
+            <label>線別:</label>
+            <select id="lineInput">
+                <optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup>
+                <optgroup label="針車"><option value="針車1">針車1</option><option value="針車2">針車2</option><option value="針車3">針車3</option><option value="針車4">針車4</option><option value="針車5">針車5</option><option value="針車6">針車6</option></optgroup>
+            </select>
+        </div>
+        <button class="btn-fetch" onclick="fetchOrderInfo()">🔍 獲取訂單資料</button>
+
+        <div id="orderInfo" class="info-display" style="display:none; margin-top: 20px;">
+            <div id="infoText">載入中...</div>
+        </div>
+
+        <div id="inputArea" style="display:none; text-align: center;">
+            <div style="color: #94a3b8; font-weight: bold;">當前不良數 (點擊手動修改)</div>
+            <div class="defect-value" id="defectDisplay" onclick="manualEdit()">0</div>
+            <button class="btn-add" onclick="changeDefect(1)">+1</button>
+            <div style="margin-top: 20px;">
+                <input type="number" id="bulkInput" style="width: 80px;" value="5">
+                <button onclick="changeDefect(parseInt(document.getElementById('bulkInput').value))">➕ 增加指定數量</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // QC 密碼加密比對 (777 的 Hash 是 54648)
+        function verifyQC() {
+            let hash = 0;
+            let str = document.getElementById('pinInput').value;
+            for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
+            if (hash.toString() === "54648") document.getElementById('authOverlay').style.display = 'none';
+            else alert("密碼錯誤！");
+        }
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
+            authDomain: "factory-mes-2026.firebaseapp.com",
+            databaseURL: "https://factory-mes-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "factory-mes-2026",
+            storageBucket: "factory-mes-2026.firebasestorage.app",
+            messagingSenderId: "710873291817",
+            appId: "1:710873291817:web:92ea2aadc4dd895fb19038"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let currentDefects = 0;
+        let dbPath = "";
+
+        window.onload = () => {
+            let today = new Date();
+            let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
+            document.getElementById('dateInput').value = formatter.format(today);
+        };
+
+        function fetchOrderInfo() {
+            let date = document.getElementById('dateInput').value;
+            let factory = document.getElementById('factoryInput').value;
+            let line = document.getElementById('lineInput').value;
+            dbPath = `production_data/${date}/${factory}_${line}`;
+
+            db.ref(dbPath).once('value').then(snap => {
+                if (!snap.exists()) {
+                    alert("❌ 找不到排產資料！請先由指定人員輸入基礎資料。");
+                    return;
+                }
+                let data = snap.val();
+                document.getElementById('orderInfo').style.display = "block";
+                document.getElementById('inputArea').style.display = "block";
+                document.getElementById('infoText').innerHTML = `🏷️ 品牌: <b>${data.brand}</b> | 📄 單號: <b>${data.order}</b><br>📦 報產數: <span style="color:#00e5ff">${data.actualOutput}</span>`;
+                currentDefects = data.defectOutput || 0;
+                document.getElementById('defectDisplay').innerText = currentDefects;
+            });
+        }
+
+        function changeDefect(amt) {
+            currentDefects += amt;
+            if (currentDefects < 0) currentDefects = 0;
+            updateToCloud();
+        }
+
+        function manualEdit() {
+            let val = prompt("請輸入正確的不良總數:", currentDefects);
+            if (val !== null && !isNaN(val)) {
+                currentDefects = parseInt(val);
+                updateToCloud();
+            }
+        }
+
+        function updateToCloud() {
+            document.getElementById('defectDisplay').innerText = currentDefects;
+            db.ref(dbPath).update({
+                defectOutput: currentDefects,
+                lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (QC修改)"
+            });
+        }
+    </script>
+</body>
+</html>
