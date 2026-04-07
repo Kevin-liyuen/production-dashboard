@@ -81,6 +81,7 @@
                     <th>本日100% POH</th>
                     <th>生产/配备员工+班组课</th>
                     <th style="color:#8b5cf6; font-size: 18px;">实际产量</th>
+                    <th style="color:#ef4444; font-size: 18px;">不良数</th>
                     <th>生产状态</th>
                     <th>操作</th>
                 </tr>
@@ -183,7 +184,8 @@
                 <td class="col-sm"><input type="number" step="0.1" class="grid-input f-elapsed" value="${d.elapsedMins || 0}"></td>
                 <td class="col-sm"><input type="number" step="0.01" class="grid-input f-poh" value="${d.poh || 1}"></td>
                 <td class="col-sm"><input type="number" class="grid-input f-workers" value="${d.workers || 10}"></td>
-                <td class="col-sm"><input type="number" class="grid-input f-actual" style="color:#f472b6; font-size:20px;" value="${d.actualOutput || 0}"></td>
+                <td class="col-sm"><input type="number" class="grid-input f-actual" style="color:#f472b6;" value="${d.actualOutput || 0}"></td>
+                <td class="col-sm"><input type="number" class="grid-input f-defect" style="color:#ef4444;" value="${d.defectOutput || 0}"></td>
                 <td class="col-md"><select class="grid-select f-status">${sHTML}</select></td>
                 <td><button class="btn-delete" onclick="this.closest('tr').remove()">🗑️ 删</button></td>
             `;
@@ -214,6 +216,7 @@
                     let poh = parseFloat(tr.querySelector('.f-poh').value) || 0;
                     let workers = parseInt(tr.querySelector('.f-workers').value) || 0;
                     let actualOutput = parseInt(tr.querySelector('.f-actual').value) || 0;
+                    let defectOutput = parseInt(tr.querySelector('.f-defect').value) || 0; // 抓取不良数
                     let status = tr.querySelector('.f-status').value;
 
                     let expectedOutput = 0; let achievementRate = 0;
@@ -227,7 +230,7 @@
                         brand: tr.querySelector('.f-brand').value || '', order: tr.querySelector('.f-order').value || '',
                         startTime: tr.querySelector('.f-start').value, elapsedMins: elapsedMins,
                         poh: poh, workers: workers,
-                        actualOutput: actualOutput, expectedOutput: expectedOutput,
+                        actualOutput: actualOutput, defectOutput: defectOutput, expectedOutput: expectedOutput,
                         achievementRate: achievementRate, status: status,
                         lastUpdateMs: Date.now(), // 更新心跳时间，防止 Boss 端误判离线
                         lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (后台大修)"
