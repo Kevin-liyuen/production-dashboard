@@ -62,14 +62,24 @@
     </div>
 
     <script>
-        // QC 密碼加密比對 (777 的 Hash 是 54648)
+     // QC 密碼加密比對 (777 的正確 Hash 是 54615)
         function verifyQC() {
             let hash = 0;
             let str = document.getElementById('pinInput').value;
             for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
-            if (hash.toString() === "54648") document.getElementById('authOverlay').style.display = 'none';
-            else alert("密碼錯誤！");
+            
+            if (hash.toString() === "54615") {
+                document.getElementById('authOverlay').style.display = 'none';
+            } else {
+                alert("❌ 密碼錯誤！");
+                document.getElementById('pinInput').value = ''; // 清空輸入框方便重打
+            }
         }
+        
+        // 支援撳 Enter 鍵登入
+        document.getElementById('pinInput').addEventListener("keypress", function(e) { 
+            if (e.key === "Enter") verifyQC(); 
+        });
 
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
