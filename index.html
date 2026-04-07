@@ -6,7 +6,6 @@
     <title>⚡ 智能生产线系统</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    
     <style>
         * { box-sizing: border-box; } 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 10px 15px; min-height: 100vh; display: flex; flex-direction: column; overflow-y: auto; }
@@ -106,7 +105,8 @@
                 <select id="lineInput" class="short-input" style="width: 140px;">
                     <option value="" disabled selected>请选择...</option>
                     <optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup>
-                    <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option></optgroup>
+                    <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option><option value="针车7">针车7</option><option value="针车8">针车8</option><option value="针车9">针车9</option><option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option><option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option><option value="针车16">针车16</option><option value="针车17">针车17</option><option value="针车18">针车18</option><option value="针车19">针车19</option><option value="针车20">针车20</option><option value="针车21">针车21</option><option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option></optgroup>
+                    <optgroup label="组底"><option value="组底1">组底1</option><option value="组底2">组底2</option><option value="组底3">组底3</option><option value="组底4">组底4</option><option value="组底5">组底5</option></optgroup>
                 </select>
             </div>
             <div class="form-group" id="workerFetchGroup">
@@ -153,7 +153,7 @@
     </div>
 
     <div id="productionDashboardArea" style="display: none;">
-        <div class="top-dashboard"><div class="card top-card"><h2>📈 实时达标率</h2><div class="value rate-value" id="achievementRate">0%</div></div></div>
+        <div class="top-dashboard"><div class="card top-card"><h2>📈 实时达标率 (自动跳过 11:30-12:30 饭歇)</h2><div class="value rate-value" id="achievementRate">0%</div></div></div>
         <div class="dashboard">
             <div class="card"><h2>⏱️ 累计运行时间</h2><div class="value time-value" id="elapsedTimeDisplay">0.00 <span class="time-unit">小时</span><br><span class="time-sub">(0.0 分钟)</span></div></div>
             <div class="card"><h2>🎯 严格预期产量</h2><div class="value" id="expectedOutput" style="color: #f472b6;">0</div></div>
@@ -225,8 +225,22 @@
         function getCambodiaTimestamp(dateStr, timeStr) { return new Date(`${dateStr}T${timeStr}:00+07:00`).getTime(); }
 
         // ==========================================
-        // Firebase 设定 (⚠️ 请填入你的 Key)
+        // 🚀 核心：自动扣减柬埔寨午饭时间 (11:30-12:30)
         // ==========================================
+        function getLunchDeductionMs(startMs, endMs) {
+            if (!startMs || !endMs || startMs >= endMs) return 0;
+            let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
+            let dateStr = formatter.format(new Date(startMs)); 
+            // 设定当天的 11:30 和 12:30 为午饭时间
+            let lunchStartMs = new Date(`${dateStr}T11:30:00+07:00`).getTime();
+            let lunchEndMs = new Date(`${dateStr}T12:30:00+07:00`).getTime();
+            
+            // 计算运行时间与午饭时间的重叠区间
+            let overlapStart = Math.max(startMs, lunchStartMs);
+            let overlapEnd = Math.min(endMs, lunchEndMs);
+            return Math.max(0, overlapEnd - overlapStart);
+        }
+
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
@@ -241,7 +255,11 @@
 
         let actualCount = 0; let timerInterval = null; 
         let isRunning = false; let isPaused = false; let isEnded = false;
-        let customStartDateMs = null; let pauseDateMs = null; 
+        
+        let chronologicalStartMs = null; // 真实开工绝对时间
+        let pauseDateMs = null; 
+        let accumulatedPauseMs = 0;      // 累计按暂停的时间
+        
         let targetPoh = 0; let targetWorkers = 0; let dbRefPath = null;
 
         document.getElementById('dateInput').addEventListener('change', fetchPMCPlanList);
@@ -298,11 +316,11 @@
                     if(!confirm(`⚠️ 警告：【${factoryVal} - ${lineVal}】今日已存在纪录 (状态: ${msg})！\n强制发布将完全覆盖原有资料并重置为【待命】。\n\n确定要覆盖吗？`)) return;
                 }
                 
-                // 🚀 加入 lastUpdateMs (心跳初始值)
                 db.ref(dbRefPath).set({
                     factory: factoryVal, line: lineVal, brand: brandVal, order: orderVal,
                     startTime: timeVal, poh: pohVal, workers: workersVal,
                     actualOutput: 0, expectedOutput: 0, achievementRate: 0, elapsedMins: 0,
+                    accumulatedPauseMs: 0, // 初始化暂停累计
                     status: "STANDBY", 
                     lastUpdateMs: Date.now(),
                     lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
@@ -329,6 +347,8 @@
                 
                 targetPoh = parseFloat(data.poh); targetWorkers = parseInt(data.workers);
                 actualCount = parseInt(data.actualOutput) || 0; document.getElementById('actualOutput').innerText = actualCount;
+                
+                accumulatedPauseMs = data.accumulatedPauseMs || 0;
 
                 if (data.status === "STANDBY") {
                     document.getElementById('startBtn').disabled = false; document.getElementById('startBtn').style.opacity = "1";
@@ -340,10 +360,9 @@
             });
         }
 
-        // 🚀 核心修复：已结束状态完全锁定数据，不再触发 timer！
         function restoreSession(data, dateVal) {
             if (data.status === "STOPPED") {
-                alert("⚠️ 该产线已【结束】生产，数据已完全冻结。\n(如需修改异常数据，请联络生管从后台修正)");
+                alert("⚠️ 该产线已【结束】生产，数据已完全冻结。");
                 isEnded = true; isRunning = false; isPaused = false;
                 
                 document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true; document.getElementById('lineInput').disabled = true;
@@ -356,7 +375,6 @@
                 let megaBanner = document.getElementById('megaOrderDisplay'); megaBanner.style.display = 'block';
                 megaBanner.innerHTML = `📅 ${dateVal} &nbsp;|&nbsp; 🏭 ${data.factory} - ${data.line} &nbsp;|&nbsp; ⭐ 品牌: ${data.brand} ⭐`;
 
-                // 直接显示冻结数据，不再计算
                 let elapsedHours = data.elapsedMins / 60;
                 document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br><span class="time-sub">(${data.elapsedMins.toFixed(1)} 分钟)</span>`;
                 document.getElementById('expectedOutput').innerText = data.expectedOutput;
@@ -367,12 +385,16 @@
                 if (data.elapsedMins > 1) { 
                     if (data.achievementRate >= 100) rateElement.classList.add("good"); else if (data.achievementRate >= 90) rateElement.classList.add("warning"); else rateElement.classList.add("danger");
                 }
-                return; // 🛑 直接退出，不启动计时器！
+                return;
             }
 
             if (confirm(`📡 寻找到运行中纪录 (目前产量: ${data.actualOutput})！是否直接恢复？`)) {
                 beginRunLogic(dateVal, data.startTime, data.factory, data.line, false);
-                if (data.status === "PAUSED") togglePause(); 
+                if (data.status === "PAUSED") {
+                    // 如果原本是暂停状态，恢复时自动触发暂停逻辑
+                    isRunning = true; // 假装运行，让 togglePause 可以生效
+                    togglePause(); 
+                }
             }
         }
 
@@ -385,8 +407,8 @@
         }
 
         function beginRunLogic(dateVal, timeVal, factoryVal, lineVal, isForceStop) {
-            customStartDateMs = getCambodiaTimestamp(dateVal, timeVal);
-            if (customStartDateMs > Date.now()) { alert("开工时间不能晚于现在！"); return; }
+            chronologicalStartMs = getCambodiaTimestamp(dateVal, timeVal);
+            if (chronologicalStartMs > Date.now()) { alert("开工时间不能晚于现在！"); return; }
 
             document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true; document.getElementById('lineInput').disabled = true;
             document.querySelector('.btn-fetch').disabled = true; document.querySelector('.btn-fetch').style.opacity = "0.5";
@@ -399,7 +421,6 @@
                 document.getElementById('endBtn').disabled = false; document.getElementById('endBtn').style.opacity = "1";
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
                 
-                // 离线遗言
                 db.ref(dbRefPath).onDisconnect().update({ status: "OFFLINE", lastUpdate: "离线 (网页关闭)" });
                 timerInterval = setInterval(updateDashboard, 1000);
             }
@@ -417,10 +438,15 @@
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#facc15;">🟡 已暂停</span>`;
                 updateDashboard();
             } else if (isPaused) {
-                let pauseDuration = Date.now() - pauseDateMs; customStartDateMs += pauseDuration; 
+                let pauseDuration = Date.now() - pauseDateMs; 
+                // 扣除掉暂停期间与午饭时间的重叠部分，防止双重扣减
+                let lunchPauseOverlap = getLunchDeductionMs(pauseDateMs, Date.now());
+                accumulatedPauseMs += (pauseDuration - lunchPauseOverlap); 
+                
                 isRunning = true; isPaused = false; pauseDateMs = null;
                 pauseBtn.innerHTML = "⏸️ 暂停"; pauseBtn.style.background = ""; 
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
+                db.ref(dbRefPath).update({ accumulatedPauseMs: accumulatedPauseMs }); // 储存累计暂停
                 timerInterval = setInterval(updateDashboard, 1000); updateDashboard();
             }
         }
@@ -445,7 +471,7 @@
             db.ref(dbRefPath).update({
                 actualOutput: actualCount, expectedOutput: expectedOutput,
                 achievementRate: rate, elapsedMins: elapsedMins, status: statusStr,
-                lastUpdateMs: Date.now(), // 💓 发送心跳
+                lastUpdateMs: Date.now(), 
                 lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
             });
         }
@@ -468,11 +494,15 @@
         }
 
         function updateDashboard() {
-            if (!customStartDateMs) return;
+            if (!chronologicalStartMs) return;
             let calculateTimeMs = (isPaused || isEnded) ? (pauseDateMs || Date.now()) : Date.now();
             if (isEnded && !pauseDateMs) calculateTimeMs = Date.now(); 
 
-            let elapsedMins = (calculateTimeMs - customStartDateMs) / 60000;
+            let rawMs = calculateTimeMs - chronologicalStartMs;
+            let lunchMs = getLunchDeductionMs(chronologicalStartMs, calculateTimeMs); // 自动计算扣除的午饭时间
+            let activeMs = rawMs - lunchMs - accumulatedPauseMs;
+
+            let elapsedMins = activeMs / 60000;
             if(elapsedMins < 0) elapsedMins = 0; let elapsedHours = elapsedMins / 60;
             
             document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span><br><span class="time-sub">(${elapsedMins.toFixed(1)} 分钟)</span>`;
