@@ -162,19 +162,23 @@
                 let statusDotClass = "status-dot"; let statusTitle = "运行中";
 
                 // 💓 核心修正：心跳断线侦测机制
-                // 如果是 "RUNNING" 或 "PAUSED" 状态，检查有没有心跳
                 let isStale = false;
                 if ((lineData.status === "RUNNING" || lineData.status === "PAUSED") && lineData.lastUpdateMs) {
-                    // 如果已经超过 90000 毫秒 (90秒) 没有更新心跳，强制标示为离线
-                    if (Date.now() - lineData.lastUpdateMs > 90000) {
-                        isStale = true;
-                    }
+                    if (Date.now() - lineData.lastUpdateMs > 90000) { isStale = true; } // 90秒无响应算离线
                 }
 
                 if (lineData.status === "STOPPED") { statusDotClass = "status-dot stopped"; statusTitle = "已结束"; } 
                 else if (lineData.status === "OFFLINE" || isStale) { statusDotClass = "status-dot offline"; statusTitle = "离线 / 无响应"; }
                 else if (lineData.status === "PAUSED") { statusDotClass = "status-dot paused"; statusTitle = "已暂停"; } 
                 else if (lineData.status === "STANDBY") { statusDotClass = "status-dot standby"; statusTitle = "待命 (未开工)"; }
+
+                // 計算不良率
+                let defectCount = lineData.defectOutput || 0;
+                let defectRate = 0;
+                if (lineData.actualOutput && lineData.actualOutput > 0) {
+                    defectRate = (defectCount / lineData.actualOutput) * 100;
+                }
+                let defectRateStr = lineData.actualOutput > 0 ? defectRate.toFixed(1) + '%' : '0.0%';
 
                 let contentHTML = "";
                 if (lineData.status === "STANDBY") {
@@ -183,7 +187,13 @@
                     contentHTML = `
                         <div class="data-row"><span>运作时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
                         <div class="data-row"><span>预期产量:</span><span class="data-value">${lineData.expectedOutput}</span></div>
-                        <div class="data-row"><span>实际达成:</span><span class="data-value" style="color: #8b5cf6;">${lineData.actualOutput}</span></div>
+                        <div class="data-row"><span>实际达成:</span><span class="data-value" style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></div>
+                        
+                        <div class="data-row" style="border-top: 1px solid #475569; padding-top:8px; margin-top:8px;">
+                            <span>不良数 / 不良率:</span>
+                            <span style="color: #ef4444; font-weight:bold; font-size:20px;">${defectCount} <small style="font-size:14px;">(${defectRateStr})</small></span>
+                        </div>
+
                         <div class="rate-container">
                             <div class="rate-title">达标率 (最后更新: ${lineData.lastUpdate})</div>
                             <div class="rate-big-value ${rateColorClass}">${lineData.achievementRate.toFixed(1)}%</div>
@@ -200,7 +210,6 @@
                 `;
             });
             
-            // 只有当有新 HTML 时才替换，防止画面不必要的闪动
             container.innerHTML = newContainerHTML;
         }
     </script>
