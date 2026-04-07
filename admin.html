@@ -101,7 +101,7 @@
             return hash.toString();
         }
         
-        const ADMIN_HASH = "1754688"; // 9999
+        const ADMIN_HASH = "1754688"; 
 
         function verifyAdmin() {
             let input = document.getElementById('adminPin').value;
@@ -133,7 +133,8 @@
         `;
         const lineOptions = `
             <optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup>
-            <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option></optgroup>
+            <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option><option value="针车7">针车7</option><option value="针车8">针车8</option><option value="针车9">针车9</option><option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option><option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option><option value="针车16">针车16</option><option value="针车17">针车17</option><option value="针车18">针车18</option><option value="针车19">针车19</option><option value="针车20">针车20</option><option value="针车21">针车21</option><option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option></optgroup>
+            <optgroup label="组底"><option value="组底1">组底1</option><option value="组底2">组底2</option><option value="组底3">组底3</option><option value="组底4">组底4</option><option value="组底5">组底5</option></optgroup>
         `;
 
         function getCambodiaDateString() {
@@ -168,6 +169,9 @@
             let tr = document.createElement('tr');
             let f = d.factory || 'LY'; let l = d.line || '成型A'; let s = d.status || 'STOPPED';
 
+            // 把暂停纪录保存在 data 属性里防覆盖
+            tr.dataset.accumulatedPauseMs = d.accumulatedPauseMs || 0;
+
             let fHTML = factoryOptions.replace(`value="${f}"`, `value="${f}" selected`);
             let lHTML = lineOptions.replace(`value="${l}"`, `value="${l}" selected`);
             let sHTML = statusOptions.replace(`value="${s}"`, `value="${s}" selected`);
@@ -191,34 +195,22 @@
 
         function addNewRow() { document.getElementById('noDataMsg').style.display = 'none'; appendRow(); }
 
-        // =========================================================================
-        // 🚀 神技 1：防呆去零 (将 010 变成 10)
-        // =========================================================================
+        // 去零
         document.getElementById('tableBody').addEventListener('change', function(e) {
             if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
-                if (e.target.value !== "") {
-                    e.target.value = Number(e.target.value); // 自动解析数字
-                }
+                if (e.target.value !== "") e.target.value = Number(e.target.value); 
             }
         });
 
-        // =========================================================================
-        // 🚀 神技 2：键盘上下左右快速导航
-        // =========================================================================
+        // 键盘导航
         document.getElementById('tableBody').addEventListener('keydown', function(e) {
             const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
             if (!keys.includes(e.key)) return;
-
             const currentInput = e.target;
             if (!currentInput.classList.contains('grid-input') && !currentInput.classList.contains('grid-select')) return;
 
-            const td = currentInput.closest('td');
-            const tr = td.closest('tr');
-            const tbody = tr.closest('tbody');
-
-            const cellIndex = Array.from(tr.children).indexOf(td);
-            const rowIndex = Array.from(tbody.children).indexOf(tr);
-
+            const td = currentInput.closest('td'); const tr = td.closest('tr'); const tbody = tr.closest('tbody');
+            const cellIndex = Array.from(tr.children).indexOf(td); const rowIndex = Array.from(tbody.children).indexOf(tr);
             let nextRow = rowIndex; let nextCol = cellIndex;
 
             if (e.key === 'ArrowUp') nextRow--;
@@ -226,53 +218,38 @@
             if (e.key === 'ArrowLeft') nextCol--;
             if (e.key === 'ArrowRight') nextCol++;
 
-            if (nextRow >= 0 && nextRow < tbody.children.length && nextCol >= 0 && nextCol < tr.children.length - 1) { // -1 避开操作栏
-                e.preventDefault(); // 阻止光标默认移动
+            if (nextRow >= 0 && nextRow < tbody.children.length && nextCol >= 0 && nextCol < tr.children.length - 1) { 
+                e.preventDefault(); 
                 const nextCell = tbody.children[nextRow].children[nextCol];
                 const nextInput = nextCell.querySelector('.grid-input, .grid-select');
                 if (nextInput) {
                     nextInput.focus();
-                    // 如果是输入框，自动全选文字方便直接覆写
-                    if (nextInput.tagName === 'INPUT' && nextInput.type !== 'time') {
-                        setTimeout(() => nextInput.select(), 0);
-                    }
+                    if (nextInput.tagName === 'INPUT' && nextInput.type !== 'time') setTimeout(() => nextInput.select(), 0);
                 }
             }
         });
 
-        // =========================================================================
-        // 🚀 神技 3：Excel 批量剪贴拦截器 (Ctrl+V)
-        // =========================================================================
+        // Excel 拦截器
         document.getElementById('tableBody').addEventListener('paste', function(e) {
             const currentInput = e.target;
             if (!currentInput.classList.contains('grid-input') && !currentInput.classList.contains('grid-select')) return;
 
             const pasteData = (e.clipboardData || window.clipboardData).getData('text');
-            // 如果数据里有 tab 键或者换行，判定为 Excel 复制数据
             if (pasteData.includes('\t') || pasteData.includes('\n')) {
-                e.preventDefault(); // 拦截默认的一格贴上
-                
+                e.preventDefault(); 
                 const rows = pasteData.split('\n').map(row => row.split('\t'));
-                const startTd = currentInput.closest('td');
-                const startTr = startTd.closest('tr');
-                const tbody = startTr.closest('tbody');
-
-                const startRowIdx = Array.from(tbody.children).indexOf(startTr);
-                const startColIdx = Array.from(startTr.children).indexOf(startTd);
+                const startTd = currentInput.closest('td'); const startTr = startTd.closest('tr'); const tbody = startTr.closest('tbody');
+                const startRowIdx = Array.from(tbody.children).indexOf(startTr); const startColIdx = Array.from(startTr.children).indexOf(startTd);
 
                 for (let r = 0; r < rows.length; r++) {
-                    if (rows[r].join('').trim() === "") continue; // 跳过空行
+                    if (rows[r].join('').trim() === "") continue; 
                     const targetRowIdx = startRowIdx + r;
-                    
-                    // 如果贴上时行数不够，自动生成新行
-                    if (targetRowIdx >= tbody.children.length) {
-                        addNewRow();
-                    }
+                    if (targetRowIdx >= tbody.children.length) addNewRow();
 
                     const targetRow = tbody.children[targetRowIdx];
                     for (let c = 0; c < rows[r].length; c++) {
                         const targetColIdx = startColIdx + c;
-                        if (targetColIdx >= targetRow.children.length - 1) break; // 避开最后一栏(删除键)
+                        if (targetColIdx >= targetRow.children.length - 1) break; 
 
                         const targetCell = targetRow.children[targetColIdx];
                         const targetInput = targetCell.querySelector('.grid-input, .grid-select');
@@ -281,7 +258,7 @@
                             let val = rows[r][c].trim();
                             if (val !== "") {
                                 targetInput.value = val;
-                                targetInput.dispatchEvent(new Event('change', { bubbles: true })); // 触发去零等效验
+                                targetInput.dispatchEvent(new Event('change', { bubbles: true })); 
                             }
                         }
                     }
@@ -289,7 +266,6 @@
             }
         });
 
-        // 保存逻辑保持不变
         function saveAllData() {
             let targetDate = document.getElementById('adminDate').value;
             let rows = document.querySelectorAll('#tableBody tr');
@@ -303,7 +279,10 @@
                     let line = tr.querySelector('.f-line').value;
                     let key = `${factory}_${line}`; 
 
-                    if (updatePayload[key]) { alert(`❌ 错误：发现重复！\n【${factory} - ${line}】存在多行，请删除重复行。`); errorFound = true; return; }
+                    if (updatePayload[key]) {
+                        alert(`❌ 错误：发现重复！\n【${factory} - ${line}】存在多行，请删除重复行。`);
+                        errorFound = true; return;
+                    }
 
                     let elapsedMins = parseFloat(tr.querySelector('.f-elapsed').value) || 0;
                     let poh = parseFloat(tr.querySelector('.f-poh').value) || 0;
@@ -311,6 +290,7 @@
                     let actualOutput = parseInt(tr.querySelector('.f-actual').value) || 0;
                     let defectOutput = parseInt(tr.querySelector('.f-defect').value) || 0; 
                     let status = tr.querySelector('.f-status').value;
+                    let accPause = parseInt(tr.dataset.accumulatedPauseMs) || 0;
 
                     let expectedOutput = 0; let achievementRate = 0;
                     if (status !== "STANDBY") {
@@ -325,7 +305,8 @@
                         poh: poh, workers: workers,
                         actualOutput: actualOutput, defectOutput: defectOutput, expectedOutput: expectedOutput,
                         achievementRate: achievementRate, status: status,
-                        lastUpdateMs: Date.now(),
+                        accumulatedPauseMs: accPause,
+                        lastUpdateMs: Date.now(), 
                         lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (后台大修)"
                     };
                 });
