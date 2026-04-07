@@ -49,8 +49,22 @@
             <label style="color:#94a3b8;">🏭 厂线:</label>
             <select id="factoryInput"><option value="LY">LY</option><option value="LFY">LFY</option></select>
             <select id="lineInput" style="flex-grow: 1;">
-                <optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup>
-                <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option></optgroup>
+                <optgroup label="成型">
+                    <option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option>
+                    <option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option>
+                </optgroup>
+                <optgroup label="针车">
+                    <option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option>
+                    <option value="针车5">针车5</option><option value="针车6">针车6</option><option value="针车7">针车7</option><option value="针车8">针车8</option>
+                    <option value="针车9">针车9</option><option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option>
+                    <option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option><option value="针车16">针车16</option>
+                    <option value="针车17">针车17</option><option value="针车18">针车18</option><option value="针车19">针车19</option><option value="针车20">针车20</option>
+                    <option value="针车21">针车21</option><option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option>
+                </optgroup>
+                <optgroup label="组底">
+                    <option value="组底1">组底1</option><option value="组底2">组底2</option><option value="组底3">组底3</option>
+                    <option value="组底4">组底4</option><option value="组底5">组底5</option>
+                </optgroup>
             </select>
         </div>
         <button class="btn-fetch" onclick="fetchOrderInfo()">🔍 获取并锁定此线</button>
@@ -146,7 +160,6 @@
             }
         }
 
-        // 🛡️ 核心：不良率颜色渲染逻辑
         function updateColorDisplay() {
             let rate = 0;
             if (actualOutput > 0) rate = (currentDefects / actualOutput) * 100;
