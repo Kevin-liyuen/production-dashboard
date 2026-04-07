@@ -10,19 +10,22 @@
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; }
         .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; border-bottom: 2px solid #334155; padding-bottom: 15px;}
         h1 { color: #00e5ff; text-shadow: 0 0 20px rgba(0, 229, 255, 0.8); letter-spacing: 4px; font-size: 28px; margin: 0;}
-        .filters { display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+        .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .filter-group { display: flex; align-items: center; background: rgba(30, 41, 59, 0.8); border: 1px solid #38bdf8; border-radius: 8px; padding: 5px 10px; }
         .filter-group label { color: #facc15; font-weight: bold; margin-right: 8px; font-size: 14px;}
-        .filter-group input, .filter-group select { background: transparent; color: #fff; border: none; font-size: 16px; font-weight: bold; outline: none; cursor: pointer; }
+        .filter-group input, .filter-group select { background: transparent; color: #fff; border: none; font-size: 15px; font-weight: bold; outline: none; cursor: pointer; }
         .filter-group select option { background: #0f172a; }
+        
+        /* 特殊视角过滤器样式 */
+        .view-filter { border-color: #f472b6 !important; background: rgba(244, 114, 182, 0.1) !important; }
+        
         .btn-scroll { background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
         .btn-scroll:hover { opacity: 0.8; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .line-card { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 15px 20px; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: 0.3s; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+        .line-card { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 15px 20px; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: 0.3s; display: flex; flex-direction: column;}
         .line-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.6); border-color: #38bdf8;}
-        .line-header { font-size: 24px; font-weight: bold; color: #fff; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .line-header { font-size: 24px; font-weight: bold; color: #fff; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* 状态灯: 绿/黄/红/灰/白 */
         .status-dot { height: 16px; width: 16px; background-color: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981; animation: blink 1.5s infinite;}
         .status-dot.paused { background-color: #facc15; box-shadow: 0 0 10px #facc15; animation: none;} 
         .status-dot.stopped { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; animation: none;} 
@@ -30,15 +33,20 @@
         .status-dot.standby { background-color: #f8fafc; box-shadow: 0 0 10px #f8fafc; animation: none;} 
         @keyframes blink { 50% { opacity: 0.4; } }
 
-        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 16px; color: #94a3b8; }
-        .data-value { font-size: 26px; font-weight: bold; color: #fff; font-family: 'Courier New', Courier, monospace;}
-        .rate-container { text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px dashed #334155; }
-        .rate-title { font-size: 14px; color: #94a3b8; }
-        .rate-big-value { font-size: 55px; font-weight: bold; line-height: 1.1; margin-top: 5px; font-family: 'Courier New', Courier, monospace; }
+        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 15px; color: #94a3b8; }
+        .data-value { font-size: 24px; font-weight: bold; color: #fff; font-family: 'Courier New', Courier, monospace;}
+        
+        .rate-container { text-align: center; margin-top: auto; padding-top: 10px; border-top: 1px dashed #334155; }
+        .rate-title { font-size: 13px; color: #94a3b8; }
+        .rate-big-value { font-size: 50px; font-weight: bold; line-height: 1.1; margin-top: 5px; font-family: 'Courier New', Courier, monospace; }
+        
         .good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
         .warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
         .danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
-        .standby-text { color: #94a3b8; font-size: 24px; margin-top: 15px;}
+        
+        .defect-text { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); font-family: 'Courier New', monospace; font-weight: bold;}
+        
+        .standby-text { color: #94a3b8; font-size: 24px; margin-top: 15px; text-align: center;}
         #noDataMsg { text-align: center; font-size: 24px; color: #64748b; margin-top: 100px; display: none; }
     </style>
 </head>
@@ -47,11 +55,21 @@
     <div class="top-bar">
         <h1>🌐 全局实时监控</h1>
         <div class="filters">
-            <div class="filter-group"><label>📅 柬埔寨日期</label><input type="date" id="viewDate"></div>
-            <div class="filter-group"><label>🏭 工厂</label><select id="filterFactory"><option value="ALL">全部</option><option value="LY">LY</option><option value="LFY">LFY</option></select></div>
-            <div class="filter-group"><label>🏭 类型</label><select id="filterType"><option value="ALL">全部</option><option value="成型">成型</option><option value="针车">针车</option></select></div>
-            <div class="filter-group" style="border-color: #facc15;"><label>🔽 排序</label><select id="sortBy"><option value="line">默认 (厂区/线别)</option><option value="rate">达标率 (高至低)</option><option value="brand">品牌 (A-Z)</option></select></div>
-            <button id="btnAutoScroll" class="btn-scroll" onclick="toggleAutoScroll()">🔄 自动滚动</button>
+            <div class="filter-group"><input type="date" id="viewDate"></div>
+            <div class="filter-group"><select id="filterFactory"><option value="ALL">全厂</option><option value="LY">LY</option><option value="LFY">LFY</option></select></div>
+            <div class="filter-group"><select id="filterType"><option value="ALL">全类型</option><option value="成型">成型</option><option value="针车">针车</option></select></div>
+            <div class="filter-group" style="border-color: #facc15;"><label>🔽</label><select id="sortBy"><option value="line">默认排序</option><option value="rate">达标率优先</option><option value="defect">不良率优先</option></select></div>
+            
+            <div class="filter-group view-filter">
+                <label style="color: #f472b6;">👁️ 视角</label>
+                <select id="viewMode" style="color: #f472b6;">
+                    <option value="ALL">综合 (产量+质量)</option>
+                    <option value="QTY">产量看板 (隐藏不良)</option>
+                    <option value="QUAL">质量看板 (专注不良)</option>
+                </select>
+            </div>
+            
+            <button id="btnAutoScroll" class="btn-scroll" onclick="toggleAutoScroll()">🔄</button>
         </div>
     </div>
     <div id="noDataMsg">📡 正在搜寻数据... </div>
@@ -62,56 +80,43 @@
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
             databaseURL: "https://factory-mes-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "factory-mes-2026",
-            storageBucket: "factory-mes-2026.firebasestorage.app",
-            messagingSenderId: "710873291817",
-            appId: "1:710873291817:web:92ea2aadc4dd895fb19038"
+            projectId: "factory-mes-2026"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let datePicker = document.getElementById('viewDate');
         let currentListenerRef = null; let globalData = null; 
-
-        // 🚀 心跳监控器 (每 5 秒跑一次)
-        setInterval(renderCards, 5000);
+        setInterval(renderCards, 5000); // 5秒心跳刷新
 
         let scrollInterval = null; let isAutoScrolling = false;
         function toggleAutoScroll() {
             isAutoScrolling = !isAutoScrolling;
             let btn = document.getElementById('btnAutoScroll');
             if (isAutoScrolling) {
-                btn.innerHTML = "⏸️ 停止滚动"; btn.style.background = "#f59e0b"; 
+                btn.innerHTML = "⏸️"; btn.style.background = "#f59e0b"; 
                 scrollInterval = setInterval(() => {
                     window.scrollBy(0, 1);
                     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) window.scrollTo(0, 0);
                 }, 30);
             } else {
-                btn.innerHTML = "🔄 自动滚动"; btn.style.background = "#3b82f6"; clearInterval(scrollInterval);
+                btn.innerHTML = "🔄"; btn.style.background = "#3b82f6"; clearInterval(scrollInterval);
             }
-        }
-
-        function getCambodiaDateString() {
-            let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
-            return formatter.format(new Date());
         }
 
         document.getElementById('filterFactory').addEventListener('change', renderCards);
         document.getElementById('filterType').addEventListener('change', renderCards);
         document.getElementById('sortBy').addEventListener('change', renderCards);
+        document.getElementById('viewMode').addEventListener('change', renderCards); // 监听视角切换
 
         window.onload = () => {
-            datePicker.value = getCambodiaDateString();
-            loadDataForDate(datePicker.value);
+            let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
+            document.getElementById('viewDate').value = formatter.format(new Date());
+            loadDataForDate(document.getElementById('viewDate').value);
         };
 
-        datePicker.addEventListener('change', (e) => loadDataForDate(e.target.value));
+        document.getElementById('viewDate').addEventListener('change', (e) => loadDataForDate(e.target.value));
 
         function loadDataForDate(targetDate) {
-            const container = document.getElementById('cardsContainer');
-            const noDataMsg = document.getElementById('noDataMsg');
-            container.innerHTML = ''; noDataMsg.innerHTML = `📡 正在载入 ${targetDate} 的数据...`; noDataMsg.style.display = 'block';
-
             if (currentListenerRef) currentListenerRef.off();
             currentListenerRef = db.ref('production_data/' + targetDate);
             currentListenerRef.on('value', (snapshot) => {
@@ -121,14 +126,13 @@
 
         function renderCards() {
             const container = document.getElementById('cardsContainer'); const noDataMsg = document.getElementById('noDataMsg');
-            if (!globalData) { 
-                container.innerHTML = ''; noDataMsg.innerHTML = `📭 所选日期尚未有任何产线纪录。`; noDataMsg.style.display = 'block'; return; 
-            }
+            if (!globalData) { container.innerHTML = ''; noDataMsg.style.display = 'block'; return; }
             
             let linesArray = Object.values(globalData);
             let fFactory = document.getElementById('filterFactory').value;
             let fType = document.getElementById('filterType').value;
             let sortBy = document.getElementById('sortBy').value;
+            let viewMode = document.getElementById('viewMode').value;
 
             linesArray = linesArray.filter(item => {
                 if (fFactory !== "ALL" && item.factory !== fFactory) return false;
@@ -136,22 +140,25 @@
                 return true;
             });
 
-            if (linesArray.length === 0) { 
-                container.innerHTML = ''; noDataMsg.innerHTML = `⚠️ 找不到符合筛选条件的产线。`; noDataMsg.style.display = 'block'; return; 
-            }
+            if (linesArray.length === 0) { container.innerHTML = ''; noDataMsg.style.display = 'block'; return; }
             noDataMsg.style.display = 'none';
 
+            // 增强排序逻辑：加入不良率优先排序
             linesArray.sort((a, b) => {
-                if (sortBy === "line") {
-                    if (a.factory === b.factory) return a.line.localeCompare(b.line, undefined, {numeric: true, sensitivity: 'base'});
-                    return a.factory.localeCompare(b.factory);
-                } else if (sortBy === "rate") { return b.achievementRate - a.achievementRate; } 
-                else if (sortBy === "brand") { return (a.brand || "").localeCompare(b.brand || ""); }
+                if (sortBy === "rate") return b.achievementRate - a.achievementRate;
+                if (sortBy === "defect") {
+                    let rateA = (a.actualOutput > 0) ? (a.defectOutput || 0) / a.actualOutput : 0;
+                    let rateB = (b.actualOutput > 0) ? (b.defectOutput || 0) / b.actualOutput : 0;
+                    return rateB - rateA; // 不良率高的排前面
+                }
+                if (a.factory === b.factory) return a.line.localeCompare(b.line, undefined, {numeric: true});
+                return a.factory.localeCompare(b.factory);
             });
 
-            let newContainerHTML = ""; // 使用字串组合，避免画面闪烁
+            let newContainerHTML = ""; 
 
             linesArray.forEach(lineData => {
+                // 计算产出状态
                 let rateColorClass = "good";
                 if (lineData.elapsedMins > 1) {
                     if (lineData.achievementRate >= 100) rateColorClass = "good";
@@ -159,52 +166,84 @@
                     else rateColorClass = "danger";
                 }
 
+                // 心跳与状态灯
                 let statusDotClass = "status-dot"; let statusTitle = "运行中";
-
-                // 💓 核心修正：心跳断线侦测机制
                 let isStale = false;
                 if ((lineData.status === "RUNNING" || lineData.status === "PAUSED") && lineData.lastUpdateMs) {
-                    if (Date.now() - lineData.lastUpdateMs > 90000) { isStale = true; } // 90秒无响应算离线
+                    if (Date.now() - lineData.lastUpdateMs > 90000) isStale = true; 
                 }
-
                 if (lineData.status === "STOPPED") { statusDotClass = "status-dot stopped"; statusTitle = "已结束"; } 
                 else if (lineData.status === "OFFLINE" || isStale) { statusDotClass = "status-dot offline"; statusTitle = "离线 / 无响应"; }
                 else if (lineData.status === "PAUSED") { statusDotClass = "status-dot paused"; statusTitle = "已暂停"; } 
                 else if (lineData.status === "STANDBY") { statusDotClass = "status-dot standby"; statusTitle = "待命 (未开工)"; }
 
-                // 計算不良率
+                // 计算不良率
                 let defectCount = lineData.defectOutput || 0;
                 let defectRate = 0;
                 if (lineData.actualOutput && lineData.actualOutput > 0) {
                     defectRate = (defectCount / lineData.actualOutput) * 100;
                 }
-                let defectRateStr = lineData.actualOutput > 0 ? defectRate.toFixed(1) + '%' : '0.0%';
+                let defectRateStr = defectRate.toFixed(1) + '%';
 
                 let contentHTML = "";
                 if (lineData.status === "STANDBY") {
                     contentHTML = `<div class="rate-container"><div class="standby-text">⚪ 等待产线开工</div></div>`;
                 } else {
-                    contentHTML = `
+                    // 🚀 根据视角切换渲染不同的区块
+                    
+                    // 模式 1：纯产量 (隐藏不良)
+                    let qtyBlock = `
                         <div class="data-row"><span>运作时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
                         <div class="data-row"><span>预期产量:</span><span class="data-value">${lineData.expectedOutput}</span></div>
                         <div class="data-row"><span>实际达成:</span><span class="data-value" style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></div>
-                        
-                        <div class="data-row" style="border-top: 1px solid #475569; padding-top:8px; margin-top:8px;">
-                            <span>不良数 / 不良率:</span>
-                            <span style="color: #ef4444; font-weight:bold; font-size:20px;">${defectCount} <small style="font-size:14px;">(${defectRateStr})</small></span>
-                        </div>
-
                         <div class="rate-container">
                             <div class="rate-title">达标率 (最后更新: ${lineData.lastUpdate})</div>
                             <div class="rate-big-value ${rateColorClass}">${lineData.achievementRate.toFixed(1)}%</div>
                         </div>
                     `;
+                    
+                    // 模式 2：纯质量 (放大不良率)
+                    let qualBlock = `
+                        <div class="data-row"><span>实际达成:</span><span class="data-value" style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></div>
+                        <div class="rate-container" style="border-top: 2px solid #ef4444; margin-top: 15px; padding-top: 15px;">
+                            <div class="rate-title" style="color: #fca5a5;">不良数 / 不良率 (最后更新: ${lineData.lastUpdate})</div>
+                            <div style="margin-top: 10px;">
+                                <span class="defect-text" style="font-size: 50px;">${defectCount}</span>
+                                <span class="defect-text" style="font-size: 70px; margin-left:10px;">(${defectRateStr})</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // 模式 3：综合模式 (一开二)
+                    let allBlock = `
+                        <div class="data-row"><span>运作时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
+                        <div class="data-row"><span>预期/实际:</span><span class="data-value" style="font-size: 20px;">${lineData.expectedOutput} / <span style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></span></div>
+                        
+                        <div style="display: flex; justify-content: space-between; margin-top: auto; border-top: 1px dashed #334155; padding-top: 10px;">
+                            <div style="width: 48%; text-align: center;">
+                                <div class="rate-title">达标率</div>
+                                <div class="rate-big-value ${rateColorClass}" style="font-size: 40px;">${lineData.achievementRate.toFixed(1)}%</div>
+                            </div>
+                            <div style="width: 48%; text-align: center; border-left: 1px dashed #334155;">
+                                <div class="rate-title" style="color: #fca5a5;">不良数 / 率</div>
+                                <div class="defect-text" style="line-height: 1.1; margin-top: 5px;">
+                                    <span style="font-size: 28px;">${defectCount}</span><br>
+                                    <span style="font-size: 38px;">${defectRateStr}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="font-size: 11px; color: #475569; text-align: right; margin-top: 8px;">更新: ${lineData.lastUpdate}</div>
+                    `;
+
+                    if (viewMode === "QTY") contentHTML = qtyBlock;
+                    else if (viewMode === "QUAL") contentHTML = qualBlock;
+                    else contentHTML = allBlock;
                 }
 
                 newContainerHTML += `
                     <div class="line-card">
                         <div class="line-header"><span>🏭 ${lineData.factory} - ${lineData.line}</span><span class="${statusDotClass}" title="${statusTitle}"></span></div>
-                        <div class="data-row"><span>品牌 / 单号:</span><span style="color: #38bdf8; font-weight:bold;">${lineData.brand} (${lineData.order})</span></div>
+                        <div class="data-row"><span>品牌 / 单号:</span><span style="color: #38bdf8; font-weight:bold;">${lineData.brand} <small>(${lineData.order})</small></span></div>
                         ${contentHTML}
                     </div>
                 `;
