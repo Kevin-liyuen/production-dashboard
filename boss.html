@@ -16,7 +16,6 @@
         .filter-group input, .filter-group select { background: transparent; color: #fff; border: none; font-size: 15px; font-weight: bold; outline: none; cursor: pointer; }
         .filter-group select option { background: #0f172a; }
         
-        /* 特殊视角过滤器样式 */
         .view-filter { border-color: #f472b6 !important; background: rgba(244, 114, 182, 0.1) !important; }
         
         .btn-scroll { background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
@@ -40,11 +39,10 @@
         .rate-title { font-size: 13px; color: #94a3b8; }
         .rate-big-value { font-size: 50px; font-weight: bold; line-height: 1.1; margin-top: 5px; font-family: 'Courier New', Courier, monospace; }
         
+        /* 🔴🟡🟢 三色状态逻辑 */
         .good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
         .warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
         .danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
-        
-        .defect-text { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); font-family: 'Courier New', monospace; font-weight: bold;}
         
         .standby-text { color: #94a3b8; font-size: 24px; margin-top: 15px; text-align: center;}
         #noDataMsg { text-align: center; font-size: 24px; color: #64748b; margin-top: 100px; display: none; }
@@ -86,7 +84,7 @@
         const db = firebase.database();
 
         let currentListenerRef = null; let globalData = null; 
-        setInterval(renderCards, 5000); // 5秒心跳刷新
+        setInterval(renderCards, 5000); 
 
         let scrollInterval = null; let isAutoScrolling = false;
         function toggleAutoScroll() {
@@ -106,7 +104,7 @@
         document.getElementById('filterFactory').addEventListener('change', renderCards);
         document.getElementById('filterType').addEventListener('change', renderCards);
         document.getElementById('sortBy').addEventListener('change', renderCards);
-        document.getElementById('viewMode').addEventListener('change', renderCards); // 监听视角切换
+        document.getElementById('viewMode').addEventListener('change', renderCards); 
 
         window.onload = () => {
             let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
@@ -143,13 +141,12 @@
             if (linesArray.length === 0) { container.innerHTML = ''; noDataMsg.style.display = 'block'; return; }
             noDataMsg.style.display = 'none';
 
-            // 增强排序逻辑：加入不良率优先排序
             linesArray.sort((a, b) => {
                 if (sortBy === "rate") return b.achievementRate - a.achievementRate;
                 if (sortBy === "defect") {
                     let rateA = (a.actualOutput > 0) ? (a.defectOutput || 0) / a.actualOutput : 0;
                     let rateB = (b.actualOutput > 0) ? (b.defectOutput || 0) / b.actualOutput : 0;
-                    return rateB - rateA; // 不良率高的排前面
+                    return rateB - rateA; 
                 }
                 if (a.factory === b.factory) return a.line.localeCompare(b.line, undefined, {numeric: true});
                 return a.factory.localeCompare(b.factory);
@@ -158,7 +155,7 @@
             let newContainerHTML = ""; 
 
             linesArray.forEach(lineData => {
-                // 计算产出状态
+                // 产量达标率颜色
                 let rateColorClass = "good";
                 if (lineData.elapsedMins > 1) {
                     if (lineData.achievementRate >= 100) rateColorClass = "good";
@@ -166,7 +163,7 @@
                     else rateColorClass = "danger";
                 }
 
-                // 心跳与状态灯
+                // 状态灯
                 let statusDotClass = "status-dot"; let statusTitle = "运行中";
                 let isStale = false;
                 if ((lineData.status === "RUNNING" || lineData.status === "PAUSED") && lineData.lastUpdateMs) {
@@ -177,19 +174,28 @@
                 else if (lineData.status === "PAUSED") { statusDotClass = "status-dot paused"; statusTitle = "已暂停"; } 
                 else if (lineData.status === "STANDBY") { statusDotClass = "status-dot standby"; statusTitle = "待命 (未开工)"; }
 
-                // 计算不良率
+                // ============================================
+                // 🛡️ 核心修改：不良率逻辑与三色警戒线设定
+                // ============================================
                 let defectCount = lineData.defectOutput || 0;
                 let defectRate = 0;
                 if (lineData.actualOutput && lineData.actualOutput > 0) {
                     defectRate = (defectCount / lineData.actualOutput) * 100;
                 }
                 let defectRateStr = defectRate.toFixed(1) + '%';
+                
+                let defectColorClass = "good"; // 预设 < 6% 为绿色
+                if (defectRate >= 8) {
+                    defectColorClass = "danger"; // >= 8% 红色
+                } else if (defectRate >= 6) {
+                    defectColorClass = "warning"; // 6% - 8% 黄色
+                }
+                // ============================================
 
                 let contentHTML = "";
                 if (lineData.status === "STANDBY") {
                     contentHTML = `<div class="rate-container"><div class="standby-text">⚪ 等待产线开工</div></div>`;
                 } else {
-                    // 🚀 根据视角切换渲染不同的区块
                     
                     // 模式 1：纯产量 (隐藏不良)
                     let qtyBlock = `
@@ -202,19 +208,19 @@
                         </div>
                     `;
                     
-                    // 模式 2：纯质量 (放大不良率)
+                    // 模式 2：纯质量 (放大不良率，套用红黄绿颜色)
                     let qualBlock = `
                         <div class="data-row"><span>实际达成:</span><span class="data-value" style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></div>
-                        <div class="rate-container" style="border-top: 2px solid #ef4444; margin-top: 15px; padding-top: 15px;">
-                            <div class="rate-title" style="color: #fca5a5;">不良数 / 不良率 (最后更新: ${lineData.lastUpdate})</div>
+                        <div class="rate-container" style="border-top: 1px dashed #334155; margin-top: 15px; padding-top: 15px;">
+                            <div class="rate-title">不良数 / 不良率 (最后更新: ${lineData.lastUpdate})</div>
                             <div style="margin-top: 10px;">
-                                <span class="defect-text" style="font-size: 50px;">${defectCount}</span>
-                                <span class="defect-text" style="font-size: 70px; margin-left:10px;">(${defectRateStr})</span>
+                                <span class="${defectColorClass}" style="font-size: 50px; font-family: 'Courier New', Courier, monospace; font-weight: bold;">${defectCount}</span>
+                                <span class="${defectColorClass}" style="font-size: 70px; margin-left:10px; font-family: 'Courier New', Courier, monospace; font-weight: bold;">(${defectRateStr})</span>
                             </div>
                         </div>
                     `;
                     
-                    // 模式 3：综合模式 (一开二)
+                    // 模式 3：综合模式 (一开二，套用红黄绿颜色)
                     let allBlock = `
                         <div class="data-row"><span>运作时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
                         <div class="data-row"><span>预期/实际:</span><span class="data-value" style="font-size: 20px;">${lineData.expectedOutput} / <span style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></span></div>
@@ -225,10 +231,10 @@
                                 <div class="rate-big-value ${rateColorClass}" style="font-size: 40px;">${lineData.achievementRate.toFixed(1)}%</div>
                             </div>
                             <div style="width: 48%; text-align: center; border-left: 1px dashed #334155;">
-                                <div class="rate-title" style="color: #fca5a5;">不良数 / 率</div>
-                                <div class="defect-text" style="line-height: 1.1; margin-top: 5px;">
-                                    <span style="font-size: 28px;">${defectCount}</span><br>
-                                    <span style="font-size: 38px;">${defectRateStr}</span>
+                                <div class="rate-title">不良数 / 率</div>
+                                <div style="line-height: 1.1; margin-top: 5px;">
+                                    <span class="${defectColorClass}" style="font-size: 28px; font-family: 'Courier New', monospace; font-weight: bold;">${defectCount}</span><br>
+                                    <span class="${defectColorClass}" style="font-size: 38px; font-family: 'Courier New', monospace; font-weight: bold;">${defectRateStr}</span>
                                 </div>
                             </div>
                         </div>
