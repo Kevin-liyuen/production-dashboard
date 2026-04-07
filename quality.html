@@ -16,7 +16,6 @@
         
         .defect-value { font-size: 70px; margin: 15px 0; font-family: 'Courier New', monospace; text-align: center; cursor: pointer; border-bottom: 2px dashed #475569; display: inline-block; padding: 0 20px; transition: 0.3s;}
         
-        /* 🔴🟡🟢 三色状态逻辑 */
         .c-good { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
         .c-warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.5); }
         .c-danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
@@ -33,9 +32,10 @@
         <div class="panel" style="text-align: center;">
             <h2 style="color: #facc15;">🔒 质量检测授权</h2>
             <p style="color: #94a3b8;">请输入 QC 专属通行码</p>
-            <input type="password" id="pinInput" placeholder="***" style="font-size: 24px; text-align: center; width: 150px; margin: 15px 0;">
+            <input type="password" id="pinInput" placeholder="请输入密码" style="font-size: 20px; text-align: center; width: 200px; margin: 15px 0;">
             <br>
             <button class="btn-fetch" onclick="verifyQC()" style="width: 150px; font-size: 18px;">进入系统</button>
+            <p id="pinError" style="color: #ef4444; display: none; margin-top: 10px; font-weight: bold;">❌ 密码错误</p>
         </div>
     </div>
 
@@ -87,11 +87,21 @@
     </div>
 
     <script>
-        function verifyQC() {
-            let hash = 0; let str = document.getElementById('pinInput').value;
+        function hashPIN(str) {
+            let hash = 0;
             for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
-            if (hash.toString() === "54615") document.getElementById('authOverlay').style.display = 'none';
-            else { alert("❌ 密码错误！"); document.getElementById('pinInput').value = ''; }
+            return hash.toString();
+        }
+        const QC_HASH = "1634338"; // 5821
+
+        function verifyQC() {
+            let input = document.getElementById('pinInput').value;
+            if (hashPIN(input) === QC_HASH) {
+                document.getElementById('authOverlay').style.display = 'none';
+            } else {
+                document.getElementById('pinError').style.display = 'block';
+                document.getElementById('pinInput').value = '';
+            }
         }
         document.getElementById('pinInput').addEventListener("keypress", (e) => { if (e.key === "Enter") verifyQC(); });
 
