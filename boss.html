@@ -21,13 +21,11 @@
         .btn-scroll { background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
         .btn-scroll:hover { opacity: 0.8; }
         
-        /* 🔲 卡片模式容器 */
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
         .line-card { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 15px 20px; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: 0.3s; display: flex; flex-direction: column;}
         .line-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.6); border-color: #38bdf8;}
         .line-header { font-size: 24px; font-weight: bold; color: #fff; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
-        /* 📝 简易列表模式容器与行样式 (全新加入) */
         .list-container { display: flex; flex-direction: column; gap: 10px; }
         .list-row { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; flex-wrap: wrap;}
         .list-row:hover { border-color: #38bdf8; background: rgba(30, 41, 59, 1); transform: scale(1.01);}
@@ -37,7 +35,6 @@
         .list-title { font-size: 12px; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;}
         .list-val { font-size: 22px; font-weight: bold; color: #fff; font-family: 'Courier New', Courier, monospace;}
 
-        /* 状态灯 */
         .status-dot { height: 16px; width: 16px; background-color: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981; animation: blink 1.5s infinite;}
         .status-dot.paused { background-color: #facc15; box-shadow: 0 0 10px #facc15; animation: none;} 
         .status-dot.stopped { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; animation: none;} 
@@ -52,7 +49,6 @@
         .rate-title { font-size: 13px; color: #94a3b8; }
         .rate-big-value { font-size: 50px; font-weight: bold; line-height: 1.1; margin-top: 5px; font-family: 'Courier New', Courier, monospace; }
         
-        /* 🔴🟡🟢 三色状态 */
         .good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
         .warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
         .danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
@@ -60,43 +56,80 @@
         
         .standby-text { color: #94a3b8; font-size: 24px; margin-top: 15px; text-align: center;}
         #noDataMsg { text-align: center; font-size: 24px; color: #64748b; margin-top: 100px; display: none; }
+
+        #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #00e5ff; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);}
+        .auth-box input { background: #0f172a; color: #fff; border: 1px solid #00e5ff; font-size: 20px; text-align: center; padding: 10px; margin: 15px 0; border-radius: 6px; width: 220px; }
+        .auth-box button { background: #00e5ff; color: #0b0f19; border: none; font-size: 20px; padding: 10px 40px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;}
     </style>
 </head>
 <body>
 
-    <div class="top-bar">
-        <h1>🌐 全局实时监控</h1>
-        <div class="filters">
-            <div class="filter-group"><input type="date" id="viewDate"></div>
-            <div class="filter-group"><select id="filterFactory"><option value="ALL">全厂</option><option value="LY">LY</option><option value="LFY">LFY</option></select></div>
-            <div class="filter-group">
-                <select id="filterType">
-                    <option value="ALL">全类型</option>
-                    <option value="成型">成型</option>
-                    <option value="针车">针车</option>
-                    <option value="组底">组底</option>
-                </select>
-            </div>
-            <div class="filter-group" style="border-color: #facc15;"><label>🔽</label><select id="sortBy"><option value="line">默认排序</option><option value="rate">达标率优先</option><option value="defect">不良率优先</option></select></div>
-            
-            <div class="filter-group view-filter">
-                <label style="color: #f472b6;">👁️ 视角</label>
-                <select id="viewMode" style="color: #f472b6;">
-                    <option value="ALL">综合看板 (产量+质量)</option>
-                    <option value="QTY">产量看板 (隐藏不良)</option>
-                    <option value="QUAL">质量看板 (专注不良)</option>
-                    <option value="SIMPLE">📝 简易列表 (高密度排版)</option>
-                </select>
-            </div>
-            
-            <button id="btnAutoScroll" class="btn-scroll" onclick="toggleAutoScroll()">🔄</button>
+    <div id="authOverlay">
+        <div class="auth-box">
+            <h2 style="color: #00e5ff; margin-top:0;">📊 全局看板授权</h2>
+            <p style="color: #94a3b8;">请输入管理者密码</p>
+            <input type="password" id="pinInput" placeholder="请输入密码">
+            <br>
+            <button onclick="verifyBoss()">开启看板</button>
+            <p id="pinError" style="color: #ef4444; display: none; margin-top: 15px; font-weight: bold;">❌ 密码错误</p>
         </div>
     </div>
-    <div id="noDataMsg">📡 正在搜寻数据... </div>
-    
-    <div class="grid-container" id="cardsContainer"></div>
+
+    <div id="mainContent" style="display: none;">
+        <div class="top-bar">
+            <h1>🌐 全局实时监控</h1>
+            <div class="filters">
+                <div class="filter-group"><input type="date" id="viewDate"></div>
+                <div class="filter-group"><select id="filterFactory"><option value="ALL">全厂</option><option value="LY">LY</option><option value="LFY">LFY</option></select></div>
+                <div class="filter-group">
+                    <select id="filterType">
+                        <option value="ALL">全类型</option>
+                        <option value="成型">成型</option>
+                        <option value="针车">针车</option>
+                        <option value="组底">组底</option>
+                    </select>
+                </div>
+                <div class="filter-group" style="border-color: #facc15;"><label>🔽</label><select id="sortBy"><option value="line">默认排序</option><option value="rate">达标率优先</option><option value="defect">不良率优先</option></select></div>
+                
+                <div class="filter-group view-filter">
+                    <label style="color: #f472b6;">👁️ 视角</label>
+                    <select id="viewMode" style="color: #f472b6;">
+                        <option value="ALL">综合看板 (产量+质量)</option>
+                        <option value="QTY">产量看板 (隐藏不良)</option>
+                        <option value="QUAL">质量看板 (专注不良)</option>
+                        <option value="SIMPLE">📝 简易列表 (高密度排版)</option>
+                    </select>
+                </div>
+                
+                <button id="btnAutoScroll" class="btn-scroll" onclick="toggleAutoScroll()">🔄</button>
+            </div>
+        </div>
+        <div id="noDataMsg">📡 正在搜寻数据... </div>
+        <div class="grid-container" id="cardsContainer"></div>
+    </div>
 
     <script>
+        function hashPIN(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
+            return hash.toString();
+        }
+        const BOSS_HASH = "1690049"; // 7415
+
+        function verifyBoss() {
+            let input = document.getElementById('pinInput').value;
+            if (hashPIN(input) === BOSS_HASH) {
+                document.getElementById('authOverlay').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+                initBoard(); // 登入成功才初始化数据加载
+            } else {
+                document.getElementById('pinError').style.display = 'block';
+                document.getElementById('pinInput').value = '';
+            }
+        }
+        document.getElementById('pinInput').addEventListener("keypress", (e) => { if (e.key === "Enter") verifyBoss(); });
+
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
@@ -107,7 +140,13 @@
         const db = firebase.database();
 
         let currentListenerRef = null; let globalData = null; 
-        setInterval(renderCards, 5000); 
+
+        function initBoard() {
+            setInterval(renderCards, 5000); 
+            let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
+            document.getElementById('viewDate').value = formatter.format(new Date());
+            loadDataForDate(document.getElementById('viewDate').value);
+        }
 
         let scrollInterval = null; let isAutoScrolling = false;
         function toggleAutoScroll() {
@@ -128,13 +167,6 @@
         document.getElementById('filterType').addEventListener('change', renderCards);
         document.getElementById('sortBy').addEventListener('change', renderCards);
         document.getElementById('viewMode').addEventListener('change', renderCards); 
-
-        window.onload = () => {
-            let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
-            document.getElementById('viewDate').value = formatter.format(new Date());
-            loadDataForDate(document.getElementById('viewDate').value);
-        };
-
         document.getElementById('viewDate').addEventListener('change', (e) => loadDataForDate(e.target.value));
 
         function loadDataForDate(targetDate) {
@@ -155,7 +187,6 @@
             let sortBy = document.getElementById('sortBy').value;
             let viewMode = document.getElementById('viewMode').value;
 
-            // 动态切换外层容器的 CSS 布局
             if (viewMode === "SIMPLE") {
                 container.className = "list-container";
             } else {
@@ -185,7 +216,6 @@
             let newContainerHTML = ""; 
 
             linesArray.forEach(lineData => {
-                // 产量达标率颜色
                 let rateColorClass = "good";
                 if (lineData.elapsedMins > 1) {
                     if (lineData.achievementRate >= 100) rateColorClass = "good";
@@ -193,7 +223,6 @@
                     else rateColorClass = "danger";
                 }
 
-                // 状态灯
                 let statusDotClass = "status-dot"; let statusTitle = "运行中";
                 let isStale = false;
                 if ((lineData.status === "RUNNING" || lineData.status === "PAUSED") && lineData.lastUpdateMs) {
@@ -204,7 +233,6 @@
                 else if (lineData.status === "PAUSED") { statusDotClass = "status-dot paused"; statusTitle = "已暂停"; } 
                 else if (lineData.status === "STANDBY") { statusDotClass = "status-dot standby"; statusTitle = "待命"; }
 
-                // 质量逻辑
                 let defectCount = lineData.defectOutput || 0;
                 let defectRate = 0;
                 if (lineData.actualOutput && lineData.actualOutput > 0) {
@@ -216,9 +244,6 @@
                 if (defectRate >= 8) defectColorClass = "danger"; 
                 else if (defectRate >= 6) defectColorClass = "warning"; 
 
-                // ==========================================
-                // 📝 模式 4：简易列表模式 (横向高密度)
-                // ==========================================
                 if (viewMode === "SIMPLE") {
                     let leftBorderColor = lineData.status === "STANDBY" ? "#94a3b8" : (rateColorClass === 'good' ? '#10b981' : (rateColorClass === 'warning' ? '#facc15' : '#ef4444'));
                     
@@ -260,12 +285,9 @@
                             </div>
                         </div>
                     `;
-                    return; // 跳过下方卡片渲染
+                    return; 
                 }
 
-                // ==========================================
-                // 🔲 模式 1, 2, 3：卡片模式 (常规)
-                // ==========================================
                 let contentHTML = "";
                 if (lineData.status === "STANDBY") {
                     contentHTML = `<div class="rate-container"><div class="standby-text">⚪ 等待产线开工</div></div>`;
