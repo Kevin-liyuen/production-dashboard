@@ -39,10 +39,11 @@
         .rate-title { font-size: 13px; color: #94a3b8; }
         .rate-big-value { font-size: 50px; font-weight: bold; line-height: 1.1; margin-top: 5px; font-family: 'Courier New', Courier, monospace; }
         
-        /* 🔴🟡🟢 三色状态逻辑 */
         .good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
         .warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
         .danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+        
+        .defect-text { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); font-family: 'Courier New', monospace; font-weight: bold;}
         
         .standby-text { color: #94a3b8; font-size: 24px; margin-top: 15px; text-align: center;}
         #noDataMsg { text-align: center; font-size: 24px; color: #64748b; margin-top: 100px; display: none; }
@@ -55,7 +56,14 @@
         <div class="filters">
             <div class="filter-group"><input type="date" id="viewDate"></div>
             <div class="filter-group"><select id="filterFactory"><option value="ALL">全厂</option><option value="LY">LY</option><option value="LFY">LFY</option></select></div>
-            <div class="filter-group"><select id="filterType"><option value="ALL">全类型</option><option value="成型">成型</option><option value="针车">针车</option></select></div>
+            <div class="filter-group">
+                <select id="filterType">
+                    <option value="ALL">全类型</option>
+                    <option value="成型">成型</option>
+                    <option value="针车">针车</option>
+                    <option value="组底">组底</option>
+                </select>
+            </div>
             <div class="filter-group" style="border-color: #facc15;"><label>🔽</label><select id="sortBy"><option value="line">默认排序</option><option value="rate">达标率优先</option><option value="defect">不良率优先</option></select></div>
             
             <div class="filter-group view-filter">
@@ -155,7 +163,6 @@
             let newContainerHTML = ""; 
 
             linesArray.forEach(lineData => {
-                // 产量达标率颜色
                 let rateColorClass = "good";
                 if (lineData.elapsedMins > 1) {
                     if (lineData.achievementRate >= 100) rateColorClass = "good";
@@ -163,7 +170,6 @@
                     else rateColorClass = "danger";
                 }
 
-                // 状态灯
                 let statusDotClass = "status-dot"; let statusTitle = "运行中";
                 let isStale = false;
                 if ((lineData.status === "RUNNING" || lineData.status === "PAUSED") && lineData.lastUpdateMs) {
@@ -174,9 +180,6 @@
                 else if (lineData.status === "PAUSED") { statusDotClass = "status-dot paused"; statusTitle = "已暂停"; } 
                 else if (lineData.status === "STANDBY") { statusDotClass = "status-dot standby"; statusTitle = "待命 (未开工)"; }
 
-                // ============================================
-                // 🛡️ 核心修改：不良率逻辑与三色警戒线设定
-                // ============================================
                 let defectCount = lineData.defectOutput || 0;
                 let defectRate = 0;
                 if (lineData.actualOutput && lineData.actualOutput > 0) {
@@ -184,20 +187,17 @@
                 }
                 let defectRateStr = defectRate.toFixed(1) + '%';
                 
-                let defectColorClass = "good"; // 预设 < 6% 为绿色
+                let defectColorClass = "good"; 
                 if (defectRate >= 8) {
-                    defectColorClass = "danger"; // >= 8% 红色
+                    defectColorClass = "danger"; 
                 } else if (defectRate >= 6) {
-                    defectColorClass = "warning"; // 6% - 8% 黄色
+                    defectColorClass = "warning"; 
                 }
-                // ============================================
 
                 let contentHTML = "";
                 if (lineData.status === "STANDBY") {
                     contentHTML = `<div class="rate-container"><div class="standby-text">⚪ 等待产线开工</div></div>`;
                 } else {
-                    
-                    // 模式 1：纯产量 (隐藏不良)
                     let qtyBlock = `
                         <div class="data-row"><span>运作时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
                         <div class="data-row"><span>预期产量:</span><span class="data-value">${lineData.expectedOutput}</span></div>
@@ -208,7 +208,6 @@
                         </div>
                     `;
                     
-                    // 模式 2：纯质量 (放大不良率，套用红黄绿颜色)
                     let qualBlock = `
                         <div class="data-row"><span>实际达成:</span><span class="data-value" style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></div>
                         <div class="rate-container" style="border-top: 1px dashed #334155; margin-top: 15px; padding-top: 15px;">
@@ -220,7 +219,6 @@
                         </div>
                     `;
                     
-                    // 模式 3：综合模式 (一开二，套用红黄绿颜色)
                     let allBlock = `
                         <div class="data-row"><span>运作时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
                         <div class="data-row"><span>预期/实际:</span><span class="data-value" style="font-size: 20px;">${lineData.expectedOutput} / <span style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></span></div>
