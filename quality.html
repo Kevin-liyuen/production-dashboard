@@ -13,7 +13,14 @@
         .form-group { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; justify-content: space-between; }
         input, select, button { background: #0f172a; color: #00e5ff; border: 1px solid #38bdf8; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 16px;}
         .info-display { background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #38bdf8; text-align: center; font-size: 18px;}
-        .defect-value { font-size: 90px; color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); margin: 15px 0; font-family: 'Courier New', monospace; text-align: center; cursor: pointer; border-bottom: 2px dashed #ef4444; display: inline-block; padding: 0 20px;}
+        
+        .defect-value { font-size: 70px; margin: 15px 0; font-family: 'Courier New', monospace; text-align: center; cursor: pointer; border-bottom: 2px dashed #475569; display: inline-block; padding: 0 20px; transition: 0.3s;}
+        
+        /* 🔴🟡🟢 三色状态逻辑 */
+        .c-good { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
+        .c-warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.5); }
+        .c-danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
+
         .btn-add { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-size: 40px; width: 100px; height: 100px; border-radius: 50%; border: none; cursor: pointer; transition: 0.3s; box-shadow: 0 0 15px rgba(239, 68, 68, 0.4); margin: 10px;}
         .btn-add:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(239, 68, 68, 0.7); }
         .btn-fetch { background: #3b82f6; color: white; width: 100%; margin-top: 10px; cursor: pointer; transition: 0.3s;}
@@ -53,8 +60,8 @@
         </div>
 
         <div id="inputArea" style="display:none; text-align: center;">
-            <div style="color: #94a3b8; font-weight: bold; margin-top: 15px;">当前累计不良数 (点击数字修改)</div>
-            <div class="defect-value" id="defectDisplay" onclick="manualEdit()">0</div>
+            <div style="color: #94a3b8; font-weight: bold; margin-top: 15px;">累计不良数 (不良率)</div>
+            <div class="defect-value c-good" id="defectDisplay" onclick="manualEdit()">0</div>
             <div>
                 <button class="btn-add" onclick="changeDefect(1)">+1</button>
             </div>
@@ -84,6 +91,7 @@
         const db = firebase.database();
 
         let currentDefects = 0;
+        let actualOutput = 0;
         let dbPath = "";
         let currentListener = null;
 
@@ -98,7 +106,6 @@
             let line = document.getElementById('lineInput').value;
             dbPath = `production_data/${date}/${factory}_${line}`;
 
-            // 🚀 核心升级：实时监听数据变化
             if (currentListener) currentListener.off(); 
 
             currentListener = db.ref(dbPath);
@@ -113,16 +120,15 @@
                 document.getElementById('orderInfo').style.display = "block";
                 document.getElementById('inputArea').style.display = "block";
                 
-                // 实时更新前线报产数
+                actualOutput = data.actualOutput || 0;
                 document.getElementById('infoText').innerHTML = `
                     <div style="color:#cbd5e1; font-size:16px;">品牌: <b>${data.brand}</b> | 单号: <b>${data.order}</b></div>
                     <div style="margin-top: 10px;">📦 现场报产数 (实时同步)</div>
-                    <div style="color:#00e5ff; font-size: 35px; font-weight:bold; font-family: monospace;">${data.actualOutput || 0}</div>
+                    <div style="color:#00e5ff; font-size: 35px; font-weight:bold; font-family: monospace;">${actualOutput}</div>
                 `;
                 
-                // 保持不良数与云端同步
                 currentDefects = data.defectOutput || 0;
-                document.getElementById('defectDisplay').innerText = currentDefects;
+                updateColorDisplay();
             });
         }
 
@@ -140,10 +146,25 @@
             }
         }
 
+        // 🛡️ 核心：不良率颜色渲染逻辑
+        function updateColorDisplay() {
+            let rate = 0;
+            if (actualOutput > 0) rate = (currentDefects / actualOutput) * 100;
+            
+            let displayElement = document.getElementById('defectDisplay');
+            displayElement.innerText = `${currentDefects} (${rate.toFixed(1)}%)`;
+            
+            if (rate >= 8) {
+                displayElement.className = "defect-value c-danger";
+            } else if (rate >= 6) {
+                displayElement.className = "defect-value c-warning";
+            } else {
+                displayElement.className = "defect-value c-good";
+            }
+        }
+
         function updateToCloud() {
-            // 乐观 UI 更新
-            document.getElementById('defectDisplay').innerText = currentDefects;
-            // 推送至 Firebase
+            updateColorDisplay();
             db.ref(dbPath).update({
                 defectOutput: currentDefects,
                 lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (QC回报)"
