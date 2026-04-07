@@ -73,7 +73,7 @@
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; padding: 30px 40px; border-radius: 15px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); text-align: center; }
         .auth-box h2 { color: #00e5ff; margin-top: 0; font-size: 28px; letter-spacing: 2px; }
-        .auth-box input { font-size: 30px; letter-spacing: 10px; width: 200px; text-align: center; margin: 15px 0; }
+        .auth-box input { font-size: 24px; letter-spacing: 5px; width: 220px; text-align: center; margin: 15px 0; }
         .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; margin-bottom: 10px;}
     </style>
 </head>
@@ -83,7 +83,7 @@
         <div class="auth-box">
             <h2 id="authTitle">🔒 智能系统登入</h2>
             <p style="color: #cbd5e1;">请输入您的专属通行码</p>
-            <input type="password" id="pinInput" placeholder="******">
+            <input type="password" id="pinInput" placeholder="请输入密码">
             <br>
             <button class="btn-bulk" onclick="verifyPIN()">登入系统</button>
             <p id="pinError" style="color: #ef4444; display: none; margin-top: 10px; font-weight: bold;">❌ 密码错误，请重试</p>
@@ -172,8 +172,9 @@
             for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
             return hash.toString();
         }
-        const WORKER_HASH = "55608";   // 888
-        const PMC_HASH = "1662336";    // 6666
+        
+        const WORKER_HASH = "1509508"; // 1258
+        const PMC_HASH = "1573052";    // 3692
         let currentRole = ""; 
 
         function verifyPIN() {
@@ -224,18 +225,13 @@
         }
         function getCambodiaTimestamp(dateStr, timeStr) { return new Date(`${dateStr}T${timeStr}:00+07:00`).getTime(); }
 
-        // ==========================================
-        // 🚀 核心：自动扣减柬埔寨午饭时间 (11:30-12:30)
-        // ==========================================
         function getLunchDeductionMs(startMs, endMs) {
             if (!startMs || !endMs || startMs >= endMs) return 0;
             let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
             let dateStr = formatter.format(new Date(startMs)); 
-            // 设定当天的 11:30 和 12:30 为午饭时间
             let lunchStartMs = new Date(`${dateStr}T11:30:00+07:00`).getTime();
             let lunchEndMs = new Date(`${dateStr}T12:30:00+07:00`).getTime();
             
-            // 计算运行时间与午饭时间的重叠区间
             let overlapStart = Math.max(startMs, lunchStartMs);
             let overlapEnd = Math.min(endMs, lunchEndMs);
             return Math.max(0, overlapEnd - overlapStart);
@@ -245,21 +241,16 @@
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
             databaseURL: "https://factory-mes-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "factory-mes-2026",
-            storageBucket: "factory-mes-2026.firebasestorage.app",
-            messagingSenderId: "710873291817",
-            appId: "1:710873291817:web:92ea2aadc4dd895fb19038"
+            projectId: "factory-mes-2026"
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         let actualCount = 0; let timerInterval = null; 
         let isRunning = false; let isPaused = false; let isEnded = false;
-        
-        let chronologicalStartMs = null; // 真实开工绝对时间
+        let chronologicalStartMs = null; 
         let pauseDateMs = null; 
-        let accumulatedPauseMs = 0;      // 累计按暂停的时间
-        
+        let accumulatedPauseMs = 0;      
         let targetPoh = 0; let targetWorkers = 0; let dbRefPath = null;
 
         document.getElementById('dateInput').addEventListener('change', fetchPMCPlanList);
@@ -320,7 +311,7 @@
                     factory: factoryVal, line: lineVal, brand: brandVal, order: orderVal,
                     startTime: timeVal, poh: pohVal, workers: workersVal,
                     actualOutput: 0, expectedOutput: 0, achievementRate: 0, elapsedMins: 0,
-                    accumulatedPauseMs: 0, // 初始化暂停累计
+                    accumulatedPauseMs: 0, 
                     status: "STANDBY", 
                     lastUpdateMs: Date.now(),
                     lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
@@ -391,8 +382,7 @@
             if (confirm(`📡 寻找到运行中纪录 (目前产量: ${data.actualOutput})！是否直接恢复？`)) {
                 beginRunLogic(dateVal, data.startTime, data.factory, data.line, false);
                 if (data.status === "PAUSED") {
-                    // 如果原本是暂停状态，恢复时自动触发暂停逻辑
-                    isRunning = true; // 假装运行，让 togglePause 可以生效
+                    isRunning = true; 
                     togglePause(); 
                 }
             }
@@ -439,14 +429,13 @@
                 updateDashboard();
             } else if (isPaused) {
                 let pauseDuration = Date.now() - pauseDateMs; 
-                // 扣除掉暂停期间与午饭时间的重叠部分，防止双重扣减
                 let lunchPauseOverlap = getLunchDeductionMs(pauseDateMs, Date.now());
                 accumulatedPauseMs += (pauseDuration - lunchPauseOverlap); 
                 
                 isRunning = true; isPaused = false; pauseDateMs = null;
                 pauseBtn.innerHTML = "⏸️ 暂停"; pauseBtn.style.background = ""; 
                 document.getElementById('statusText').innerHTML = `系统状态：<span style="color:#10b981;">🟢 运行中</span>`;
-                db.ref(dbRefPath).update({ accumulatedPauseMs: accumulatedPauseMs }); // 储存累计暂停
+                db.ref(dbRefPath).update({ accumulatedPauseMs: accumulatedPauseMs }); 
                 timerInterval = setInterval(updateDashboard, 1000); updateDashboard();
             }
         }
@@ -499,7 +488,7 @@
             if (isEnded && !pauseDateMs) calculateTimeMs = Date.now(); 
 
             let rawMs = calculateTimeMs - chronologicalStartMs;
-            let lunchMs = getLunchDeductionMs(chronologicalStartMs, calculateTimeMs); // 自动计算扣除的午饭时间
+            let lunchMs = getLunchDeductionMs(chronologicalStartMs, calculateTimeMs);
             let activeMs = rawMs - lunchMs - accumulatedPauseMs;
 
             let elapsedMins = activeMs / 60000;
