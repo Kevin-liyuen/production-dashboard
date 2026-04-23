@@ -38,7 +38,6 @@
         .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
         .status-text { font-size: 14px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
         
-        /* 🚀 仪表板紧凑化 */
         .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; flex-grow: 0; margin-top: 5px;}
         .card { background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; padding: 10px; border-radius: 10px; position: relative; overflow: hidden; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;}
         .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; }
@@ -48,7 +47,11 @@
         .time-value { color: #38bdf8; font-size: 45px; font-weight: bold; font-family: 'Courier New', monospace; line-height: 1.1;}
         .time-unit { font-size: 18px; }
         
-        /* 🚀 巡线打卡输入区紧凑化 */
+        /* 🚀 预留给达标率预览的颜色 */
+        .c-good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
+        .c-warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.5); }
+        .c-danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+
         .patrol-entry { background: rgba(139, 92, 246, 0.1); border: 2px dashed #8b5cf6; padding: 12px; border-radius: 10px; margin-top: 10px; text-align: center; flex-grow: 1;}
         .patrol-input { font-size: 55px !important; text-align: center; width: 220px; padding: 5px; height: 70px; color: #8b5cf6 !important; background: #0f172a !important; border: 3px solid #8b5cf6 !important; border-radius: 10px; font-weight: bold; margin-bottom: 5px;}
         .btn-submit-patrol { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 22px; padding: 10px 20px; margin-top: 5px; width: 100%; box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);}
@@ -71,7 +74,6 @@
             .dashboard { grid-template-columns: 1fr; }
         }
 
-        /* 🚀 修复登录画面的按钮颜色 */
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; padding: 30px 40px; border-radius: 15px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); text-align: center; }
         .auth-box h2 { color: #00e5ff; margin-top: 0; font-size: 26px; letter-spacing: 2px; }
@@ -151,9 +153,9 @@
         <div class="dashboard">
             <div class="card"><h2>⏱️ 产线已运行时间</h2><div class="time-value" id="elapsedTimeDisplay">0.00 <span class="time-unit">小时</span></div></div>
             <div class="card" style="border-color:#8b5cf6;">
-                <h2>🎯 该刻预期产量 (快照基准)</h2>
+                <h2>🎯 当前预期目标 (实时更新)</h2>
                 <div class="time-value" id="expectedOutput" style="color: #f472b6;">0</div>
-                <div style="color: #94a3b8; font-size: 13px; margin-top: 3px;">(打卡时系统锁定的目标)</div>
+                <div style="color: #94a3b8; font-size: 13px; margin-top: 3px;">(将以此作为打卡达标率的分母)</div>
             </div>
         </div>
         
@@ -161,8 +163,11 @@
             <h2 style="color: #cbd5e1; margin: 0 0 5px 0;">📝 巡线员产量打卡 (Hourly Patrol)</h2>
             <p style="color: #94a3b8; margin: 0 0 10px 0; font-size: 14px;">请输入此刻机器上的<b>当前总累计产量</b></p>
             <input type="number" id="patrolOutputInput" class="patrol-input" value="0" min="0">
-            <br>
+            
+            <div id="ratePreview" style="font-size: 24px; font-weight: bold; font-family: monospace; margin-bottom: 5px;">当前达标率: 0.0%</div>
+            
             <div class="history-text" id="historyText">上次打卡: 尚未打卡 | 产量: 0</div>
+            <br>
             <button class="btn-submit-patrol" onclick="submitPatrolSnapshot()">💾 打卡：提交当前产量并计算达标率</button>
             <div id="lastUpdateHint" class="last-update-hint">✅ 打卡成功！看板数据已同步冻结。</div>
         </div>
@@ -220,8 +225,25 @@
         let timerInterval = null; let isRunning = false; let isPaused = false; let isEnded = false;
         let chronologicalStartMs = null; let pauseDateMs = null; let accumulatedPauseMs = 0;      
         let targetPoh = 0; let targetWorkers = 0; let dbRefPath = null; let actualCount = 0;
+        let currentExpectedOutput = 0; // 🚀 保存实时预期的全域变数
 
         document.getElementById('dateInput').addEventListener('change', fetchPMCPlanList);
+        
+        // 🚀 监听输入框变化，实时计算达标率
+        document.getElementById('patrolOutputInput').addEventListener('input', previewRate);
+
+        function previewRate() {
+            let val = parseInt(document.getElementById('patrolOutputInput').value) || 0;
+            let rate = 0; 
+            if (currentExpectedOutput > 0) rate = (val / currentExpectedOutput) * 100;
+            
+            let el = document.getElementById('ratePreview');
+            el.innerText = `当前达标率: ${rate.toFixed(1)}%`;
+            
+            if (rate >= 100) el.className = "c-good"; 
+            else if (rate >= 90) el.className = "c-warning"; 
+            else el.className = "c-danger";
+        }
 
         function fetchPMCPlanList() {
             if (currentRole !== "PMC") return;
@@ -250,7 +272,7 @@
                 db.ref(dbRefPath).set({
                     factory: factoryVal, line: lineVal, brand: brandVal, order: orderVal, startTime: timeVal, poh: pohVal, workers: workersVal,
                     actualOutput: 0, expectedOutput: 0, achievementRate: 0, elapsedMins: 0, accumulatedPauseMs: 0, status: "STANDBY", 
-                    lastReportExpected: 0, lastReportRate: 0, lastReportMs: 0, prodLastUpdateStr: "", // 新增前线专属打卡字串
+                    lastReportExpected: 0, lastReportRate: 0, lastReportMs: 0, prodLastUpdateStr: "", 
                     lastUpdateMs: Date.now(), lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
                 }).then(() => { alert("✅ 发布成功！"); document.getElementById('lineInput').value = ""; });
             });
@@ -270,7 +292,6 @@
                 actualCount = parseInt(data.actualOutput) || 0; document.getElementById('patrolOutputInput').value = actualCount;
                 accumulatedPauseMs = data.accumulatedPauseMs || 0;
 
-                // 🚀 核心修复：只读取前线专属的打卡记录 (prodLastUpdateStr)
                 let historyTxt = data.prodLastUpdateStr ? `上次打卡: ${data.prodLastUpdateStr} | 产量: ${actualCount}` : `上次打卡: 尚未打卡 | 产量: 0`;
                 document.getElementById('historyText').innerText = historyTxt;
 
@@ -334,6 +355,13 @@
             let activeMs = rawMs - lunchMs - accumulatedPauseMs;
             let elapsedMins = activeMs / 60000; if(elapsedMins < 0) elapsedMins = 0; let elapsedHours = elapsedMins / 60;
             document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span>`;
+            
+            // 🚀 核心：预期产量实时跟随秒表跳动
+            currentExpectedOutput = Math.floor((targetPoh * targetWorkers / 60) * elapsedMins);
+            document.getElementById('expectedOutput').innerText = currentExpectedOutput;
+            
+            // 连带触发预览更新
+            previewRate();
         }
 
         function submitPatrolSnapshot() {
@@ -349,20 +377,18 @@
             let activeMs = rawMs - lunchMs - accumulatedPauseMs;
             let elapsedMins = activeMs / 60000; if(elapsedMins < 0) elapsedMins = 0;
             
-            let expectedAtThisMoment = Math.floor((targetPoh * targetWorkers / 60) * elapsedMins);
+            // 使用目前的实时预期作为打卡基准
+            let expectedAtThisMoment = currentExpectedOutput;
             let rateAtThisMoment = 0; 
             if (expectedAtThisMoment > 0) rateAtThisMoment = (actualCount / expectedAtThisMoment) * 100;
-
-            document.getElementById('expectedOutput').innerText = expectedAtThisMoment;
             
             let updateTimeStr = new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' });
             document.getElementById('historyText').innerText = `上次打卡: ${updateTimeStr} | 产量: ${actualCount}`;
 
-            // 🚀 核心：写入专属于前线的 prodLastUpdateStr
             db.ref(dbRefPath).update({
                 actualOutput: actualCount, expectedOutput: expectedAtThisMoment, elapsedMins: elapsedMins, status: "RUNNING",
                 lastReportExpected: expectedAtThisMoment, lastReportRate: rateAtThisMoment, lastReportMs: Date.now(), 
-                prodLastUpdateStr: updateTimeStr, // 专属栏位
+                prodLastUpdateStr: updateTimeStr, 
                 lastUpdateMs: Date.now(), lastUpdate: updateTimeStr + " (前线打卡)"
             }).then(() => {
                 let hint = document.getElementById('lastUpdateHint');
