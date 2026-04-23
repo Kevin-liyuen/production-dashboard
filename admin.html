@@ -12,7 +12,16 @@
         h1 { color: #f472b6; text-shadow: 0 0 15px rgba(244, 114, 182, 0.6); letter-spacing: 2px; font-size: 28px; margin: 0;}
         .control-panel { display: flex; gap: 15px; align-items: center; background: rgba(30, 41, 59, 0.8); padding: 10px 20px; border-radius: 10px; border: 1px solid #334155;}
         .control-panel label { font-size: 16px; font-weight: bold; color: #38bdf8; }
-        .control-panel input[type="date"] { background-color: #0f172a; color: #fff; border: 2px solid #38bdf8; padding: 8px 15px; border-radius: 6px; font-size: 16px; font-weight: bold; outline: none; }
+        
+        /* 🚀 修复浏览器白底 */
+        input[type="date"], .grid-input, .grid-select, .auth-box input { background-color: #0f172a; color: #fff; outline: none; }
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 50px #0f172a inset !important;
+            -webkit-text-fill-color: #fff !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        .control-panel input[type="date"] { border: 2px solid #38bdf8; padding: 8px 15px; border-radius: 6px; font-size: 16px; font-weight: bold;}
         button { cursor: pointer; font-weight: bold; color: #fff; border: none; border-radius: 6px; transition: 0.3s; padding: 10px 20px; font-size: 16px;}
         .btn-refresh { background: linear-gradient(135deg, #3b82f6, #2563eb); }
         .btn-add { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
@@ -24,14 +33,14 @@
         td { padding: 8px; border-bottom: 1px solid #334155; vertical-align: middle;}
         tr:hover { background-color: rgba(244, 114, 182, 0.05); }
 
-        .grid-input, .grid-select { width: 100%; background-color: #0f172a; color: #fff; border: 1px solid #64748b; padding: 6px; border-radius: 4px; font-size: 15px; font-weight: bold; outline: none; text-align: center;}
+        .grid-input, .grid-select { width: 100%; border: 1px solid #64748b; padding: 6px; border-radius: 4px; font-size: 15px; font-weight: bold; text-align: center;}
         .grid-input:focus, .grid-select:focus { border-color: #f472b6; box-shadow: 0 0 8px rgba(244, 114, 182, 0.6); color: #f472b6; background-color: #1e293b;}
         .col-sm { width: 80px; } .col-md { width: 120px; }
         .btn-delete { background: #ef4444; padding: 6px 12px; font-size: 14px; }
 
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #f472b6; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(244, 114, 182, 0.3);}
-        .auth-box input { font-size: 24px; letter-spacing: 5px; width: 220px; text-align: center; margin: 20px 0; background: #0f172a; color: #fff; border: 2px solid #f472b6; border-radius: 8px; padding: 8px;}
+        .auth-box input { font-size: 24px; letter-spacing: 5px; width: 220px; text-align: center; margin: 20px 0; border: 2px solid #f472b6; border-radius: 8px; padding: 8px;}
         .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; background: #f472b6;}
 
         #noDataMsg { text-align: center; font-size: 20px; color: #64748b; margin-top: 50px; }
@@ -93,7 +102,10 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); const db = firebase.database();
 
         const factoryOptions = `<option value="LY">LY</option><option value="LFY">LFY</option>`;
-        const statusOptions = `<option value="STANDBY">⚪ 待命</option><option value="RUNNING">🟢 运行中</option><option value="PAUSED">🟡 已暂停</option><option value="STOPPED">🔴 已结束</option><option value="OFFLINE">⚫ 离线</option>`;
+        
+        // 🚀移除了离线选项
+        const statusOptions = `<option value="STANDBY">⚪ 待命</option><option value="RUNNING">🟢 运行中</option><option value="PAUSED">🟡 已暂停</option><option value="STOPPED">🔴 已结束</option>`;
+        
         const lineOptions = `<optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup><optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option><option value="针车7">针车7</option><option value="针车8">针车8</option><option value="针车9">针车9</option><option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option><option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option><option value="针车16">针车16</option><option value="针车17">针车17</option><option value="针车18">针车18</option><option value="针车19">针车19</option><option value="针车20">针车20</option><option value="针车21">针车21</option><option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option></optgroup><optgroup label="组底"><option value="组底1">组底1</option><option value="组底2">组底2</option><option value="组底3">组底3</option><option value="组底4">组底4</option><option value="组底5">组底5</option></optgroup>`;
 
         window.onload = () => { let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' }); document.getElementById('adminDate').value = formatter.format(new Date()); };
@@ -103,7 +115,7 @@
             tbody.innerHTML = ''; noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "⏳ 正在读取数据...";
             db.ref('production_data/' + targetDate).once('value').then((snapshot) => {
                 noDataMsg.style.display = 'none';
-                if (!snapshot.exists()) { noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "📭 此日期没有数据。"; return; }
+                if (!snapshot.exists()) { noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "📭 此日期没有数据，可新增空白行建立。"; return; }
                 let data = snapshot.val(); let linesArray = Object.keys(data).map(key => data[key]);
                 linesArray.sort((a, b) => { if(a.factory === b.factory) return a.line.localeCompare(b.line, undefined, {numeric: true}); return a.factory.localeCompare(b.factory); });
                 linesArray.forEach(line => appendRow(line));
@@ -113,8 +125,10 @@
         function appendRow(d = {}) {
             const tbody = document.getElementById('tableBody'); let tr = document.createElement('tr');
             let f = d.factory || 'LY'; let l = d.line || '成型A'; let s = d.status || 'STOPPED';
+            if(s === 'OFFLINE') s = 'STOPPED'; // 自动修复旧数据的离线状态
+            
             tr.dataset.accumulatedPauseMs = d.accumulatedPauseMs || 0;
-            tr.dataset.lastReportMs = d.lastReportMs || Date.now(); // 保留原有打卡时间，除非 Admin 重置
+            tr.dataset.lastReportMs = d.lastReportMs || Date.now(); 
 
             let fHTML = factoryOptions.replace(`value="${f}"`, `value="${f}" selected`); let lHTML = lineOptions.replace(`value="${l}"`, `value="${l}" selected`); let sHTML = statusOptions.replace(`value="${s}"`, `value="${s}" selected`);
             tr.innerHTML = `
@@ -187,9 +201,7 @@
                     let defectOutput = parseInt(tr.querySelector('.f-defect').value) || 0; 
                     let status = tr.querySelector('.f-status').value;
                     let accPause = parseInt(tr.dataset.accumulatedPauseMs) || 0;
-                    let oldReportMs = parseInt(tr.dataset.lastReportMs) || Date.now();
 
-                    // 🚀 Admin 保存时，强制用当前画面的时间重置快照
                     let expectedOutput = 0; let achievementRate = 0;
                     if (status !== "STANDBY") {
                         expectedOutput = Math.floor((poh * workers / 60) * elapsedMins);
@@ -200,12 +212,7 @@
                         factory: factory, line: line, brand: tr.querySelector('.f-brand').value || '', order: tr.querySelector('.f-order').value || '',
                         startTime: tr.querySelector('.f-start').value, elapsedMins: elapsedMins, poh: poh, workers: workers,
                         actualOutput: actualOutput, defectOutput: defectOutput, expectedOutput: expectedOutput, achievementRate: achievementRate, status: status,
-                        
-                        // 快照同步更新
-                        lastReportExpected: expectedOutput,
-                        lastReportRate: achievementRate,
-                        lastReportMs: Date.now(), // Admin 一改，视为最新打卡
-                        
+                        lastReportExpected: expectedOutput, lastReportRate: achievementRate, lastReportMs: Date.now(), 
                         accumulatedPauseMs: accPause, lastUpdateMs: Date.now(), 
                         lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (Admin)"
                     };
