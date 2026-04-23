@@ -7,31 +7,30 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .panel { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; padding: 20px; border-radius: 12px; width: 100%; max-width: 600px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        h1 { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.5); text-align: center; }
-        .form-group { margin-bottom: 15px; display: flex; align-items: center; gap: 10px; justify-content: space-between; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        .panel { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; padding: 15px 20px; border-radius: 12px; width: 100%; max-width: 600px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        h1 { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.5); text-align: center; margin: 0 0 10px 0; font-size: 24px;}
+        .form-group { margin-bottom: 12px; display: flex; align-items: center; gap: 10px; justify-content: space-between; }
         
-        input, select, button { background: #0f172a; color: #00e5ff; border: 1px solid #38bdf8; padding: 10px; border-radius: 6px; font-weight: bold; font-size: 16px;}
+        input, select, button { background: #0f172a; color: #00e5ff; border: 1px solid #38bdf8; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 15px;}
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
             -webkit-box-shadow: 0 0 0 50px #0f172a inset !important;
             -webkit-text-fill-color: #00e5ff !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
-        .info-display { background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #38bdf8; text-align: center; font-size: 18px;}
-        .patrol-input { font-size: 60px !important; text-align: center; width: 220px; padding: 10px; color: #ef4444 !important; background: #0f172a !important; border: 3px solid #ef4444 !important; border-radius: 10px; font-weight: bold; margin: 15px 0;}
+        .info-display { background: rgba(56, 189, 248, 0.1); padding: 12px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #38bdf8; text-align: center; font-size: 16px;}
+        .patrol-input { font-size: 55px !important; text-align: center; width: 200px; height: 65px; padding: 5px; color: #ef4444 !important; background: #0f172a !important; border: 3px solid #ef4444 !important; border-radius: 10px; font-weight: bold; margin: 10px 0;}
         .c-good { color: #10b981; text-shadow: 0 0 20px rgba(16, 185, 129, 0.5); }
         .c-warning { color: #facc15; text-shadow: 0 0 20px rgba(250, 204, 21, 0.5); }
         .c-danger { color: #ef4444; text-shadow: 0 0 20px rgba(239, 68, 68, 0.5); }
-        .btn-submit-patrol { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-size: 20px; padding: 15px 20px; width: 100%; box-shadow: 0 0 20px rgba(239, 68, 68, 0.5); cursor: pointer; border: none; border-radius: 8px;}
-        .btn-fetch { background: #3b82f6; color: white; width: 100%; margin-top: 10px; cursor: pointer;}
+        .btn-submit-patrol { background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; font-size: 20px; padding: 12px 20px; margin-top: 5px; width: 100%; box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); cursor: pointer; border: none; border-radius: 8px;}
+        .btn-fetch { background: #3b82f6; color: white; width: 100%; margin-top: 5px; cursor: pointer;}
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; z-index: 999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .last-update-hint { color: #10b981; font-weight: bold; margin-top: 10px; font-size: 16px; display: none;}
-        .history-text { color: #cbd5e1; font-size: 16px; margin-top: 10px; background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; display: inline-block;}
+        .last-update-hint { color: #10b981; font-weight: bold; margin-top: 5px; font-size: 15px; display: none;}
+        .history-text { color: #cbd5e1; font-size: 15px; margin-top: 5px; background: rgba(15, 23, 42, 0.8); padding: 6px; border-radius: 6px; display: inline-block;}
         
-        /* 🚀 专属产出资料对齐框 */
-        .sync-box { margin-top: 15px; padding: 12px; background: rgba(0, 229, 255, 0.05); border-radius: 8px; border: 1px dashed #00e5ff; }
+        .sync-box { margin-top: 10px; padding: 10px; background: rgba(0, 229, 255, 0.05); border-radius: 8px; border: 1px dashed #00e5ff; }
     </style>
 </head>
 <body>
@@ -61,13 +60,14 @@
             <div id="infoText">载入中...</div>
         </div>
 
-        <div id="inputArea" style="display:none; text-align: center; border-top: 1px dashed #334155; padding-top: 20px;">
-            <div style="color: #94a3b8; font-weight: bold;">输入此刻累积不良总数</div>
+        <div id="inputArea" style="display:none; text-align: center; border-top: 1px dashed #334155; padding-top: 15px;">
+            <div style="color: #94a3b8; font-weight: bold; font-size: 15px;">输入此刻累积不良总数</div>
             <input type="number" id="patrolDefectInput" class="patrol-input" value="0" min="0">
-            <div id="ratePreview" style="font-size: 24px; font-weight: bold; font-family: monospace; margin-bottom: 5px;">当前不良率: 0.0%</div>
+            <div id="ratePreview" style="font-size: 22px; font-weight: bold; font-family: monospace; margin-bottom: 5px;">当前不良率: 0.0%</div>
             <div class="history-text" id="historyText">上次打卡: -- | 不良数: 0</div>
-            <br><br>
-            <button class="btn-submit-patrol" onclick="submitDefectSnapshot()">💾 打卡：提交本小时不良数</button>
+            <div style="margin-top: 10px;">
+                <button class="btn-submit-patrol" onclick="submitDefectSnapshot()">💾 打卡：提交本小时不良数</button>
+            </div>
             <div id="lastUpdateHint" class="last-update-hint">✅ 质量数据打卡成功！</div>
         </div>
     </div>
@@ -107,16 +107,14 @@
                 let elapsedHours = (data.elapsedMins / 60).toFixed(2);
                 let prodTimeStr = data.lastReportMs ? new Date(data.lastReportMs).toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) : "尚未打卡";
                 
-                // 🚀 核心修改：明确对齐生产时间与分母
                 document.getElementById('infoText').innerHTML = `
-                    <div style="color:#cbd5e1; font-size:16px;">品牌: <b>${data.brand}</b> | 单号: <b>${data.order}</b></div>
+                    <div style="color:#cbd5e1; font-size:15px;">品牌: <b>${data.brand}</b> | 单号: <b>${data.order}</b></div>
                     <div class="sync-box">
-                        <div style="font-size: 15px; color: #94a3b8;">对应前线报产时间: <span style="color:#facc15">${prodTimeStr}</span> <small>(运行 ${elapsedHours} 小时)</small></div>
-                        <div style="margin-top: 8px; font-size: 16px;">📦 现场报产数 (分母): <span style="color:#00e5ff; font-size: 32px; font-weight:bold; font-family: monospace; vertical-align: middle;">${actualOutput}</span></div>
+                        <div style="font-size: 14px; color: #94a3b8;">对应前线报产时间: <span style="color:#facc15">${prodTimeStr}</span> <small>(运行 ${elapsedHours} 小时)</small></div>
+                        <div style="margin-top: 5px; font-size: 15px;">📦 现场报产数 (分母): <span style="color:#00e5ff; font-size: 28px; font-weight:bold; font-family: monospace; vertical-align: middle;">${actualOutput}</span></div>
                     </div>
                 `;
                 
-                // 🚀 核心修改：专属 QC 历史纪录，不受车间/Admin 更新影响
                 let historyTxt = data.qcLastUpdateStr ? `上次 QC 打卡: ${data.qcLastUpdateStr} | 累计不良: ${data.defectOutput || 0}` : `上次打卡: 尚未打卡 | 不良: 0`;
                 document.getElementById('historyText').innerText = historyTxt;
 
@@ -141,15 +139,14 @@
             let def = parseInt(document.getElementById('patrolDefectInput').value);
             if (isNaN(def) || def < 0) { alert("请输入有效数字！"); return; }
             
-            let updateTimeStr = new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' });
+            let updateTimeStr = new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (QC打卡)";
             document.getElementById('historyText').innerText = `上次 QC 打卡: ${updateTimeStr} | 累计不良: ${def}`;
 
-            // 写入独立的 qcLastUpdateStr 栏位
             db.ref(dbPath).update({
                 defectOutput: def, 
                 qcLastUpdateStr: updateTimeStr,
                 lastUpdateMs: Date.now(), 
-                lastUpdate: updateTimeStr + " (QC打卡)"
+                lastUpdate: updateTimeStr
             }).then(() => {
                 let hint = document.getElementById('lastUpdateHint');
                 hint.style.display = 'block'; setTimeout(() => hint.style.display = 'none', 3000);
