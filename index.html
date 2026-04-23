@@ -9,72 +9,75 @@
     <style>
         * { box-sizing: border-box; } 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0f19; color: #e2e8f0; margin: 0; padding: 10px 15px; min-height: 100vh; display: flex; flex-direction: column; overflow-y: auto; }
-        h1 { text-align: center; color: #00e5ff; text-shadow: 0 0 15px rgba(0, 229, 255, 0.6); letter-spacing: 3px; margin: 0 0 10px 0; font-size: 26px; flex-shrink: 0; }
-        .pmc-header { color: #f472b6 !important; text-shadow: 0 0 15px rgba(244, 114, 182, 0.6) !important; }
-        .mega-order-display { text-align: center; font-size: 24px; font-weight: bold; color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); margin-bottom: 10px; letter-spacing: 2px; display: none; background: rgba(250, 204, 21, 0.1); padding: 8px; border-radius: 8px; border: 2px solid rgba(250, 204, 21, 0.3); flex-shrink: 0; }
-        .panel { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; padding: 12px 15px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 10px; flex-shrink: 0; }
-        .input-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px; }
-        .form-group { display: flex; align-items: center; gap: 8px; }
-        .form-group label { font-weight: bold; color: #94a3b8; font-size: 15px; white-space: nowrap; } 
+        h1 { text-align: center; color: #00e5ff; text-shadow: 0 0 15px rgba(0, 229, 255, 0.6); letter-spacing: 3px; margin: 0 0 5px 0; font-size: 24px; flex-shrink: 0; }
         
-        /* 🚀 修复浏览器自动填充的白底问题 */
-        input[type="number"], input[type="time"], input[type="text"], input[type="date"], input[type="password"], select { background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; padding: 6px 10px; border-radius: 6px; font-size: 16px; font-weight: bold; outline: none; text-transform: uppercase; }
-        input:focus, select:focus { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
-        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 50px #0f172a inset !important;
-            -webkit-text-fill-color: #00e5ff !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
+        .pmc-header { color: #f472b6 !important; text-shadow: 0 0 15px rgba(244, 114, 182, 0.6) !important; }
+        .mega-order-display { text-align: center; font-size: 20px; font-weight: bold; color: #facc15; text-shadow: 0 0 10px rgba(250, 204, 21, 0.6); margin-bottom: 10px; letter-spacing: 1px; display: none; background: rgba(250, 204, 21, 0.1); padding: 5px; border-radius: 8px; border: 1px solid rgba(250, 204, 21, 0.3); flex-shrink: 0; }
+        .panel { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; padding: 10px 15px; border-radius: 10px; box-shadow: 0 0 15px rgba(0,0,0,0.5); margin-bottom: 10px; flex-shrink: 0; }
+        
+        .input-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .input-row:last-child { margin-bottom: 0; }
+        .form-group { display: flex; align-items: center; gap: 8px; }
+        .form-group label { font-weight: bold; color: #94a3b8; font-size: 14px; white-space: nowrap; } 
+        
+        input[type="number"], input[type="time"], input[type="text"], input[type="date"], input[type="password"], select { background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; padding: 6px 8px; border-radius: 6px; font-size: 15px; font-weight: bold; outline: none; text-transform: uppercase; }
+        input:focus, select:focus { border-color: #00e5ff; box-shadow: 0 0 10px rgba(0, 229, 255, 0.8); }
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active { -webkit-box-shadow: 0 0 0 50px #0f172a inset !important; -webkit-text-fill-color: #00e5ff !important; transition: background-color 5000s ease-in-out 0s; }
         input:disabled, select:disabled { background-color: #1e293b !important; color: #64748b !important; border-color: #475569 !important; cursor: not-allowed; -webkit-text-fill-color: #64748b !important;}
         
-        .short-input { width: 110px; } .long-input { width: 150px; }
+        .short-input { width: 100px; } .long-input { width: 140px; }
         select option { background-color: #0f172a; color: #e2e8f0; } select optgroup { color: #38bdf8; }
+        
         .action-buttons { display: flex; align-items: center; gap: 10px; flex-grow: 1; justify-content: flex-end; flex-wrap: wrap; }
-        button { padding: 6px 15px; font-size: 15px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; transition: all 0.3s ease; letter-spacing: 1px; }
+        button { padding: 6px 15px; font-size: 14px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: #fff; text-transform: uppercase; transition: all 0.3s ease; letter-spacing: 1px; }
         .btn-fetch { background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 0 10px rgba(139, 92, 246, 0.5); }
-        .btn-publish { background: linear-gradient(135deg, #f472b6, #be185d); box-shadow: 0 0 15px rgba(244, 114, 182, 0.6); font-size: 18px; padding: 10px 20px;}
+        .btn-publish { background: linear-gradient(135deg, #f472b6, #be185d); box-shadow: 0 0 15px rgba(244, 114, 182, 0.6); font-size: 16px; padding: 8px 20px;}
         .btn-start { background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
         .btn-stop { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .btn-end { background: linear-gradient(135deg, #ef4444, #dc2626); }
         .btn-reset { background: linear-gradient(135deg, #64748b, #475569); }
-        .status-text { font-size: 15px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
-        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; flex-grow: 1; min-height: 250px; margin-top: 10px;}
-        .card { background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; padding: 15px; border-radius: 12px; position: relative; overflow: hidden; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;}
-        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
+        .status-text { font-size: 14px; color: #94a3b8; font-weight: bold; margin-left: 10px; }
+        
+        /* 🚀 仪表板紧凑化 */
+        .dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; flex-grow: 0; margin-top: 5px;}
+        .card { background: rgba(30, 41, 59, 0.6); border: 1px solid #334155; padding: 10px; border-radius: 10px; position: relative; overflow: hidden; text-align: center; display: flex; flex-direction: column; justify-content: center; align-items: center;}
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px; }
         .dashboard .card:nth-child(1)::before { background: #38bdf8; }
         .dashboard .card:nth-child(2)::before { background: #8b5cf6; }
-        .card h2 { margin-top: 0; font-size: 20px; color: #cbd5e1; margin-bottom: 10px;}
-        .time-value { color: #38bdf8; font-size: 50px; font-weight: bold; font-family: 'Courier New', monospace; }
-        .time-unit { font-size: 20px; }
+        .card h2 { margin-top: 0; font-size: 16px; color: #cbd5e1; margin-bottom: 5px;}
+        .time-value { color: #38bdf8; font-size: 45px; font-weight: bold; font-family: 'Courier New', monospace; line-height: 1.1;}
+        .time-unit { font-size: 18px; }
         
-        /* 🚀 巡线打卡输入区 (字加大) */
-        .patrol-entry { background: rgba(139, 92, 246, 0.1); border: 2px dashed #8b5cf6; padding: 25px; border-radius: 10px; margin-top: 15px; text-align: center;}
-        .patrol-input { font-size: 70px !important; text-align: center; width: 250px; padding: 10px; color: #8b5cf6 !important; background: #0f172a !important; border: 3px solid #8b5cf6 !important; border-radius: 12px; font-weight: bold; }
-        .btn-submit-patrol { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 24px; padding: 15px 30px; margin-top: 20px; width: 100%; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);}
-        .last-update-hint { color: #10b981; font-weight: bold; margin-top: 10px; font-size: 16px; display: none;}
-        .history-text { color: #cbd5e1; font-size: 18px; margin-top: 15px; background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; display: inline-block;}
+        /* 🚀 巡线打卡输入区紧凑化 */
+        .patrol-entry { background: rgba(139, 92, 246, 0.1); border: 2px dashed #8b5cf6; padding: 12px; border-radius: 10px; margin-top: 10px; text-align: center; flex-grow: 1;}
+        .patrol-input { font-size: 55px !important; text-align: center; width: 220px; padding: 5px; height: 70px; color: #8b5cf6 !important; background: #0f172a !important; border: 3px solid #8b5cf6 !important; border-radius: 10px; font-weight: bold; margin-bottom: 5px;}
+        .btn-submit-patrol { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 22px; padding: 10px 20px; margin-top: 5px; width: 100%; box-shadow: 0 0 15px rgba(139, 92, 246, 0.5);}
+        .last-update-hint { color: #10b981; font-weight: bold; margin-top: 5px; font-size: 15px; display: none;}
+        .history-text { color: #cbd5e1; font-size: 15px; margin-top: 5px; background: rgba(15, 23, 42, 0.8); padding: 6px; border-radius: 6px; display: inline-block;}
 
-        .pmc-table-container { background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1px solid #334155; padding: 15px; margin-top: 15px;}
-        .pmc-table-container h3 { color: #f472b6; margin-top: 0; font-size: 20px; border-bottom: 1px solid #475569; padding-bottom: 10px;}
-        table { width: 100%; border-collapse: collapse; text-align: center; }
-        th { background-color: #1e293b; color: #94a3b8; padding: 10px; border-bottom: 2px solid #f472b6; }
-        td { padding: 10px; border-bottom: 1px solid #334155; color: #e2e8f0; }
+        .pmc-table-container { background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1px solid #334155; padding: 10px; margin-top: 10px;}
+        .pmc-table-container h3 { color: #f472b6; margin-top: 0; font-size: 18px; border-bottom: 1px solid #475569; padding-bottom: 8px; margin-bottom: 10px;}
+        table { width: 100%; border-collapse: collapse; text-align: center; font-size: 14px;}
+        th { background-color: #1e293b; color: #94a3b8; padding: 8px; border-bottom: 2px solid #f472b6; }
+        td { padding: 8px; border-bottom: 1px solid #334155; color: #e2e8f0; }
 
         @media (max-width: 900px) {
-            .input-row { flex-direction: column; align-items: stretch; gap: 12px; }
-            .form-group { flex-direction: row; align-items: center; gap: 10px; width: 100%; justify-content: space-between; }
-            .form-group label { margin-bottom: 0; white-space: normal; max-width: 45%; flex-shrink: 0; text-align: left; }
+            .input-row { flex-direction: column; align-items: stretch; gap: 8px; }
+            .form-group { flex-direction: row; width: 100%; justify-content: space-between; }
+            .form-group label { max-width: 40%; }
             .form-group input, .form-group select { flex: 1; width: 10% !important; }
-            .action-buttons { flex-direction: column; align-items: stretch; margin-top: 10px; }
-            .action-buttons button { width: 100%; padding: 12px; margin-bottom: 5px; font-size: 18px;}
+            .action-buttons { flex-direction: column; align-items: stretch; }
+            .action-buttons button { width: 100%; padding: 10px; margin-bottom: 5px;}
             .dashboard { grid-template-columns: 1fr; }
         }
 
+        /* 🚀 修复登录画面的按钮颜色 */
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #38bdf8; padding: 30px 40px; border-radius: 15px; box-shadow: 0 0 30px rgba(56, 189, 248, 0.3); text-align: center; }
-        .auth-box h2 { color: #00e5ff; margin-top: 0; font-size: 28px; letter-spacing: 2px; }
-        .auth-box input { font-size: 24px; letter-spacing: 5px; width: 220px; text-align: center; margin: 15px 0; }
-        .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; margin-bottom: 10px;}
+        .auth-box h2 { color: #00e5ff; margin-top: 0; font-size: 26px; letter-spacing: 2px; }
+        .auth-box input { font-size: 22px; letter-spacing: 3px; width: 220px; text-align: center; margin: 15px 0; }
+        .auth-box button { background: linear-gradient(135deg, #00e5ff, #0284c7); color: #fff; font-size: 20px; padding: 10px 40px; width: 100%; margin-bottom: 10px; border: none; font-weight: bold; border-radius: 6px; box-shadow: 0 0 15px rgba(0, 229, 255, 0.4); cursor: pointer; transition: 0.3s;}
+        .auth-box button:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(0, 229, 255, 0.7); }
     </style>
 </head>
 <body>
@@ -85,7 +88,7 @@
             <p style="color: #cbd5e1;">请输入您的专属通行码</p>
             <input type="password" id="pinInput" placeholder="请输入密码">
             <br>
-            <button class="btn-bulk" onclick="verifyPIN()">登入系统</button>
+            <button onclick="verifyPIN()">登入系统</button>
             <p id="pinError" style="color: #ef4444; display: none; margin-top: 10px; font-weight: bold;">❌ 密码错误</p>
         </div>
     </div>
@@ -97,11 +100,11 @@
         <div class="input-row">
             <div class="form-group"><label>📅 柬埔寨日期:</label><input type="date" id="dateInput" class="long-input"></div>
             <div class="form-group"><label>🏭 工厂:</label>
-                <select id="factoryInput" class="short-input"><option value="" disabled selected>请选择...</option><option value="LY">LY</option><option value="LFY">LFY</option></select>
+                <select id="factoryInput" class="short-input"><option value="" disabled selected>请选择</option><option value="LY">LY</option><option value="LFY">LFY</option></select>
             </div>
             <div class="form-group"><label>🏭 线别:</label>
-                <select id="lineInput" class="short-input" style="width: 140px;">
-                    <option value="" disabled selected>请选择...</option>
+                <select id="lineInput" class="short-input" style="width: 120px;">
+                    <option value="" disabled selected>请选择</option>
                     <optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup>
                     <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option><option value="针车7">针车7</option><option value="针车8">针车8</option><option value="针车9">针车9</option><option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option><option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option><option value="针车16">针车16</option><option value="针车17">针车17</option><option value="针车18">针车18</option><option value="针车19">针车19</option><option value="针车20">针车20</option><option value="针车21">针车21</option><option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option></optgroup>
                     <optgroup label="组底"><option value="组底1">组底1</option><option value="组底2">组底2</option><option value="组底3">组底3</option><option value="组底4">组底4</option><option value="组底5">组底5</option></optgroup>
@@ -116,11 +119,11 @@
             <div class="form-group"><label>🏷️ 品牌:</label><input type="text" id="brandInput" class="long-input"></div>
             <div class="form-group"><label>📄 单号:</label><input type="text" id="orderInput" class="long-input"></div>
             <div class="form-group"><label>⏱️ 开工时间:</label><input type="time" id="startTimeInput" class="short-input"></div>
-            <div class="form-group"><label>📈 本日100%POH:</label><input type="number" id="poh" class="short-input" step="0.01" min="0"></div>
+            <div class="form-group"><label>📈 本日POH:</label><input type="number" id="poh" class="short-input" step="0.01" min="0"></div>
             <div class="form-group"><label>👥 配备人数:</label><input type="number" id="workers" class="short-input" min="1"></div>
         </div>
 
-        <div class="input-row" style="margin-top: 15px; border-top: 1px dashed #334155; padding-top: 15px;">
+        <div class="input-row" style="margin-top: 10px; border-top: 1px dashed #334155; padding-top: 10px;">
             <div class="action-buttons" id="pmcControls" style="display: none; justify-content: center; width: 100%;">
                 <button class="btn-publish" onclick="publishPlan()">💾 锁定并发布排产至车间</button>
                 <button class="btn-reset" onclick="location.reload()" style="margin-left: 20px;">🔄 清空重填</button>
@@ -150,18 +153,18 @@
             <div class="card" style="border-color:#8b5cf6;">
                 <h2>🎯 该刻预期产量 (快照基准)</h2>
                 <div class="time-value" id="expectedOutput" style="color: #f472b6;">0</div>
-                <div style="color: #94a3b8; font-size: 14px; margin-top: 5px;">(打卡时系统锁定的目标)</div>
+                <div style="color: #94a3b8; font-size: 13px; margin-top: 3px;">(打卡时系统锁定的目标)</div>
             </div>
         </div>
         
         <div class="patrol-entry" id="patrolEntryArea" style="display: none;">
-            <h2 style="color: #cbd5e1; margin-top:0;">📝 巡线员产量打卡 (Hourly Patrol)</h2>
-            <p style="color: #94a3b8; margin-bottom: 10px;">请输入此刻机器上的<b>当前总累计产量</b></p>
+            <h2 style="color: #cbd5e1; margin: 0 0 5px 0;">📝 巡线员产量打卡 (Hourly Patrol)</h2>
+            <p style="color: #94a3b8; margin: 0 0 10px 0; font-size: 14px;">请输入此刻机器上的<b>当前总累计产量</b></p>
             <input type="number" id="patrolOutputInput" class="patrol-input" value="0" min="0">
             <br>
             <div class="history-text" id="historyText">上次打卡: 尚未打卡 | 产量: 0</div>
             <button class="btn-submit-patrol" onclick="submitPatrolSnapshot()">💾 打卡：提交当前产量并计算达标率</button>
-            <div id="lastUpdateHint" class="last-update-hint">✅ 打卡成功！看板数据已同步冻结至此分秒。</div>
+            <div id="lastUpdateHint" class="last-update-hint">✅ 打卡成功！看板数据已同步冻结。</div>
         </div>
     </div>
 
@@ -228,7 +231,6 @@
                 let lines = Object.values(snap.val()); lines.sort((a,b) => a.factory.localeCompare(b.factory) || a.line.localeCompare(b.line, undefined, {numeric: true}));
                 lines.forEach(d => {
                     let tr = document.createElement('tr');
-                    // 移除离线状态
                     let statusIcon = d.status === 'STANDBY' ? '⚪' : (d.status === 'RUNNING' ? '🟢' : (d.status === 'PAUSED' ? '🟡' : '🔴'));
                     tr.innerHTML = `<td><b>${d.factory} - ${d.line}</b></td><td style="color:#38bdf8;">${d.brand}</td><td>${d.poh}</td><td>${d.workers}</td><td>${statusIcon}</td>`;
                     listBody.appendChild(tr);
@@ -248,7 +250,7 @@
                 db.ref(dbRefPath).set({
                     factory: factoryVal, line: lineVal, brand: brandVal, order: orderVal, startTime: timeVal, poh: pohVal, workers: workersVal,
                     actualOutput: 0, expectedOutput: 0, achievementRate: 0, elapsedMins: 0, accumulatedPauseMs: 0, status: "STANDBY", 
-                    lastReportExpected: 0, lastReportRate: 0, lastReportMs: 0, 
+                    lastReportExpected: 0, lastReportRate: 0, lastReportMs: 0, prodLastUpdateStr: "", // 新增前线专属打卡字串
                     lastUpdateMs: Date.now(), lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
                 }).then(() => { alert("✅ 发布成功！"); document.getElementById('lineInput').value = ""; });
             });
@@ -268,8 +270,8 @@
                 actualCount = parseInt(data.actualOutput) || 0; document.getElementById('patrolOutputInput').value = actualCount;
                 accumulatedPauseMs = data.accumulatedPauseMs || 0;
 
-                // 更新历史纪录 UI
-                let historyTxt = data.lastUpdate ? `上次打卡: ${data.lastUpdate} | 产量: ${actualCount}` : `上次打卡: 尚未打卡 | 产量: 0`;
+                // 🚀 核心修复：只读取前线专属的打卡记录 (prodLastUpdateStr)
+                let historyTxt = data.prodLastUpdateStr ? `上次打卡: ${data.prodLastUpdateStr} | 产量: ${actualCount}` : `上次打卡: 尚未打卡 | 产量: 0`;
                 document.getElementById('historyText').innerText = historyTxt;
 
                 if (data.status === "STANDBY") {
@@ -317,8 +319,6 @@
                 document.getElementById('endBtn').disabled = false; document.getElementById('endBtn').style.opacity = "1";
                 document.getElementById('patrolEntryArea').style.display = 'block';
                 document.getElementById('statusText').innerHTML = `状态：<span style="color:#10b981;">🟢 运行中</span>`;
-                
-                // 移除 onDisconnect
                 timerInterval = setInterval(updateLocalTimer, 1000);
             }
             let megaBanner = document.getElementById('megaOrderDisplay'); megaBanner.style.display = 'block';
@@ -358,10 +358,12 @@
             let updateTimeStr = new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' });
             document.getElementById('historyText').innerText = `上次打卡: ${updateTimeStr} | 产量: ${actualCount}`;
 
+            // 🚀 核心：写入专属于前线的 prodLastUpdateStr
             db.ref(dbRefPath).update({
                 actualOutput: actualCount, expectedOutput: expectedAtThisMoment, elapsedMins: elapsedMins, status: "RUNNING",
                 lastReportExpected: expectedAtThisMoment, lastReportRate: rateAtThisMoment, lastReportMs: Date.now(), 
-                lastUpdateMs: Date.now(), lastUpdate: updateTimeStr
+                prodLastUpdateStr: updateTimeStr, // 专属栏位
+                lastUpdateMs: Date.now(), lastUpdate: updateTimeStr + " (前线打卡)"
             }).then(() => {
                 let hint = document.getElementById('lastUpdateHint');
                 hint.style.display = 'block'; setTimeout(() => hint.style.display = 'none', 3000);
