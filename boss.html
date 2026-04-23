@@ -13,8 +13,16 @@
         .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .filter-group { display: flex; align-items: center; background: rgba(30, 41, 59, 0.8); border: 1px solid #38bdf8; border-radius: 8px; padding: 5px 10px; }
         .filter-group label { color: #facc15; font-weight: bold; margin-right: 8px; font-size: 14px;}
+        
+        /* 🚀 修复浏览器白底 */
         .filter-group input, .filter-group select { background: transparent; color: #fff; border: none; font-size: 15px; font-weight: bold; outline: none; cursor: pointer; }
         .filter-group select option { background: #0f172a; }
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 50px #0f172a inset !important;
+            -webkit-text-fill-color: #fff !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
         .view-filter { border-color: #f472b6 !important; background: rgba(244, 114, 182, 0.1) !important; }
         .btn-scroll { background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
         
@@ -30,10 +38,10 @@
         .list-title { font-size: 12px; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; }
         .list-val { font-size: 22px; font-weight: bold; color: #fff; font-family: 'Courier New', Courier, monospace;}
 
+        /* 🚀 移除离线灯 */
         .status-dot { height: 16px; width: 16px; background-color: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981;}
         .status-dot.paused { background-color: #facc15; box-shadow: 0 0 10px #facc15;} 
         .status-dot.stopped { background-color: #ef4444; box-shadow: 0 0 10px #ef4444;} 
-        .status-dot.offline { background-color: #475569; box-shadow: 0 0 10px #475569;} 
         .status-dot.standby { background-color: #f8fafc; box-shadow: 0 0 10px #f8fafc;} 
 
         .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 15px; color: #94a3b8; pointer-events: none;}
@@ -45,7 +53,6 @@
         .good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
         .warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
         .danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
-        .defect-text { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); font-family: 'Courier New', monospace; font-weight: bold;}
         .standby-text { color: #94a3b8; font-size: 24px; margin-top: 15px; text-align: center;}
         #noDataMsg { text-align: center; font-size: 24px; color: #64748b; margin-top: 100px; display: none; }
 
@@ -167,15 +174,14 @@
             if (!activeFSKey || !globalData || !globalData[activeFSKey]) { closeFullscreen(); return; }
             let data = globalData[activeFSKey];
             
+            // 🚀 移除了离线逻辑
             let statusDot = document.getElementById('fs-status'); let statusText = "🟢 运行中"; statusDot.className = "fs-status-dot status-dot";
             if (data.status === "STOPPED") { statusDot.className = "fs-status-dot status-dot stopped"; statusText = "🔴 已结束"; } 
-            else if (data.status === "OFFLINE") { statusDot.className = "fs-status-dot status-dot offline"; statusText = "⚫ 离线"; }
             else if (data.status === "PAUSED") { statusDot.className = "fs-status-dot status-dot paused"; statusText = "🟡 暂停中"; } 
 
             document.getElementById('fs-title').innerText = `🏭 ${data.factory} - ${data.line}`;
             document.getElementById('fs-subtitle').innerText = `品牌: ${data.brand} | 单号: ${data.order} | 状态: ${statusText}`;
             
-            // 🚀 读取打卡快照数据
             let expected = data.lastReportExpected || data.expectedOutput || 0;
             let rate = data.lastReportRate || data.achievementRate || 0;
             
@@ -192,8 +198,9 @@
             let dRateEl = document.getElementById('fs-defect-rate'); dRateEl.innerText = defectRate.toFixed(1) + '%'; dRateEl.className = `fs-val-huge ${defectColorClass}`;
 
             let delayMins = Math.floor((Date.now() - (data.lastReportMs || Date.now())) / 60000);
-            let delayText = delayMins > 0 ? `🕒 距上次打卡: ${delayMins} 分钟` : `✅ 刚刚打卡`;
+            let delayText = delayMins > 60 && data.status === "RUNNING" ? `🕒 距上次打卡: 超过 ${delayMins} 分钟 (延误!)` : `🕒 距上次打卡: ${delayMins} 分钟`;
             document.getElementById('fs-footer').innerText = `⏱️ 已运行: ${(data.elapsedMins / 60).toFixed(2)} 小时 | ${delayText}`;
+            document.getElementById('fs-footer').style.color = delayMins > 60 && data.status === "RUNNING" ? "#ef4444" : "#64748b";
         }
 
         function renderCards() {
@@ -223,16 +230,15 @@
 
             let newContainerHTML = ""; 
             linesArray.forEach(lineData => {
-                // 🚀 读取快照数据
                 let expected = lineData.lastReportExpected || lineData.expectedOutput || 0;
                 let rate = lineData.lastReportRate || lineData.achievementRate || 0;
                 
                 let rateColorClass = "good";
                 if (lineData.elapsedMins > 1) { if (rate >= 100) rateColorClass = "good"; else if (rate >= 90) rateColorClass = "warning"; else rateColorClass = "danger"; }
 
+                // 🚀 移除离线状态
                 let statusDotClass = "status-dot"; let statusTitle = "运行中";
                 if (lineData.status === "STOPPED") { statusDotClass = "status-dot stopped"; statusTitle = "已结束"; } 
-                else if (lineData.status === "OFFLINE") { statusDotClass = "status-dot offline"; statusTitle = "离线"; }
                 else if (lineData.status === "PAUSED") { statusDotClass = "status-dot paused"; statusTitle = "已暂停"; } 
                 else if (lineData.status === "STANDBY") { statusDotClass = "status-dot standby"; statusTitle = "待命"; }
 
@@ -241,7 +247,7 @@
                 let defectColorClass = "good"; if (defectRate >= 8) defectColorClass = "danger"; else if (defectRate >= 6) defectColorClass = "warning"; 
 
                 let delayMins = Math.floor((Date.now() - (lineData.lastReportMs || Date.now())) / 60000);
-                let delayHint = delayMins > 60 ? `<span style="color:#ef4444; font-weight:bold;">🕒 距打卡: ${delayMins}分钟</span>` : `🕒 距打卡: ${delayMins}分钟`;
+                let delayHint = delayMins > 60 && lineData.status === "RUNNING" ? `<span style="color:#ef4444; font-weight:bold;">🕒 距打卡: ${delayMins}分钟 (延误)</span>` : `🕒 距打卡: ${delayMins}分钟`;
 
                 let onClickAttr = `onclick="openFullscreen('${lineData.firebaseKey}')"`;
 
