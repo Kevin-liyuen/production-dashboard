@@ -14,7 +14,6 @@
         .filter-group { display: flex; align-items: center; background: rgba(30, 41, 59, 0.8); border: 1px solid #38bdf8; border-radius: 8px; padding: 5px 10px; }
         .filter-group label { color: #facc15; font-weight: bold; margin-right: 8px; font-size: 14px;}
         
-        /* 🚀 修复浏览器白底 */
         .filter-group input, .filter-group select { background: transparent; color: #fff; border: none; font-size: 15px; font-weight: bold; outline: none; cursor: pointer; }
         .filter-group select option { background: #0f172a; }
         input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
@@ -38,7 +37,6 @@
         .list-title { font-size: 12px; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; }
         .list-val { font-size: 22px; font-weight: bold; color: #fff; font-family: 'Courier New', Courier, monospace;}
 
-        /* 🚀 移除离线灯 */
         .status-dot { height: 16px; width: 16px; background-color: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981;}
         .status-dot.paused { background-color: #facc15; box-shadow: 0 0 10px #facc15;} 
         .status-dot.stopped { background-color: #ef4444; box-shadow: 0 0 10px #ef4444;} 
@@ -53,6 +51,7 @@
         .good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
         .warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
         .danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
+        .defect-text { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); font-family: 'Courier New', monospace; font-weight: bold;}
         .standby-text { color: #94a3b8; font-size: 24px; margin-top: 15px; text-align: center;}
         #noDataMsg { text-align: center; font-size: 24px; color: #64748b; margin-top: 100px; display: none; }
 
@@ -92,9 +91,12 @@
                 <div class="filter-group"><select id="filterFactory"><option value="ALL">全厂</option><option value="LY">LY</option><option value="LFY">LFY</option></select></div>
                 <div class="filter-group"><select id="filterType"><option value="ALL">全类型</option><option value="成型">成型</option><option value="针车">针车</option><option value="组底">组底</option></select></div>
                 <div class="filter-group" style="border-color: #facc15;"><label>🔽</label><select id="sortBy"><option value="line">默认排序</option><option value="rate">达标率优先</option><option value="defect">不良率优先</option></select></div>
+                
                 <div class="filter-group view-filter"><label style="color: #f472b6;">👁️ 视角</label>
                     <select id="viewMode" style="color: #f472b6;">
                         <option value="ALL">综合看板 (快照)</option>
+                        <option value="QTY">产量看板 (隐藏不良)</option>
+                        <option value="QUAL">质量看板 (专注不良)</option>
                         <option value="SIMPLE">📝 简易列表 (快照)</option>
                     </select>
                 </div>
@@ -112,13 +114,13 @@
         <div class="fs-body">
             <div class="fs-panel" style="border-color: #38bdf8;">
                 <div class="fs-label">打卡时实际 / 预期</div>
-                <div class="fs-val-mid"><span id="fs-actual" style="color: #8b5cf6; font-size: 8vh;">0</span> / <span id="fs-expected">0</span></div>
+                <div class="fs-val-mid"><span id="fs-actual" style="color: #8b5cf6; font-size: 8vh;">0</span> <span style="color: #94a3b8;">/</span> <span id="fs-expected">0</span></div>
                 <div class="fs-label">打 卡 时 达 标 率</div>
                 <div id="fs-rate" class="fs-val-huge good">0.0%</div>
             </div>
             <div class="fs-panel" style="border-color: #f472b6;">
                 <div class="fs-label">打卡时不良数</div>
-                <div class="fs-val-mid" id="fs-defect-count" style="font-size: 8vh;">0</div>
+                <div class="fs-val-mid" id="fs-defect-count" style="font-size: 8vh; color: #ef4444;">0</div>
                 <div class="fs-label">打 卡 时 不 良 率</div>
                 <div id="fs-defect-rate" class="fs-val-huge good">0.0%</div>
             </div>
@@ -174,7 +176,6 @@
             if (!activeFSKey || !globalData || !globalData[activeFSKey]) { closeFullscreen(); return; }
             let data = globalData[activeFSKey];
             
-            // 🚀 移除了离线逻辑
             let statusDot = document.getElementById('fs-status'); let statusText = "🟢 运行中"; statusDot.className = "fs-status-dot status-dot";
             if (data.status === "STOPPED") { statusDot.className = "fs-status-dot status-dot stopped"; statusText = "🔴 已结束"; } 
             else if (data.status === "PAUSED") { statusDot.className = "fs-status-dot status-dot paused"; statusText = "🟡 暂停中"; } 
@@ -187,6 +188,7 @@
             
             document.getElementById('fs-actual').innerText = data.actualOutput || 0;
             document.getElementById('fs-expected').innerText = expected;
+            
             let rateColorClass = "good"; if (data.elapsedMins > 1) { if (rate >= 100) rateColorClass = "good"; else if (rate >= 90) rateColorClass = "warning"; else rateColorClass = "danger"; }
             let rateEl = document.getElementById('fs-rate'); rateEl.innerText = rate.toFixed(1) + '%'; rateEl.className = `fs-val-huge ${rateColorClass}`;
 
@@ -194,7 +196,7 @@
             if (data.actualOutput > 0) defectRate = (defectCount / data.actualOutput) * 100;
             let defectColorClass = "good"; if (defectRate >= 8) defectColorClass = "danger"; else if (defectRate >= 6) defectColorClass = "warning"; 
 
-            document.getElementById('fs-defect-count').innerText = defectCount; document.getElementById('fs-defect-count').className = `fs-val-mid ${defectColorClass}`;
+            document.getElementById('fs-defect-count').innerText = defectCount;
             let dRateEl = document.getElementById('fs-defect-rate'); dRateEl.innerText = defectRate.toFixed(1) + '%'; dRateEl.className = `fs-val-huge ${defectColorClass}`;
 
             let delayMins = Math.floor((Date.now() - (data.lastReportMs || Date.now())) / 60000);
@@ -236,7 +238,6 @@
                 let rateColorClass = "good";
                 if (lineData.elapsedMins > 1) { if (rate >= 100) rateColorClass = "good"; else if (rate >= 90) rateColorClass = "warning"; else rateColorClass = "danger"; }
 
-                // 🚀 移除离线状态
                 let statusDotClass = "status-dot"; let statusTitle = "运行中";
                 if (lineData.status === "STOPPED") { statusDotClass = "status-dot stopped"; statusTitle = "已结束"; } 
                 else if (lineData.status === "PAUSED") { statusDotClass = "status-dot paused"; statusTitle = "已暂停"; } 
@@ -251,11 +252,13 @@
 
                 let onClickAttr = `onclick="openFullscreen('${lineData.firebaseKey}')"`;
 
+                // 🚀 统一顺位逻辑：实际产量在前 (左)，预期在后 (右)
+                
                 if (viewMode === "SIMPLE") {
                     let leftBorderColor = lineData.status === "STANDBY" ? "#94a3b8" : (rateColorClass === 'good' ? '#10b981' : (rateColorClass === 'warning' ? '#facc15' : '#ef4444'));
                     let rowContent = lineData.status === "STANDBY" ? `<div class="list-col" style="flex: 4; text-align: center; color: #94a3b8;">⚪ 等待产线开工...</div>` : `
                             <div class="list-col"><div class="list-title">已运行</div><div class="list-val">${(lineData.elapsedMins / 60).toFixed(2)}h</div></div>
-                            <div class="list-col"><div class="list-title">该刻预期 / 实际</div><div class="list-val">${expected} / <span style="color:#8b5cf6;">${lineData.actualOutput || 0}</span></div></div>
+                            <div class="list-col"><div class="list-title">该刻实际 / 预期</div><div class="list-val"><span style="color:#8b5cf6;">${lineData.actualOutput || 0}</span> <span style="color:#94a3b8;">/</span> ${expected}</div></div>
                             <div class="list-col"><div class="list-title">打卡达标率</div><div class="list-val ${rateColorClass}">${rate.toFixed(1)}%</div></div>
                             <div class="list-col"><div class="list-title">不良数 (率)</div><div class="list-val ${defectColorClass}">${defectCount} <span style="font-size:14px;">(${defectRate.toFixed(1)}%)</span></div></div>
                         `;
@@ -267,15 +270,50 @@
                     return; 
                 }
 
-                let contentHTML = lineData.status === "STANDBY" ? `<div class="rate-container"><div class="standby-text">⚪ 等待产线开工</div></div>` : `
-                        <div class="data-row"><span>已运行时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
-                        <div class="data-row"><span>打卡时预期/实际:</span><span class="data-value" style="font-size: 20px;">${expected} / <span style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></span></div>
-                        <div style="display: flex; justify-content: space-between; margin-top: auto; border-top: 1px dashed #334155; padding-top: 10px;">
-                            <div style="width: 48%; text-align: center;"><div class="rate-title">打卡达标率</div><div class="rate-big-value ${rateColorClass}" style="font-size: 40px;">${rate.toFixed(1)}%</div></div>
-                            <div style="width: 48%; text-align: center; border-left: 1px dashed #334155;"><div class="rate-title">不良数 / 率</div><div style="line-height: 1.1; margin-top: 5px;"><span class="${defectColorClass}" style="font-size: 28px; font-family: 'Courier New', monospace; font-weight: bold;">${defectCount}</span><br><span class="${defectColorClass}" style="font-size: 38px; font-family: 'Courier New', monospace; font-weight: bold;">${defectRate.toFixed(1)}%</span></div></div>
+                // 还原产量看板 (QTY)
+                let qtyBlock = `
+                    <div class="data-row"><span>已运行时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
+                    <div class="data-row"><span>打卡时实际/预期:</span><span class="data-value" style="font-size: 20px;"><span style="color: #8b5cf6;">${lineData.actualOutput || 0}</span> <span style="color:#94a3b8;">/</span> ${expected}</span></div>
+                    <div class="rate-container">
+                        <div class="rate-title">打卡达标率</div>
+                        <div class="rate-big-value ${rateColorClass}">${rate.toFixed(1)}%</div>
+                    </div>
+                    <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 10px; border-top: 1px solid #334155; padding-top:5px;">${delayHint}</div>
+                `;
+                
+                // 还原质量看板 (QUAL)
+                let qualBlock = `
+                    <div class="data-row"><span>已运行时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
+                    <div class="data-row"><span>打卡时实际产量:</span><span class="data-value" style="color: #8b5cf6;">${lineData.actualOutput || 0}</span></div>
+                    <div class="rate-container" style="border-top: 1px dashed #334155; margin-top: 15px; padding-top: 15px;">
+                        <div class="rate-title">打卡时不良数 / 不良率</div>
+                        <div style="margin-top: 10px;">
+                            <span class="${defectColorClass}" style="font-size: 50px; font-family: 'Courier New', Courier, monospace; font-weight: bold;">${defectCount}</span>
+                            <span class="${defectColorClass}" style="font-size: 70px; margin-left:10px; font-family: 'Courier New', Courier, monospace; font-weight: bold;">(${defectRate.toFixed(1)}%)</span>
                         </div>
-                        <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 10px; border-top: 1px solid #334155; padding-top:5px;">${delayHint}</div>
-                    `;
+                    </div>
+                    <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 10px; border-top: 1px solid #334155; padding-top:5px;">${delayHint}</div>
+                `;
+                
+                // 综合看板 (ALL)
+                let allBlock = `
+                    <div class="data-row"><span>已运行时间:</span><span>${(lineData.elapsedMins / 60).toFixed(2)} 小时</span></div>
+                    <div class="data-row"><span>打卡时实际/预期:</span><span class="data-value" style="font-size: 20px;"><span style="color: #8b5cf6;">${lineData.actualOutput || 0}</span> <span style="color:#94a3b8;">/</span> ${expected}</span></div>
+                    <div style="display: flex; justify-content: space-between; margin-top: auto; border-top: 1px dashed #334155; padding-top: 10px;">
+                        <div style="width: 48%; text-align: center;"><div class="rate-title">打卡达标率</div><div class="rate-big-value ${rateColorClass}" style="font-size: 40px;">${rate.toFixed(1)}%</div></div>
+                        <div style="width: 48%; text-align: center; border-left: 1px dashed #334155;"><div class="rate-title">不良数 / 率</div><div style="line-height: 1.1; margin-top: 5px;"><span class="${defectColorClass}" style="font-size: 28px; font-family: 'Courier New', monospace; font-weight: bold;">${defectCount}</span><br><span class="${defectColorClass}" style="font-size: 38px; font-family: 'Courier New', monospace; font-weight: bold;">${defectRate.toFixed(1)}%</span></div></div>
+                    </div>
+                    <div style="font-size: 12px; color: #94a3b8; text-align: right; margin-top: 10px; border-top: 1px solid #334155; padding-top:5px;">${delayHint}</div>
+                `;
+
+                let contentHTML = "";
+                if (lineData.status === "STANDBY") {
+                    contentHTML = `<div class="rate-container"><div class="standby-text">⚪ 等待产线开工</div></div>`;
+                } else {
+                    if (viewMode === "QTY") contentHTML = qtyBlock;
+                    else if (viewMode === "QUAL") contentHTML = qualBlock;
+                    else contentHTML = allBlock;
+                }
 
                 newContainerHTML += `<div class="line-card" ${onClickAttr} title="点击放大显示此线">
                         <div class="line-header"><span>🏭 ${lineData.factory} - ${lineData.line}</span><span class="${statusDotClass}" title="${statusTitle}"></span></div>
