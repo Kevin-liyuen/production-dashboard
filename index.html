@@ -16,9 +16,17 @@
         .input-row { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; margin-bottom: 10px; }
         .form-group { display: flex; align-items: center; gap: 8px; }
         .form-group label { font-weight: bold; color: #94a3b8; font-size: 15px; white-space: nowrap; } 
+        
+        /* 🚀 修复浏览器自动填充的白底问题 */
         input[type="number"], input[type="time"], input[type="text"], input[type="date"], input[type="password"], select { background-color: #0f172a; color: #00e5ff; border: 2px solid #38bdf8; padding: 6px 10px; border-radius: 6px; font-size: 16px; font-weight: bold; outline: none; text-transform: uppercase; }
         input:focus, select:focus { border-color: #00e5ff; box-shadow: 0 0 12px rgba(0, 229, 255, 0.8); }
+        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 50px #0f172a inset !important;
+            -webkit-text-fill-color: #00e5ff !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
         input:disabled, select:disabled { background-color: #1e293b !important; color: #64748b !important; border-color: #475569 !important; cursor: not-allowed; -webkit-text-fill-color: #64748b !important;}
+        
         .short-input { width: 110px; } .long-input { width: 150px; }
         select option { background-color: #0f172a; color: #e2e8f0; } select optgroup { color: #38bdf8; }
         .action-buttons { display: flex; align-items: center; gap: 10px; flex-grow: 1; justify-content: flex-end; flex-wrap: wrap; }
@@ -39,11 +47,12 @@
         .time-value { color: #38bdf8; font-size: 50px; font-weight: bold; font-family: 'Courier New', monospace; }
         .time-unit { font-size: 20px; }
         
-        /* 🚀 巡线打卡输入区 */
-        .patrol-entry { background: rgba(139, 92, 246, 0.1); border: 2px dashed #8b5cf6; padding: 20px; border-radius: 10px; margin-top: 15px; text-align: center;}
-        .patrol-input { font-size: 40px; text-align: center; width: 200px; padding: 10px; color: #8b5cf6; background: #0f172a; border: 3px solid #8b5cf6; border-radius: 10px; font-weight: bold; }
-        .btn-submit-patrol { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 24px; padding: 15px 30px; margin-top: 15px; width: 100%; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);}
+        /* 🚀 巡线打卡输入区 (字加大) */
+        .patrol-entry { background: rgba(139, 92, 246, 0.1); border: 2px dashed #8b5cf6; padding: 25px; border-radius: 10px; margin-top: 15px; text-align: center;}
+        .patrol-input { font-size: 70px !important; text-align: center; width: 250px; padding: 10px; color: #8b5cf6 !important; background: #0f172a !important; border: 3px solid #8b5cf6 !important; border-radius: 12px; font-weight: bold; }
+        .btn-submit-patrol { background: linear-gradient(135deg, #8b5cf6, #6d28d9); font-size: 24px; padding: 15px 30px; margin-top: 20px; width: 100%; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);}
         .last-update-hint { color: #10b981; font-weight: bold; margin-top: 10px; font-size: 16px; display: none;}
+        .history-text { color: #cbd5e1; font-size: 18px; margin-top: 15px; background: rgba(15, 23, 42, 0.8); padding: 8px; border-radius: 6px; display: inline-block;}
 
         .pmc-table-container { background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1px solid #334155; padding: 15px; margin-top: 15px;}
         .pmc-table-container h3 { color: #f472b6; margin-top: 0; font-size: 20px; border-bottom: 1px solid #475569; padding-bottom: 10px;}
@@ -147,8 +156,10 @@
         
         <div class="patrol-entry" id="patrolEntryArea" style="display: none;">
             <h2 style="color: #cbd5e1; margin-top:0;">📝 巡线员产量打卡 (Hourly Patrol)</h2>
-            <p style="color: #94a3b8; margin-bottom: 15px;">请输入此刻机器上的<b>当前总累计产量</b></p>
+            <p style="color: #94a3b8; margin-bottom: 10px;">请输入此刻机器上的<b>当前总累计产量</b></p>
             <input type="number" id="patrolOutputInput" class="patrol-input" value="0" min="0">
+            <br>
+            <div class="history-text" id="historyText">上次打卡: 尚未打卡 | 产量: 0</div>
             <button class="btn-submit-patrol" onclick="submitPatrolSnapshot()">💾 打卡：提交当前产量并计算达标率</button>
             <div id="lastUpdateHint" class="last-update-hint">✅ 打卡成功！看板数据已同步冻结至此分秒。</div>
         </div>
@@ -217,7 +228,8 @@
                 let lines = Object.values(snap.val()); lines.sort((a,b) => a.factory.localeCompare(b.factory) || a.line.localeCompare(b.line, undefined, {numeric: true}));
                 lines.forEach(d => {
                     let tr = document.createElement('tr');
-                    let statusIcon = d.status === 'STANDBY' ? '⚪' : (d.status === 'RUNNING' ? '🟢' : (d.status === 'PAUSED' ? '🟡' : (d.status === 'STOPPED' ? '🔴' : '⚫')));
+                    // 移除离线状态
+                    let statusIcon = d.status === 'STANDBY' ? '⚪' : (d.status === 'RUNNING' ? '🟢' : (d.status === 'PAUSED' ? '🟡' : '🔴'));
                     tr.innerHTML = `<td><b>${d.factory} - ${d.line}</b></td><td style="color:#38bdf8;">${d.brand}</td><td>${d.poh}</td><td>${d.workers}</td><td>${statusIcon}</td>`;
                     listBody.appendChild(tr);
                 });
@@ -236,7 +248,7 @@
                 db.ref(dbRefPath).set({
                     factory: factoryVal, line: lineVal, brand: brandVal, order: orderVal, startTime: timeVal, poh: pohVal, workers: workersVal,
                     actualOutput: 0, expectedOutput: 0, achievementRate: 0, elapsedMins: 0, accumulatedPauseMs: 0, status: "STANDBY", 
-                    lastReportExpected: 0, lastReportRate: 0, lastReportMs: 0, // 新增：快照变量
+                    lastReportExpected: 0, lastReportRate: 0, lastReportMs: 0, 
                     lastUpdateMs: Date.now(), lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
                 }).then(() => { alert("✅ 发布成功！"); document.getElementById('lineInput').value = ""; });
             });
@@ -255,6 +267,10 @@
                 targetPoh = parseFloat(data.poh); targetWorkers = parseInt(data.workers);
                 actualCount = parseInt(data.actualOutput) || 0; document.getElementById('patrolOutputInput').value = actualCount;
                 accumulatedPauseMs = data.accumulatedPauseMs || 0;
+
+                // 更新历史纪录 UI
+                let historyTxt = data.lastUpdate ? `上次打卡: ${data.lastUpdate} | 产量: ${actualCount}` : `上次打卡: 尚未打卡 | 产量: 0`;
+                document.getElementById('historyText').innerText = historyTxt;
 
                 if (data.status === "STANDBY") {
                     document.getElementById('startBtn').disabled = false; document.getElementById('startBtn').style.opacity = "1";
@@ -285,7 +301,7 @@
             let dateVal = document.getElementById('dateInput').value; let timeVal = document.getElementById('startTimeInput').value;
             let factoryVal = document.getElementById('factoryInput').value; let lineVal = document.getElementById('lineInput').value;
             beginRunLogic(dateVal, timeVal, factoryVal, lineVal, false);
-            submitPatrolSnapshot(); // 开工即打卡 0 产量
+            submitPatrolSnapshot(); 
         }
 
         function beginRunLogic(dateVal, timeVal, factoryVal, lineVal, isForceStop) {
@@ -301,7 +317,8 @@
                 document.getElementById('endBtn').disabled = false; document.getElementById('endBtn').style.opacity = "1";
                 document.getElementById('patrolEntryArea').style.display = 'block';
                 document.getElementById('statusText').innerHTML = `状态：<span style="color:#10b981;">🟢 运行中</span>`;
-                db.ref(dbRefPath).onDisconnect().update({ status: "OFFLINE", lastUpdate: "离线" });
+                
+                // 移除 onDisconnect
                 timerInterval = setInterval(updateLocalTimer, 1000);
             }
             let megaBanner = document.getElementById('megaOrderDisplay'); megaBanner.style.display = 'block';
@@ -309,7 +326,6 @@
             updateLocalTimer();
         }
 
-        // 本地计时器，仅显示时间，不再每秒 push 云端
         function updateLocalTimer() {
             if (!chronologicalStartMs) return;
             let calculateTimeMs = (isPaused || isEnded) ? (pauseDateMs || Date.now()) : Date.now();
@@ -320,7 +336,6 @@
             document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span>`;
         }
 
-        // 🚀 核心：提交快照打卡
         function submitPatrolSnapshot() {
             if (!isRunning) { alert(isPaused ? "产线暂停中，请先继续！" : "尚未开工！"); return; }
             
@@ -339,18 +354,14 @@
             if (expectedAtThisMoment > 0) rateAtThisMoment = (actualCount / expectedAtThisMoment) * 100;
 
             document.getElementById('expectedOutput').innerText = expectedAtThisMoment;
+            
+            let updateTimeStr = new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' });
+            document.getElementById('historyText').innerText = `上次打卡: ${updateTimeStr} | 产量: ${actualCount}`;
 
-            // 冻结这一刻的预期和达标率并上传
             db.ref(dbRefPath).update({
-                actualOutput: actualCount, 
-                expectedOutput: expectedAtThisMoment, // 传统兼容
-                elapsedMins: elapsedMins, 
-                status: "RUNNING",
-                lastReportExpected: expectedAtThisMoment, // 快照：该刻预期
-                lastReportRate: rateAtThisMoment,         // 快照：该刻达标率
-                lastReportMs: Date.now(),                 // 快照：打卡时间戳
-                lastUpdateMs: Date.now(), 
-                lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' })
+                actualOutput: actualCount, expectedOutput: expectedAtThisMoment, elapsedMins: elapsedMins, status: "RUNNING",
+                lastReportExpected: expectedAtThisMoment, lastReportRate: rateAtThisMoment, lastReportMs: Date.now(), 
+                lastUpdateMs: Date.now(), lastUpdate: updateTimeStr
             }).then(() => {
                 let hint = document.getElementById('lastUpdateHint');
                 hint.style.display = 'block'; setTimeout(() => hint.style.display = 'none', 3000);
@@ -379,7 +390,6 @@
             if (isEnded) return;
             if (confirm("确定要【结束】此线生产吗？\n结束后系统将锁定最后一次打卡数据。")) {
                 clearInterval(timerInterval); isRunning = false; isPaused = false; isEnded = true;
-                db.ref(dbRefPath).onDisconnect().cancel();
                 document.getElementById('pauseBtn').disabled = true; document.getElementById('pauseBtn').style.opacity = "0.5";
                 document.getElementById('endBtn').disabled = true; document.getElementById('endBtn').style.opacity = "0.5";
                 document.getElementById('patrolEntryArea').style.display = 'none';
@@ -388,7 +398,7 @@
             }
         }
 
-        function resetProduction() { if(confirm("确定清除画面？")) { if(dbRefPath) db.ref(dbRefPath).onDisconnect().cancel(); location.reload(); } }
+        function resetProduction() { if(confirm("确定清除画面？")) { location.reload(); } }
     </script>
 </body>
 </html>
