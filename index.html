@@ -47,7 +47,6 @@
         .time-value { color: #38bdf8; font-size: 45px; font-weight: bold; font-family: 'Courier New', monospace; line-height: 1.1;}
         .time-unit { font-size: 18px; }
         
-        /* 🚀 预留给达标率预览的颜色 */
         .c-good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.5); }
         .c-warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.5); }
         .c-danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
@@ -225,11 +224,9 @@
         let timerInterval = null; let isRunning = false; let isPaused = false; let isEnded = false;
         let chronologicalStartMs = null; let pauseDateMs = null; let accumulatedPauseMs = 0;      
         let targetPoh = 0; let targetWorkers = 0; let dbRefPath = null; let actualCount = 0;
-        let currentExpectedOutput = 0; // 🚀 保存实时预期的全域变数
+        let currentExpectedOutput = 0; 
 
         document.getElementById('dateInput').addEventListener('change', fetchPMCPlanList);
-        
-        // 🚀 监听输入框变化，实时计算达标率
         document.getElementById('patrolOutputInput').addEventListener('input', previewRate);
 
         function previewRate() {
@@ -254,7 +251,8 @@
                 lines.forEach(d => {
                     let tr = document.createElement('tr');
                     let statusIcon = d.status === 'STANDBY' ? '⚪' : (d.status === 'RUNNING' ? '🟢' : (d.status === 'PAUSED' ? '🟡' : '🔴'));
-                    tr.innerHTML = `<td><b>${d.factory} - ${d.line}</b></td><td style="color:#38bdf8;">${d.brand}</td><td>${d.poh}</td><td>${d.workers}</td><td>${statusIcon}</td>`;
+                    // 🚀 核心修改：修正排产清单单号不显示的问题
+                    tr.innerHTML = `<td><b>${d.factory} - ${d.line}</b></td><td style="color:#38bdf8;">${d.brand} <small>(${d.order || '无单号'})</small></td><td>${d.poh}</td><td>${d.workers}</td><td>${statusIcon}</td>`;
                     listBody.appendChild(tr);
                 });
             });
@@ -314,7 +312,9 @@
                 return;
             }
             if (confirm(`📡 找到运行中纪录 (目前产量: ${data.actualOutput})！是否恢复打卡界面？`)) {
-                beginRunLogic(dateVal, data.startTime, data.factory, data.line, false);
+                // 🚀 核心修复：把单号加进跑马灯横幅
+                let brandName = data.brand || ''; let orderNum = data.order || '';
+                beginRunLogic(dateVal, data.startTime, data.factory, data.line, false, brandName, orderNum);
                 if (data.status === "PAUSED") { isRunning = true; togglePause(); }
             }
         }
@@ -323,11 +323,13 @@
             if (isRunning || isPaused || isEnded) return; 
             let dateVal = document.getElementById('dateInput').value; let timeVal = document.getElementById('startTimeInput').value;
             let factoryVal = document.getElementById('factoryInput').value; let lineVal = document.getElementById('lineInput').value;
-            beginRunLogic(dateVal, timeVal, factoryVal, lineVal, false);
+            let brandName = document.getElementById('brandInput').value; let orderNum = document.getElementById('orderInput').value;
+            beginRunLogic(dateVal, timeVal, factoryVal, lineVal, false, brandName, orderNum);
             submitPatrolSnapshot(); 
         }
 
-        function beginRunLogic(dateVal, timeVal, factoryVal, lineVal, isForceStop) {
+        // 🚀 修改：接收品牌和单号参数
+        function beginRunLogic(dateVal, timeVal, factoryVal, lineVal, isForceStop, brandName, orderNum) {
             chronologicalStartMs = getCambodiaTimestamp(dateVal, timeVal);
             if (chronologicalStartMs > Date.now()) { alert("开工时间不能在未来！"); return; }
             document.getElementById('dateInput').disabled = true; document.getElementById('factoryInput').disabled = true; document.getElementById('lineInput').disabled = true;
@@ -343,7 +345,9 @@
                 timerInterval = setInterval(updateLocalTimer, 1000);
             }
             let megaBanner = document.getElementById('megaOrderDisplay'); megaBanner.style.display = 'block';
-            megaBanner.innerHTML = `📅 ${dateVal} | 🏭 ${factoryVal} - ${lineVal} | ⭐ 品牌: ${document.getElementById('brandInput').value}`;
+            
+            // 🚀 核心修复：更新大横幅加上单号
+            megaBanner.innerHTML = `📅 ${dateVal} | 🏭 ${factoryVal} - ${lineVal} | ⭐ 品牌: ${brandName} <small>(${orderNum})</small>`;
             updateLocalTimer();
         }
 
@@ -356,11 +360,9 @@
             let elapsedMins = activeMs / 60000; if(elapsedMins < 0) elapsedMins = 0; let elapsedHours = elapsedMins / 60;
             document.getElementById('elapsedTimeDisplay').innerHTML = `${elapsedHours.toFixed(2)} <span class="time-unit">小时</span>`;
             
-            // 🚀 核心：预期产量实时跟随秒表跳动
             currentExpectedOutput = Math.floor((targetPoh * targetWorkers / 60) * elapsedMins);
             document.getElementById('expectedOutput').innerText = currentExpectedOutput;
             
-            // 连带触发预览更新
             previewRate();
         }
 
@@ -377,7 +379,6 @@
             let activeMs = rawMs - lunchMs - accumulatedPauseMs;
             let elapsedMins = activeMs / 60000; if(elapsedMins < 0) elapsedMins = 0;
             
-            // 使用目前的实时预期作为打卡基准
             let expectedAtThisMoment = currentExpectedOutput;
             let rateAtThisMoment = 0; 
             if (expectedAtThisMoment > 0) rateAtThisMoment = (actualCount / expectedAtThisMoment) * 100;
