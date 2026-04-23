@@ -21,20 +21,23 @@
         .btn-scroll { background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
         .btn-scroll:hover { opacity: 0.8; }
         
+        /* 🔲 卡片模式容器 (新增 Cursor Pointer) */
         .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
-        .line-card { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 15px 20px; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: 0.3s; display: flex; flex-direction: column;}
+        .line-card { background: rgba(30, 41, 59, 0.8); border: 1px solid #334155; border-radius: 12px; padding: 15px 20px; position: relative; box-shadow: 0 10px 20px rgba(0,0,0,0.4); transition: 0.3s; display: flex; flex-direction: column; cursor: pointer;}
         .line-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.6); border-color: #38bdf8;}
         .line-header { font-size: 24px; font-weight: bold; color: #fff; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         
+        /* 📝 简易列表模式容器与行样式 */
         .list-container { display: flex; flex-direction: column; gap: 10px; }
-        .list-row { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; flex-wrap: wrap;}
+        .list-row { display: flex; justify-content: space-between; align-items: center; background: rgba(30, 41, 59, 0.7); border: 1px solid #334155; padding: 12px 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: 0.3s; flex-wrap: wrap; cursor: pointer;}
         .list-row:hover { border-color: #38bdf8; background: rgba(30, 41, 59, 1); transform: scale(1.01);}
-        .list-col { flex: 1; text-align: center; min-width: 100px; }
+        .list-col { flex: 1; text-align: center; min-width: 100px; pointer-events: none;} /* 防止点到内部元素失效 */
         .list-col.left { text-align: left; flex: 1.5; min-width: 180px; }
         .list-col.right { text-align: right; flex: 0.8; }
         .list-title { font-size: 12px; color: #94a3b8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;}
         .list-val { font-size: 22px; font-weight: bold; color: #fff; font-family: 'Courier New', Courier, monospace;}
 
+        /* 状态灯 */
         .status-dot { height: 16px; width: 16px; background-color: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981; animation: blink 1.5s infinite;}
         .status-dot.paused { background-color: #facc15; box-shadow: 0 0 10px #facc15; animation: none;} 
         .status-dot.stopped { background-color: #ef4444; box-shadow: 0 0 10px #ef4444; animation: none;} 
@@ -42,13 +45,14 @@
         .status-dot.standby { background-color: #f8fafc; box-shadow: 0 0 10px #f8fafc; animation: none;} 
         @keyframes blink { 50% { opacity: 0.4; } }
 
-        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 15px; color: #94a3b8; }
+        .data-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 15px; color: #94a3b8; pointer-events: none;}
         .data-value { font-size: 24px; font-weight: bold; color: #fff; font-family: 'Courier New', Courier, monospace;}
         
-        .rate-container { text-align: center; margin-top: auto; padding-top: 10px; border-top: 1px dashed #334155; }
+        .rate-container { text-align: center; margin-top: auto; padding-top: 10px; border-top: 1px dashed #334155; pointer-events: none;}
         .rate-title { font-size: 13px; color: #94a3b8; }
         .rate-big-value { font-size: 50px; font-weight: bold; line-height: 1.1; margin-top: 5px; font-family: 'Courier New', Courier, monospace; }
         
+        /* 🔴🟡🟢 三色状态 */
         .good { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.6); }
         .warning { color: #facc15; text-shadow: 0 0 15px rgba(250, 204, 21, 0.6); }
         .danger { color: #ef4444; text-shadow: 0 0 15px rgba(239, 68, 68, 0.6); }
@@ -57,10 +61,31 @@
         .standby-text { color: #94a3b8; font-size: 24px; margin-top: 15px; text-align: center;}
         #noDataMsg { text-align: center; font-size: 24px; color: #64748b; margin-top: 100px; display: none; }
 
+        /* 授权画面 */
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #00e5ff; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(0, 229, 255, 0.3);}
         .auth-box input { background: #0f172a; color: #fff; border: 1px solid #00e5ff; font-size: 20px; text-align: center; padding: 10px; margin: 15px 0; border-radius: 6px; width: 220px; }
         .auth-box button { background: #00e5ff; color: #0b0f19; border: none; font-size: 20px; padding: 10px 40px; border-radius: 6px; cursor: pointer; font-weight: bold; width: 100%;}
+
+        /* ========================================================= */
+        /* 📺 电视/大屏幕 全屏放大看板模式 (TV/Monitor Ready) */
+        /* ========================================================= */
+        #fsOverlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0b0f19; z-index: 10000; display: none; flex-direction: column; padding: 3vh 3vw; box-sizing: border-box; }
+        .fs-close { position: absolute; top: 3vh; right: 3vw; font-size: 5vh; color: #64748b; cursor: pointer; z-index: 10001; transition: 0.3s;}
+        .fs-close:hover { color: #ef4444; transform: scale(1.2);}
+        
+        .fs-header { display: flex; justify-content: space-between; align-items: center; font-size: 7vh; font-weight: bold; color: #fff; border-bottom: 0.5vh solid #334155; padding-bottom: 2vh; margin-bottom: 2vh; }
+        .fs-subheader { font-size: 3.5vh; color: #38bdf8; text-align: center; margin-bottom: 3vh; font-weight: bold; letter-spacing: 2px;}
+        
+        .fs-body { display: flex; flex: 1; gap: 3vw; }
+        .fs-panel { flex: 1; background: rgba(30, 41, 59, 0.6); border: 0.4vh solid #334155; border-radius: 3vh; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 2vw; box-shadow: 0 0 5vh rgba(0,0,0,0.5);}
+        .fs-label { font-size: 4vh; color: #94a3b8; margin-bottom: 1.5vh; text-transform: uppercase; letter-spacing: 2px;}
+        .fs-val-mid { font-size: 7vh; color: #e2e8f0; font-weight: bold; font-family: 'Courier New', monospace; margin-bottom: 4vh; }
+        .fs-val-huge { font-size: 20vh; font-weight: bold; font-family: 'Courier New', monospace; line-height: 1; margin-top: 2vh; transition: color 0.5s, text-shadow 0.5s;} 
+        
+        .fs-footer { text-align: center; color: #64748b; font-size: 2.5vh; margin-top: 3vh; letter-spacing: 1px;}
+        .fs-status-dot { height: 6vh; width: 6vh; border-radius: 50%; display: inline-block; box-shadow: 0 0 2vh currentColor; margin-left: 2vw;}
+        /* ========================================================= */
     </style>
 </head>
 <body>
@@ -109,7 +134,36 @@
         <div class="grid-container" id="cardsContainer"></div>
     </div>
 
+    <div id="fsOverlay">
+        <div class="fs-close" onclick="closeFullscreen()">✖</div>
+        
+        <div class="fs-header">
+            <span id="fs-title">载入中...</span>
+            <span id="fs-status" class="fs-status-dot status-dot"></span>
+        </div>
+        <div class="fs-subheader" id="fs-subtitle">--</div>
+        
+        <div class="fs-body">
+            <div class="fs-panel" style="border-color: #38bdf8;">
+                <div class="fs-label">实际达成 / 预期</div>
+                <div class="fs-val-mid"><span id="fs-actual" style="color: #8b5cf6; font-size: 8vh;">0</span> / <span id="fs-expected">0</span></div>
+                <div class="fs-label">实 时 达 标 率</div>
+                <div id="fs-rate" class="fs-val-huge good">0.0%</div>
+            </div>
+            
+            <div class="fs-panel" style="border-color: #f472b6;">
+                <div class="fs-label">累计不良数</div>
+                <div class="fs-val-mid" id="fs-defect-count" style="font-size: 8vh;">0</div>
+                <div class="fs-label">不 良 率</div>
+                <div id="fs-defect-rate" class="fs-val-huge good">0.0%</div>
+            </div>
+        </div>
+        
+        <div class="fs-footer" id="fs-footer">运行时间: 0.0h | 最后更新: --</div>
+    </div>
+
     <script>
+        // --- 登入验证 ---
         function hashPIN(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
@@ -122,7 +176,7 @@
             if (hashPIN(input) === BOSS_HASH) {
                 document.getElementById('authOverlay').style.display = 'none';
                 document.getElementById('mainContent').style.display = 'block';
-                initBoard(); // 登入成功才初始化数据加载
+                initBoard(); 
             } else {
                 document.getElementById('pinError').style.display = 'block';
                 document.getElementById('pinInput').value = '';
@@ -130,6 +184,7 @@
         }
         document.getElementById('pinInput').addEventListener("keypress", (e) => { if (e.key === "Enter") verifyBoss(); });
 
+        // --- Firebase 初始化 ---
         const firebaseConfig = {
             apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
             authDomain: "factory-mes-2026.firebaseapp.com",
@@ -139,15 +194,22 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let currentListenerRef = null; let globalData = null; 
+        let currentListenerRef = null; 
+        let globalData = null; 
+        let activeFSKey = null; // 记录目前放大的产线 Key
 
         function initBoard() {
-            setInterval(renderCards, 5000); 
+            setInterval(() => {
+                renderCards();
+                updateFullscreenView(); // 定时刷新全屏面板
+            }, 5000); 
+            
             let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
             document.getElementById('viewDate').value = formatter.format(new Date());
             loadDataForDate(document.getElementById('viewDate').value);
         }
 
+        // --- 自动滚动逻辑 ---
         let scrollInterval = null; let isAutoScrolling = false;
         function toggleAutoScroll() {
             isAutoScrolling = !isAutoScrolling;
@@ -155,6 +217,7 @@
             if (isAutoScrolling) {
                 btn.innerHTML = "⏸️"; btn.style.background = "#f59e0b"; 
                 scrollInterval = setInterval(() => {
+                    if(document.getElementById('fsOverlay').style.display === 'flex') return; // 全屏时暂停滚动
                     window.scrollBy(0, 1);
                     if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 2) window.scrollTo(0, 0);
                 }, 30);
@@ -163,25 +226,115 @@
             }
         }
 
+        // --- 事件监听 ---
         document.getElementById('filterFactory').addEventListener('change', renderCards);
         document.getElementById('filterType').addEventListener('change', renderCards);
         document.getElementById('sortBy').addEventListener('change', renderCards);
         document.getElementById('viewMode').addEventListener('change', renderCards); 
         document.getElementById('viewDate').addEventListener('change', (e) => loadDataForDate(e.target.value));
 
+        // 监听 ESC 键关闭全屏
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape") closeFullscreen();
+        });
+
         function loadDataForDate(targetDate) {
             if (currentListenerRef) currentListenerRef.off();
             currentListenerRef = db.ref('production_data/' + targetDate);
             currentListenerRef.on('value', (snapshot) => {
-                globalData = snapshot.val(); renderCards();
+                globalData = snapshot.val(); 
+                renderCards();
+                updateFullscreenView(); // 资料一来，同时更新全屏
             });
         }
 
+        // =========================================
+        // 📺 全屏放大模式逻辑
+        // =========================================
+        function openFullscreen(key) {
+            activeFSKey = key;
+            document.getElementById('fsOverlay').style.display = 'flex';
+            updateFullscreenView();
+        }
+
+        function closeFullscreen() {
+            activeFSKey = null;
+            document.getElementById('fsOverlay').style.display = 'none';
+        }
+
+        function updateFullscreenView() {
+            if (!activeFSKey || !globalData) return;
+            
+            let data = globalData[activeFSKey];
+            if (!data) { closeFullscreen(); return; } // 数据被删除则关闭
+
+            // 1. 状态灯与文字
+            let statusDot = document.getElementById('fs-status');
+            let isStale = false;
+            if ((data.status === "RUNNING" || data.status === "PAUSED") && data.lastUpdateMs) {
+                if (Date.now() - data.lastUpdateMs > 90000) isStale = true; 
+            }
+            
+            let statusText = "🟢 运行中";
+            statusDot.className = "fs-status-dot status-dot";
+            if (data.status === "STOPPED") { statusDot.className = "fs-status-dot status-dot stopped"; statusText = "🔴 已结束"; } 
+            else if (data.status === "OFFLINE" || isStale) { statusDot.className = "fs-status-dot status-dot offline"; statusText = "⚫ 离线"; }
+            else if (data.status === "PAUSED") { statusDot.className = "fs-status-dot status-dot paused"; statusText = "🟡 暂停中"; } 
+            else if (data.status === "STANDBY") { statusDot.className = "fs-status-dot status-dot standby"; statusText = "⚪ 待命"; }
+
+            // 2. 标头资讯
+            document.getElementById('fs-title').innerText = `🏭 ${data.factory} - ${data.line}`;
+            document.getElementById('fs-subtitle').innerText = `品牌: ${data.brand} | 单号: ${data.order} | 状态: ${statusText}`;
+            
+            // 3. 产量面板更新
+            document.getElementById('fs-actual').innerText = data.actualOutput || 0;
+            document.getElementById('fs-expected').innerText = data.expectedOutput || 0;
+            
+            let rateColorClass = "good";
+            if (data.elapsedMins > 1) {
+                if (data.achievementRate >= 100) rateColorClass = "good";
+                else if (data.achievementRate >= 90) rateColorClass = "warning";
+                else rateColorClass = "danger";
+            }
+            let rateEl = document.getElementById('fs-rate');
+            rateEl.innerText = (data.achievementRate || 0).toFixed(1) + '%';
+            rateEl.className = `fs-val-huge ${rateColorClass}`;
+
+            // 4. 质量面板更新
+            let defectCount = data.defectOutput || 0;
+            let defectRate = 0;
+            if (data.actualOutput && data.actualOutput > 0) {
+                defectRate = (defectCount / data.actualOutput) * 100;
+            }
+            
+            let defectColorClass = "good"; 
+            if (defectRate >= 8) defectColorClass = "danger"; 
+            else if (defectRate >= 6) defectColorClass = "warning"; 
+
+            document.getElementById('fs-defect-count').innerText = defectCount;
+            document.getElementById('fs-defect-count').className = `fs-val-mid ${defectColorClass}`;
+            
+            let dRateEl = document.getElementById('fs-defect-rate');
+            dRateEl.innerText = defectRate.toFixed(1) + '%';
+            dRateEl.className = `fs-val-huge ${defectColorClass}`;
+
+            // 5. 底部时间
+            document.getElementById('fs-footer').innerText = `⏱️ 运作时间: ${(data.elapsedMins / 60).toFixed(2)} 小时 | 🕒 最后资料更新: ${data.lastUpdate}`;
+        }
+
+        // =========================================
+        // 渲染主网格看板
+        // =========================================
         function renderCards() {
             const container = document.getElementById('cardsContainer'); const noDataMsg = document.getElementById('noDataMsg');
             if (!globalData) { container.innerHTML = ''; noDataMsg.style.display = 'block'; return; }
             
-            let linesArray = Object.values(globalData);
+            let linesArray = Object.keys(globalData).map(key => {
+                let obj = globalData[key];
+                obj.firebaseKey = key; // 注入 Key 用于全屏触发
+                return obj;
+            });
+            
             let fFactory = document.getElementById('filterFactory').value;
             let fType = document.getElementById('filterType').value;
             let sortBy = document.getElementById('sortBy').value;
@@ -244,6 +397,8 @@
                 if (defectRate >= 8) defectColorClass = "danger"; 
                 else if (defectRate >= 6) defectColorClass = "warning"; 
 
+                let onClickAttr = `onclick="openFullscreen('${lineData.firebaseKey}')"`;
+
                 if (viewMode === "SIMPLE") {
                     let leftBorderColor = lineData.status === "STANDBY" ? "#94a3b8" : (rateColorClass === 'good' ? '#10b981' : (rateColorClass === 'warning' ? '#facc15' : '#ef4444'));
                     
@@ -272,7 +427,7 @@
                     }
 
                     newContainerHTML += `
-                        <div class="list-row" style="border-left: 5px solid ${leftBorderColor};">
+                        <div class="list-row" style="border-left: 5px solid ${leftBorderColor};" ${onClickAttr} title="点击放大显示此线">
                             <div class="list-col left">
                                 <div style="font-size: 20px; font-weight: bold; color: #fff;">🏭 ${lineData.factory} - ${lineData.line}</div>
                                 <div style="font-size: 14px; color: #38bdf8; margin-top:3px;">${lineData.brand} <small>(${lineData.order})</small></div>
@@ -338,7 +493,7 @@
                 }
 
                 newContainerHTML += `
-                    <div class="line-card">
+                    <div class="line-card" ${onClickAttr} title="点击放大显示此线">
                         <div class="line-header"><span>🏭 ${lineData.factory} - ${lineData.line}</span><span class="${statusDotClass}" title="${statusTitle}"></span></div>
                         <div class="data-row"><span>品牌 / 单号:</span><span style="color: #38bdf8; font-weight:bold;">${lineData.brand} <small>(${lineData.order})</small></span></div>
                         ${contentHTML}
