@@ -17,7 +17,6 @@
         .btn-refresh { background: linear-gradient(135deg, #3b82f6, #2563eb); }
         .btn-add { background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
         .btn-save-all { background: linear-gradient(135deg, #10b981, #059669); font-size: 18px; box-shadow: 0 0 15px rgba(16, 185, 129, 0.5); border: 2px solid #34d399;}
-        .btn-save-all:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(16, 185, 129, 0.8); }
         
         .table-container { overflow-x: auto; background: rgba(30, 41, 59, 0.6); border-radius: 10px; border: 1px solid #334155; padding: 10px; margin-bottom: 30px;}
         table { width: 100%; border-collapse: collapse; text-align: center; white-space: nowrap;}
@@ -27,12 +26,11 @@
 
         .grid-input, .grid-select { width: 100%; background-color: #0f172a; color: #fff; border: 1px solid #64748b; padding: 6px; border-radius: 4px; font-size: 15px; font-weight: bold; outline: none; text-align: center;}
         .grid-input:focus, .grid-select:focus { border-color: #f472b6; box-shadow: 0 0 8px rgba(244, 114, 182, 0.6); color: #f472b6; background-color: #1e293b;}
-        .col-sm { width: 80px; } .col-md { width: 120px; } .col-lg { width: 150px; }
+        .col-sm { width: 80px; } .col-md { width: 120px; }
         .btn-delete { background: #ef4444; padding: 6px 12px; font-size: 14px; }
 
         #authOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: #0b0f19; z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         .auth-box { background: rgba(30, 41, 59, 0.9); border: 2px solid #f472b6; padding: 40px; border-radius: 15px; text-align: center; box-shadow: 0 0 30px rgba(244, 114, 182, 0.3);}
-        .auth-box h2 { color: #f472b6; margin-top: 0; }
         .auth-box input { font-size: 24px; letter-spacing: 5px; width: 220px; text-align: center; margin: 20px 0; background: #0f172a; color: #fff; border: 2px solid #f472b6; border-radius: 8px; padding: 8px;}
         .auth-box button { font-size: 20px; padding: 10px 40px; width: 100%; background: #f472b6;}
 
@@ -41,20 +39,17 @@
     </style>
 </head>
 <body>
-
     <div id="authOverlay">
         <div class="auth-box">
-            <h2>⚙️ 后台超级管理</h2>
-            <p style="color: #94a3b8;">请输入管理者密码</p>
+            <h2 style="color: #f472b6; margin-top:0;">⚙️ 后台超级管理</h2>
             <input type="password" id="adminPin" placeholder="请输入密码">
-            <br>
-            <button onclick="verifyAdmin()">进入系统</button>
+            <br><button onclick="verifyAdmin()">进入系统</button>
             <p id="pinError" style="color: #ef4444; display: none; margin-top: 15px; font-weight: bold;">❌ 密码错误</p>
         </div>
     </div>
 
     <div class="top-bar">
-        <h1>⚙️ 全局数据修正 (Excel 模式)</h1>
+        <h1>⚙️ 全局数据修正 (快照修正版)</h1>
         <div class="control-panel">
             <label>柬埔寨日期：</label>
             <input type="date" id="adminDate">
@@ -64,117 +59,64 @@
     </div>
     
     <div class="warning-text">
-        ⚠️ <b>注意：</b> 如果车间前线仍在「🟢 运行中」，每秒都会上存数据覆盖你的修改。<b>大改前请确认产线已暂停或结束！</b><br>
-        💡 <b>隐藏神技：</b> 支援键盘 <b>上下左右</b> 快速移动光标！支援从 Excel 复制数据，直接在第一个格子上按 <b>Ctrl+V</b> 批量贴上！
+        ⚠️ <b>注意：</b> 保存时系统会重新根据你填写的分钟数，生成一份新的“打卡快照”强制覆盖云端！
     </div>
 
     <div class="table-container">
         <table id="dataTable">
             <thead>
                 <tr>
-                    <th>工厂</th>
-                    <th>线别</th>
-                    <th>品牌</th>
-                    <th>单号</th>
-                    <th>开工时间</th>
-                    <th style="color:#facc15;">运作(分钟)</th>
-                    <th>本日100% POH</th>
-                    <th>生产/配备员工+班组课</th>
-                    <th style="color:#8b5cf6; font-size: 18px;">实际产量</th>
-                    <th style="color:#ef4444; font-size: 18px;">不良数</th>
-                    <th>生产状态</th>
-                    <th>操作</th>
+                    <th>工厂</th><th>线别</th><th>品牌</th><th>单号</th><th>开工时间</th>
+                    <th style="color:#facc15;">运作(分钟)</th><th>POH</th><th>配备人数</th>
+                    <th style="color:#8b5cf6;">实际产量</th><th style="color:#ef4444;">不良数</th>
+                    <th>生产状态</th><th>操作</th>
                 </tr>
             </thead>
             <tbody id="tableBody"></tbody>
         </table>
-        <div style="margin-top: 15px; text-align: left;">
-            <button class="btn-add" onclick="addNewRow()">➕ 往下新增空白行</button>
-        </div>
+        <div style="margin-top: 15px; text-align: left;"><button class="btn-add" onclick="addNewRow()">➕ 往下新增空白行</button></div>
         <div id="noDataMsg">👈 请先点击「读取云端数据」</div>
     </div>
 
     <script>
-        function hashPIN(str) {
-            let hash = 0;
-            for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; }
-            return hash.toString();
-        }
-        
+        function hashPIN(str) { let hash = 0; for (let i = 0; i < str.length; i++) { hash = (hash << 5) - hash + str.charCodeAt(i); hash |= 0; } return hash.toString(); }
         const ADMIN_HASH = "1750591"; // 9514
 
         function verifyAdmin() {
             let input = document.getElementById('adminPin').value;
-            if (hashPIN(input) === ADMIN_HASH) {
-                document.getElementById('authOverlay').style.display = 'none';
-            } else {
-                document.getElementById('pinError').style.display = 'block';
-                document.getElementById('adminPin').value = '';
-            }
+            if (hashPIN(input) === ADMIN_HASH) document.getElementById('authOverlay').style.display = 'none';
+            else { document.getElementById('pinError').style.display = 'block'; document.getElementById('adminPin').value = ''; }
         }
         document.getElementById('adminPin').addEventListener("keypress", (e) => { if (e.key === "Enter") verifyAdmin(); });
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk",
-            authDomain: "factory-mes-2026.firebaseapp.com",
-            databaseURL: "https://factory-mes-2026-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "factory-mes-2026"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        const firebaseConfig = { apiKey: "AIzaSyDqZ1g_Rnb-qf0ij0Y53PyGJgzYoWDVeKk", authDomain: "factory-mes-2026.firebaseapp.com", databaseURL: "https://factory-mes-2026-default-rtdb.asia-southeast1.firebasedatabase.app", projectId: "factory-mes-2026" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig); const db = firebase.database();
 
         const factoryOptions = `<option value="LY">LY</option><option value="LFY">LFY</option>`;
-        const statusOptions = `
-            <option value="STANDBY">⚪ 待命 (未开工)</option>
-            <option value="RUNNING">🟢 运行中</option>
-            <option value="PAUSED">🟡 已暂停</option>
-            <option value="STOPPED">🔴 已结束</option>
-            <option value="OFFLINE">⚫ 离线</option>
-        `;
-        const lineOptions = `
-            <optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup>
-            <optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option><option value="针车7">针车7</option><option value="针车8">针车8</option><option value="针车9">针车9</option><option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option><option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option><option value="针车16">针车16</option><option value="针车17">针车17</option><option value="针车18">针车18</option><option value="针车19">针车19</option><option value="针车20">针车20</option><option value="针车21">针车21</option><option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option></optgroup>
-            <optgroup label="组底"><option value="组底1">组底1</option><option value="组底2">组底2</option><option value="组底3">组底3</option><option value="组底4">组底4</option><option value="组底5">组底5</option></optgroup>
-        `;
+        const statusOptions = `<option value="STANDBY">⚪ 待命</option><option value="RUNNING">🟢 运行中</option><option value="PAUSED">🟡 已暂停</option><option value="STOPPED">🔴 已结束</option><option value="OFFLINE">⚫ 离线</option>`;
+        const lineOptions = `<optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup><optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option><option value="针车7">针车7</option><option value="针车8">针车8</option><option value="针车9">针车9</option><option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option><option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option><option value="针车16">针车16</option><option value="针车17">针车17</option><option value="针车18">针车18</option><option value="针车19">针车19</option><option value="针车20">针车20</option><option value="针车21">针车21</option><option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option></optgroup><optgroup label="组底"><option value="组底1">组底1</option><option value="组底2">组底2</option><option value="组底3">组底3</option><option value="组底4">组底4</option><option value="组底5">组底5</option></optgroup>`;
 
-        function getCambodiaDateString() {
-            let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' });
-            return formatter.format(new Date());
-        }
-
-        window.onload = () => { document.getElementById('adminDate').value = getCambodiaDateString(); };
+        window.onload = () => { let formatter = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Phnom_Penh', year: 'numeric', month: '2-digit', day: '2-digit' }); document.getElementById('adminDate').value = formatter.format(new Date()); };
 
         function loadData() {
-            let targetDate = document.getElementById('adminDate').value;
-            const tbody = document.getElementById('tableBody');
-            const noDataMsg = document.getElementById('noDataMsg');
+            let targetDate = document.getElementById('adminDate').value; const tbody = document.getElementById('tableBody'); const noDataMsg = document.getElementById('noDataMsg');
             tbody.innerHTML = ''; noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "⏳ 正在读取数据...";
-
             db.ref('production_data/' + targetDate).once('value').then((snapshot) => {
                 noDataMsg.style.display = 'none';
-                if (!snapshot.exists()) { noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "📭 此日期没有数据，可新增空白行建立。"; return; }
-                
-                let data = snapshot.val();
-                let linesArray = Object.keys(data).map(key => data[key]);
-                linesArray.sort((a, b) => {
-                    if(a.factory === b.factory) return a.line.localeCompare(b.line, undefined, {numeric: true});
-                    return a.factory.localeCompare(b.factory);
-                });
+                if (!snapshot.exists()) { noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "📭 此日期没有数据。"; return; }
+                let data = snapshot.val(); let linesArray = Object.keys(data).map(key => data[key]);
+                linesArray.sort((a, b) => { if(a.factory === b.factory) return a.line.localeCompare(b.line, undefined, {numeric: true}); return a.factory.localeCompare(b.factory); });
                 linesArray.forEach(line => appendRow(line));
-            }).catch(err => { noDataMsg.innerHTML = "❌ 读取失败：" + err.message; });
+            });
         }
 
         function appendRow(d = {}) {
-            const tbody = document.getElementById('tableBody');
-            let tr = document.createElement('tr');
+            const tbody = document.getElementById('tableBody'); let tr = document.createElement('tr');
             let f = d.factory || 'LY'; let l = d.line || '成型A'; let s = d.status || 'STOPPED';
-
             tr.dataset.accumulatedPauseMs = d.accumulatedPauseMs || 0;
+            tr.dataset.lastReportMs = d.lastReportMs || Date.now(); // 保留原有打卡时间，除非 Admin 重置
 
-            let fHTML = factoryOptions.replace(`value="${f}"`, `value="${f}" selected`);
-            let lHTML = lineOptions.replace(`value="${l}"`, `value="${l}" selected`);
-            let sHTML = statusOptions.replace(`value="${s}"`, `value="${s}" selected`);
-
+            let fHTML = factoryOptions.replace(`value="${f}"`, `value="${f}" selected`); let lHTML = lineOptions.replace(`value="${l}"`, `value="${l}" selected`); let sHTML = statusOptions.replace(`value="${s}"`, `value="${s}" selected`);
             tr.innerHTML = `
                 <td class="col-sm"><select class="grid-select f-factory">${fHTML}</select></td>
                 <td class="col-md"><select class="grid-select f-line">${lHTML}</select></td>
@@ -194,91 +136,49 @@
 
         function addNewRow() { document.getElementById('noDataMsg').style.display = 'none'; appendRow(); }
 
-        document.getElementById('tableBody').addEventListener('change', function(e) {
-            if (e.target.tagName === 'INPUT' && e.target.type === 'number') {
-                if (e.target.value !== "") e.target.value = Number(e.target.value); 
-            }
-        });
+        document.getElementById('tableBody').addEventListener('change', function(e) { if (e.target.tagName === 'INPUT' && e.target.type === 'number') { if (e.target.value !== "") e.target.value = Number(e.target.value); } });
 
         document.getElementById('tableBody').addEventListener('keydown', function(e) {
-            const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-            if (!keys.includes(e.key)) return;
-            const currentInput = e.target;
-            if (!currentInput.classList.contains('grid-input') && !currentInput.classList.contains('grid-select')) return;
-
+            const keys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']; if (!keys.includes(e.key)) return;
+            const currentInput = e.target; if (!currentInput.classList.contains('grid-input') && !currentInput.classList.contains('grid-select')) return;
             const td = currentInput.closest('td'); const tr = td.closest('tr'); const tbody = tr.closest('tbody');
             const cellIndex = Array.from(tr.children).indexOf(td); const rowIndex = Array.from(tbody.children).indexOf(tr);
             let nextRow = rowIndex; let nextCol = cellIndex;
-
-            if (e.key === 'ArrowUp') nextRow--;
-            if (e.key === 'ArrowDown') nextRow++;
-            if (e.key === 'ArrowLeft') nextCol--;
-            if (e.key === 'ArrowRight') nextCol++;
-
+            if (e.key === 'ArrowUp') nextRow--; if (e.key === 'ArrowDown') nextRow++; if (e.key === 'ArrowLeft') nextCol--; if (e.key === 'ArrowRight') nextCol++;
             if (nextRow >= 0 && nextRow < tbody.children.length && nextCol >= 0 && nextCol < tr.children.length - 1) { 
-                e.preventDefault(); 
-                const nextCell = tbody.children[nextRow].children[nextCol];
-                const nextInput = nextCell.querySelector('.grid-input, .grid-select');
-                if (nextInput) {
-                    nextInput.focus();
-                    if (nextInput.tagName === 'INPUT' && nextInput.type !== 'time') setTimeout(() => nextInput.select(), 0);
-                }
+                e.preventDefault(); const nextCell = tbody.children[nextRow].children[nextCol]; const nextInput = nextCell.querySelector('.grid-input, .grid-select');
+                if (nextInput) { nextInput.focus(); if (nextInput.tagName === 'INPUT' && nextInput.type !== 'time') setTimeout(() => nextInput.select(), 0); }
             }
         });
 
         document.getElementById('tableBody').addEventListener('paste', function(e) {
-            const currentInput = e.target;
-            if (!currentInput.classList.contains('grid-input') && !currentInput.classList.contains('grid-select')) return;
-
+            const currentInput = e.target; if (!currentInput.classList.contains('grid-input') && !currentInput.classList.contains('grid-select')) return;
             const pasteData = (e.clipboardData || window.clipboardData).getData('text');
             if (pasteData.includes('\t') || pasteData.includes('\n')) {
-                e.preventDefault(); 
-                const rows = pasteData.split('\n').map(row => row.split('\t'));
+                e.preventDefault(); const rows = pasteData.split('\n').map(row => row.split('\t'));
                 const startTd = currentInput.closest('td'); const startTr = startTd.closest('tr'); const tbody = startTr.closest('tbody');
                 const startRowIdx = Array.from(tbody.children).indexOf(startTr); const startColIdx = Array.from(startTr.children).indexOf(startTd);
-
                 for (let r = 0; r < rows.length; r++) {
-                    if (rows[r].join('').trim() === "") continue; 
-                    const targetRowIdx = startRowIdx + r;
-                    if (targetRowIdx >= tbody.children.length) addNewRow();
-
+                    if (rows[r].join('').trim() === "") continue; const targetRowIdx = startRowIdx + r; if (targetRowIdx >= tbody.children.length) addNewRow();
                     const targetRow = tbody.children[targetRowIdx];
                     for (let c = 0; c < rows[r].length; c++) {
-                        const targetColIdx = startColIdx + c;
-                        if (targetColIdx >= targetRow.children.length - 1) break; 
-
-                        const targetCell = targetRow.children[targetColIdx];
-                        const targetInput = targetCell.querySelector('.grid-input, .grid-select');
-                        
-                        if (targetInput) {
-                            let val = rows[r][c].trim();
-                            if (val !== "") {
-                                targetInput.value = val;
-                                targetInput.dispatchEvent(new Event('change', { bubbles: true })); 
-                            }
-                        }
+                        const targetColIdx = startColIdx + c; if (targetColIdx >= targetRow.children.length - 1) break; 
+                        const targetCell = targetRow.children[targetColIdx]; const targetInput = targetCell.querySelector('.grid-input, .grid-select');
+                        if (targetInput) { let val = rows[r][c].trim(); if (val !== "") { targetInput.value = val; targetInput.dispatchEvent(new Event('change', { bubbles: true })); } }
                     }
                 }
             }
         });
 
         function saveAllData() {
-            let targetDate = document.getElementById('adminDate').value;
-            let rows = document.querySelectorAll('#tableBody tr');
-            
+            let targetDate = document.getElementById('adminDate').value; let rows = document.querySelectorAll('#tableBody tr');
             if (!targetDate) { alert("日期不正确！"); return; }
-            if (confirm(`⚠️ 确定要保存吗？\n将会把画面上的数据【覆盖】云端 ${targetDate} 的记录。`)) {
+            if (confirm(`⚠️ 确定要保存吗？\n将会根据当前的分钟数重新生成最新的快照覆盖云端记录。`)) {
                 let updatePayload = {}; let errorFound = false;
 
                 rows.forEach(tr => {
-                    let factory = tr.querySelector('.f-factory').value;
-                    let line = tr.querySelector('.f-line').value;
-                    let key = `${factory}_${line}`; 
-
-                    if (updatePayload[key]) {
-                        alert(`❌ 错误：发现重复！\n【${factory} - ${line}】存在多行，请删除重复行。`);
-                        errorFound = true; return;
-                    }
+                    let factory = tr.querySelector('.f-factory').value; let line = tr.querySelector('.f-line').value; let key = `${factory}_${line}`; 
+                    if (updatePayload[key]) { alert(`❌ 错误：发现重复！\n【${factory} - ${line}】存在多行。`); errorFound = true; return; }
 
                     let elapsedMins = parseFloat(tr.querySelector('.f-elapsed').value) || 0;
                     let poh = parseFloat(tr.querySelector('.f-poh').value) || 0;
@@ -287,7 +187,9 @@
                     let defectOutput = parseInt(tr.querySelector('.f-defect').value) || 0; 
                     let status = tr.querySelector('.f-status').value;
                     let accPause = parseInt(tr.dataset.accumulatedPauseMs) || 0;
+                    let oldReportMs = parseInt(tr.dataset.lastReportMs) || Date.now();
 
+                    // 🚀 Admin 保存时，强制用当前画面的时间重置快照
                     let expectedOutput = 0; let achievementRate = 0;
                     if (status !== "STANDBY") {
                         expectedOutput = Math.floor((poh * workers / 60) * elapsedMins);
@@ -295,23 +197,22 @@
                     }
 
                     updatePayload[key] = {
-                        factory: factory, line: line,
-                        brand: tr.querySelector('.f-brand').value || '', order: tr.querySelector('.f-order').value || '',
-                        startTime: tr.querySelector('.f-start').value, elapsedMins: elapsedMins,
-                        poh: poh, workers: workers,
-                        actualOutput: actualOutput, defectOutput: defectOutput, expectedOutput: expectedOutput,
-                        achievementRate: achievementRate, status: status,
-                        accumulatedPauseMs: accPause,
-                        lastUpdateMs: Date.now(), 
-                        lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (后台大修)"
+                        factory: factory, line: line, brand: tr.querySelector('.f-brand').value || '', order: tr.querySelector('.f-order').value || '',
+                        startTime: tr.querySelector('.f-start').value, elapsedMins: elapsedMins, poh: poh, workers: workers,
+                        actualOutput: actualOutput, defectOutput: defectOutput, expectedOutput: expectedOutput, achievementRate: achievementRate, status: status,
+                        
+                        // 快照同步更新
+                        lastReportExpected: expectedOutput,
+                        lastReportRate: achievementRate,
+                        lastReportMs: Date.now(), // Admin 一改，视为最新打卡
+                        
+                        accumulatedPauseMs: accPause, lastUpdateMs: Date.now(), 
+                        lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (Admin)"
                     };
                 });
 
                 if (errorFound) return; 
-
-                db.ref('production_data/' + targetDate).set(updatePayload).then(() => {
-                    alert('✅ 页面数据已全部保存至云端！'); loadData(); 
-                }).catch(err => { alert('❌ 保存失败：' + err.message); });
+                db.ref('production_data/' + targetDate).set(updatePayload).then(() => { alert('✅ 页面数据已全部保存！'); loadData(); }).catch(err => { alert('❌ 保存失败：' + err.message); });
             }
         }
     </script>
