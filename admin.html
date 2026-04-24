@@ -13,13 +13,8 @@
         .control-panel { display: flex; gap: 15px; align-items: center; background: rgba(30, 41, 59, 0.8); padding: 10px 20px; border-radius: 10px; border: 1px solid #334155;}
         .control-panel label { font-size: 16px; font-weight: bold; color: #38bdf8; }
         
-        /* 🚀 修复浏览器白底 */
         input[type="date"], .grid-input, .grid-select, .auth-box input { background-color: #0f172a; color: #fff; outline: none; }
-        input:-webkit-autofill, input:-webkit-autofill:hover, input:-webkit-autofill:focus, input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 50px #0f172a inset !important;
-            -webkit-text-fill-color: #fff !important;
-            transition: background-color 5000s ease-in-out 0s;
-        }
+        input:-webkit-autofill { -webkit-box-shadow: 0 0 0 50px #0f172a inset !important; -webkit-text-fill-color: #fff !important; transition: background-color 5000s ease-in-out 0s; }
 
         .control-panel input[type="date"] { border: 2px solid #38bdf8; padding: 8px 15px; border-radius: 6px; font-size: 16px; font-weight: bold;}
         button { cursor: pointer; font-weight: bold; color: #fff; border: none; border-radius: 6px; transition: 0.3s; padding: 10px 20px; font-size: 16px;}
@@ -103,8 +98,8 @@
 
         const factoryOptions = `<option value="LY">LY</option><option value="LFY">LFY</option>`;
         
-        // 🚀移除了离线选项
-        const statusOptions = `<option value="STANDBY">⚪ 待命</option><option value="RUNNING">🟢 运行中</option><option value="PAUSED">🟡 已暂停</option><option value="STOPPED">🔴 已结束</option>`;
+        // 🚀 彻底移除了暂停状态
+        const statusOptions = `<option value="STANDBY">⚪ 待命</option><option value="RUNNING">🟢 运行中</option><option value="STOPPED">🔴 已结束</option>`;
         
         const lineOptions = `<optgroup label="成型"><option value="成型A">成型A</option><option value="成型B">成型B</option><option value="成型C">成型C</option><option value="成型D">成型D</option><option value="成型E">成型E</option><option value="成型F">成型F</option></optgroup><optgroup label="针车"><option value="针车1">针车1</option><option value="针车2">针车2</option><option value="针车3">针车3</option><option value="针车4">针车4</option><option value="针车5">针车5</option><option value="针车6">针车6</option><option value="针车7">针车7</option><option value="针车8">针车8</option><option value="针车9">针车9</option><option value="针车10">针车10</option><option value="针车11">针车11</option><option value="针车12">针车12</option><option value="针车13">针车13</option><option value="针车14">针车14</option><option value="针车15">针车15</option><option value="针车16">针车16</option><option value="针车17">针车17</option><option value="针车18">针车18</option><option value="针车19">针车19</option><option value="针车20">针车20</option><option value="针车21">针车21</option><option value="针车22">针车22</option><option value="针车23">针车23</option><option value="针车24">针车24</option></optgroup><optgroup label="组底"><option value="组底1">组底1</option><option value="组底2">组底2</option><option value="组底3">组底3</option><option value="组底4">组底4</option><option value="组底5">组底5</option></optgroup>`;
 
@@ -125,9 +120,8 @@
         function appendRow(d = {}) {
             const tbody = document.getElementById('tableBody'); let tr = document.createElement('tr');
             let f = d.factory || 'LY'; let l = d.line || '成型A'; let s = d.status || 'STOPPED';
-            if(s === 'OFFLINE') s = 'STOPPED'; // 自动修复旧数据的离线状态
+            if(s === 'OFFLINE' || s === 'PAUSED') s = 'STOPPED'; 
             
-            tr.dataset.accumulatedPauseMs = d.accumulatedPauseMs || 0;
             tr.dataset.lastReportMs = d.lastReportMs || Date.now(); 
 
             let fHTML = factoryOptions.replace(`value="${f}"`, `value="${f}" selected`); let lHTML = lineOptions.replace(`value="${l}"`, `value="${l}" selected`); let sHTML = statusOptions.replace(`value="${s}"`, `value="${s}" selected`);
@@ -200,7 +194,6 @@
                     let actualOutput = parseInt(tr.querySelector('.f-actual').value) || 0;
                     let defectOutput = parseInt(tr.querySelector('.f-defect').value) || 0; 
                     let status = tr.querySelector('.f-status').value;
-                    let accPause = parseInt(tr.dataset.accumulatedPauseMs) || 0;
 
                     let expectedOutput = 0; let achievementRate = 0;
                     if (status !== "STANDBY") {
@@ -213,8 +206,7 @@
                         startTime: tr.querySelector('.f-start').value, elapsedMins: elapsedMins, poh: poh, workers: workers,
                         actualOutput: actualOutput, defectOutput: defectOutput, expectedOutput: expectedOutput, achievementRate: achievementRate, status: status,
                         lastReportExpected: expectedOutput, lastReportRate: achievementRate, lastReportMs: Date.now(), 
-                        accumulatedPauseMs: accPause, lastUpdateMs: Date.now(), 
-                        lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (Admin)"
+                        lastUpdateMs: Date.now(), lastUpdate: new Date().toLocaleTimeString('zh-CN', { timeZone: 'Asia/Phnom_Penh' }) + " (Admin)"
                     };
                 });
 
