@@ -172,7 +172,7 @@
 
         function loadDataForDate(targetDate) {
             if (currentListenerRef) currentListenerRef.off();
-            currentListenerRef = db.ref('production_data/' + targetDate);
+            currentListenerRef = db.ref('prod_data_K9xQ2mP8/' + targetDate);
             currentListenerRef.on('value', (snapshot) => { globalData = snapshot.val(); renderCards(); updateFullscreenView(); });
         }
 
