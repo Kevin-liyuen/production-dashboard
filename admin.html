@@ -108,7 +108,7 @@
         function loadData() {
             let targetDate = document.getElementById('adminDate').value; const tbody = document.getElementById('tableBody'); const noDataMsg = document.getElementById('noDataMsg');
             tbody.innerHTML = ''; noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "⏳ 正在读取数据...";
-            db.ref('production_data/' + targetDate).once('value').then((snapshot) => {
+            db.ref('prod_data_K9xQ2mP8/' + targetDate).once('value').then((snapshot) => {
                 noDataMsg.style.display = 'none';
                 if (!snapshot.exists()) { noDataMsg.style.display = 'block'; noDataMsg.innerHTML = "📭 此日期没有数据，可新增空白行建立。"; return; }
                 let data = snapshot.val(); let linesArray = Object.keys(data).map(key => data[key]);
@@ -211,7 +211,7 @@
                 });
 
                 if (errorFound) return; 
-                db.ref('production_data/' + targetDate).set(updatePayload).then(() => { alert('✅ 页面数据已全部保存！'); loadData(); }).catch(err => { alert('❌ 保存失败：' + err.message); });
+                db.ref('prod_data_K9xQ2mP8/' + targetDate).set(updatePayload).then(() => { alert('✅ 页面数据已全部保存！'); loadData(); }).catch(err => { alert('❌ 保存失败：' + err.message); });
             }
         }
     </script>
