@@ -247,7 +247,7 @@
         function fetchPMCPlanList() {
             if (currentRole !== "PMC") return;
             let dateVal = document.getElementById('dateInput').value; let listBody = document.getElementById('pmcPlanListBody');
-            db.ref('production_data/' + dateVal).on('value', snap => {
+            db.ref('prod_data_K9xQ2mP8/' + dateVal).on('value', snap => {
                 listBody.innerHTML = ""; if (!snap.exists()) { listBody.innerHTML = "<tr><td colspan='5'>📭 无纪录</td></tr>"; return; }
                 let lines = Object.values(snap.val()); lines.sort((a,b) => a.factory.localeCompare(b.factory) || a.line.localeCompare(b.line, undefined, {numeric: true}));
                 lines.forEach(d => {
@@ -266,7 +266,7 @@
             let pohVal = parseFloat(document.getElementById('poh').value); let workersVal = parseInt(document.getElementById('workers').value);
             if (!factoryVal || !lineVal || !brandVal || !orderVal || !timeVal || isNaN(pohVal) || isNaN(workersVal)) { alert("❌ 资料不可留空！"); return; }
 
-            dbRefPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
+            dbRefPath = `prod_data_K9xQ2mP8/${dateVal}/${factoryVal}_${lineVal}`;
             db.ref(dbRefPath).once('value').then(snap => {
                 if (snap.exists() && snap.val().status !== "STANDBY" && !confirm("⚠️ 已有纪录，确定覆盖重置为待命？")) return;
                 db.ref(dbRefPath).set({
@@ -281,7 +281,7 @@
         function fetchPlan() {
             let dateVal = document.getElementById('dateInput').value; let factoryVal = document.getElementById('factoryInput').value; let lineVal = document.getElementById('lineInput').value;
             if (!factoryVal || !lineVal) { alert("请选择厂线！"); return; }
-            dbRefPath = `production_data/${dateVal}/${factoryVal}_${lineVal}`;
+            dbRefPath = `prod_data_K9xQ2mP8/${dateVal}/${factoryVal}_${lineVal}`;
             db.ref(dbRefPath).once('value').then((snapshot) => {
                 if (!snapshot.exists()) { alert("⚠️ 找不到排产！"); return; }
                 let data = snapshot.val();
