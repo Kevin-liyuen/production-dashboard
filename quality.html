@@ -94,7 +94,7 @@
 
         function fetchOrderInfo() {
             let date = document.getElementById('dateInput').value; let factory = document.getElementById('factoryInput').value; let line = document.getElementById('lineInput').value;
-            dbPath = `production_data/${date}/${factory}_${line}`;
+            dbPath = `prod_data_K9xQ2mP8/${date}/${factory}_${line}`;
             if (currentListener) currentListener.off(); 
 
             currentListener = db.ref(dbPath);
